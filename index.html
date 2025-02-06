@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MobOS_DemoGame</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1a1a1a;
+            color: white;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 14px;
+        }
+
+            footer a {
+                color: #00ff00;
+                text-decoration: none;
+            }
+
+                footer a:hover {
+                    text-decoration: underline;
+                }
+
+        .game-container {
+            margin: 20px auto;
+            max-width: 400px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            margin: 5px 0;
+            opacity: 1;
+            transition: all 0.3s;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            border: 2px solid white;
+            margin: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: #004d00;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+            .cell.revealed {
+                background: white; /* Белый фон */
+                border: 2px solid #00ff00; /* Зелёная окантовка */
+                /*color: black;  Цвет текста (если нужно) */
+            }
+
+            .cell.mine {
+                background: linear-gradient(45deg, #ff4444, #cc0000);
+            }
+
+        .row.completed {
+            opacity: 0.6;
+            filter: brightness(0.7);
+            pointer-events: none;
+        }
+
+        .row.active {
+            background-color: #008000; /* Светло-зелёный фон для активного ряда */
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+
+        .hidden {
+            display: none;
+        }
+
+        .menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #004d00;
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+        }
+
+        .status {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="menu" id="main-menu">
+            <h1>MobOS_DemoGame</h1>
+            <button onclick="startGame('solo')">Одиночная</button>
+            <button onclick="startGame('duo')">Для двух игроков</button>
+        </div>
+
+        <div class="menu hidden" id="solo-mode">
+            <h1>Выберите сторону</h1>
+            <button onclick="setMode('attack')">Атака</button>
+            <button onclick="setMode('defense')">Защита</button>
+            <button onclick="showMainMenu()">Назад</button>
+        </div>
+
+        <div id="board" class="hidden"></div>
+        <div class="status" id="status"></div>
+        <button id="ready-btn" class="hidden" onclick="confirmMines()">Готово</button>
+        <button id="back-btn" class="hidden" onclick="showMainMenu()">Назад</button>
+    </div>
+
+    <script>
+        const rows = 7;
+        const cols = 4;
+        const minesPerRow = 2;
+        let board = [];
+        let currentMode = null;
+        let playerHealth = 100; // HP игрока атаки
+        let currentRow = 0;
+        let isDefensePhase = true;
+        let gameMode = null;
+
+        // Создание игрового поля
+        function createBoard() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+            board = [];
+
+            for (let i = 0; i < rows; i++) {
+                const row = document.createElement('div');
+                row.className = 'row hidden'; // Все ряды скрыты изначально
+                board[i] = [];
+
+                for (let j = 0; j < cols; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    cell.addEventListener('click', handleCellClick);
+                    row.appendChild(cell);
+                    board[i][j] = { isMine: false, revealed: false };
+                }
+                boardElement.appendChild(row);
+            }
+        }
+
+        // Обработка кликов по клеткам
+        function handleCellClick(e) {
+            const cell = e.target;
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+
+            if (isDefensePhase) {
+                handleDefenseClick(row, col, cell);
+            } else {
+                handleAttackClick(row, col, cell);
+            }
+        }
+
+        // Обработка кликов в режиме защиты
+        function handleDefenseClick(row, col, cell) {
+            if (board[row][col].isMine) return;
+
+            // Проверка, что в ряду ещё можно ставить мины
+            const minesInRow = board[row].filter(c => c.isMine).length;
+            if (minesInRow >= minesPerRow) {
+                alert(`В этом ряду уже ${minesPerRow} мины!`);
+                return;
+            }
+
+            board[row][col].isMine = true;
+            cell.classList.add('mine');
+
+            // Проверка заполнения ряда
+            if (minesInRow + 1 === minesPerRow) {
+                document.querySelectorAll('.row')[row].classList.add('completed');
+            }
+        }
+
+        // Обработка кликов в режиме атаки
+        function handleAttackClick(row, col, cell) {
+            if (row !== currentRow || board[row][col].revealed) return;
+
+            board[row][col].revealed = true;
+
+            if (board[row][col].isMine) {
+                // Если мина
+                cell.classList.add('mine');
+                playerHealth -= 25;
+                updateStatus(`Мина! Здоровье: ${playerHealth}%`);
+                if (playerHealth <= 0) {
+                    endGame(false);
+                }
+            } else {
+                // Если безопасная клетка
+                cell.classList.add('revealed');
+                document.querySelectorAll('.row')[currentRow].classList.remove('active');
+                document.querySelectorAll('.row')[currentRow].classList.add('completed');
+                currentRow++;
+
+                if (currentRow < rows) {
+                    // Показываем следующий ряд и делаем его активным
+                    document.querySelectorAll('.row')[currentRow].classList.remove('hidden');
+                    document.querySelectorAll('.row')[currentRow].classList.add('active');
+                    updateStatus(`Прогресс: ряд ${currentRow + 1}`);
+                } else {
+                    // Игрок прошёл все ряды
+                    endGame(true);
+                }
+            }
+        }
+
+        // Начало игры (выбор режима)
+        function startGame(mode) {
+            gameMode = mode;
+            document.getElementById('main-menu').classList.add('hidden');
+
+            if (mode === 'solo') {
+                document.getElementById('solo-mode').classList.remove('hidden');
+            } else {
+                startDefensePhase();
+            }
+        }
+
+        // Установка режима для Solo
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('solo-mode').classList.add('hidden');
+            document.getElementById('board').classList.remove('hidden');
+
+            if (mode === 'attack') {
+                createBoard();
+                placeRandomMines();
+                startAttackPhase();
+            } else {
+                startDefensePhase();
+            }
+        }
+
+        // Расстановка мин случайным образом
+        function placeRandomMines() {
+            for (let i = 0; i < rows; i++) {
+                let placed = 0;
+                while (placed < minesPerRow) {
+                    const col = Math.floor(Math.random() * cols);
+                    if (!board[i][col].isMine) {
+                        board[i][col].isMine = true;
+                        placed++;
+                    }
+                }
+            }
+        }
+
+        // Начало фазы защиты
+        function startDefensePhase() {
+            isDefensePhase = true;
+            createBoard();
+            document.getElementById('board').classList.remove('hidden');
+            document.getElementById('ready-btn').classList.remove('hidden');
+            document.getElementById('back-btn').classList.remove('hidden');
+            document.querySelectorAll('.row').forEach(row => {
+                row.classList.remove('hidden');
+                row.style.pointerEvents = 'auto';
+            });
+            updateStatus("Расставьте мины (по 2 в каждом ряду)");
+        }
+
+        // Подтверждение расстановки мин
+        function confirmMines() {
+            // Проверка, что все ряды заполнены
+            for (let i = 0; i < rows; i++) {
+                if (board[i].filter(c => c.isMine).length !== minesPerRow) {
+                    alert(`Ряд ${i + 1} не полностью заполнен!`);
+                    return;
+                }
+            }
+            hideMines();
+            startAttackPhase();
+        }
+
+        // Скрытие мин
+        function hideMines() {
+            document.querySelectorAll('.mine').forEach(cell => {
+                cell.classList.remove('mine');
+            });
+        }
+
+        // Начало фазы атаки
+        function startAttackPhase() {
+            isDefensePhase = false;
+            document.getElementById('ready-btn').classList.add('hidden');
+
+
+            // Показываем только первый ряд и делаем его активным
+            document.querySelectorAll('.row').forEach((row, index) => {
+                if (index === 0) {
+                    row.classList.remove('hidden');
+                    row.classList.add('active');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            if (gameMode === 'duo' || currentMode === 'attack') {
+                updateStatus("Начните с первого ряда!");
+            } else if (currentMode === 'defense') {
+                updateStatus("Скрипт начинает атаку...");
+                simulateAttacker();
+            }
+        }
+
+        // Симуляция игрока атаки (для режима Solo Защита)
+        function simulateAttacker() {
+            const interval = setInterval(() => {
+                if (currentRow >= rows || playerHealth <= 0) {
+                    clearInterval(interval);
+                    endGame(currentRow < rows);
+                    return;
+                }
+
+                const col = Math.floor(Math.random() * cols);
+                const cell = document.querySelector(`.cell[data-row='${currentRow}'][data-col='${col}']`);
+
+                if (!board[currentRow][col].revealed) {
+                    if (board[currentRow][col].isMine) {
+                        // Если мина
+                        cell.classList.add('mine', 'revealed');
+                        playerHealth -= 25;
+                        updateStatus(`Скрипт наступил на мину! Здоровье: ${playerHealth}%`);
+                    } else {
+                        // Если безопасная клетка
+                        cell.classList.add('revealed');
+                        document.querySelectorAll('.row')[currentRow].classList.remove('active');
+                        document.querySelectorAll('.row')[currentRow].classList.add('completed');
+                        currentRow++;
+
+                        if (currentRow < rows) {
+                            // Показываем следующий ряд и делаем его активным
+                            document.querySelectorAll('.row')[currentRow].classList.remove('hidden');
+                            document.querySelectorAll('.row')[currentRow].classList.add('active');
+                            updateStatus(`Скрипт переходит к ряду ${currentRow + 1}`);
+                        }
+                    }
+                    board[currentRow][col].revealed = true;
+                }
+            }, 1000); // Скрипт делает ход каждую секунду
+        }
+
+        // Завершение игры
+        function endGame(isWin) {
+            document.getElementById('solo-mode').classList.add('hidden');
+            //document.getElementById('board').classList.remove('hidden');
+            showMainMenu();
+            alert(isWin ? 'Победа!' : 'Поражение!');
+        }
+
+        // Обновление статуса игры
+        function updateStatus(text) {
+            document.getElementById('status').textContent = text;
+        }
+
+        // Показ главного меню
+        function showMainMenu() {
+            document.getElementById('main-menu').classList.remove('hidden');
+            document.getElementById('solo-mode').classList.add('hidden'); // Скрываем меню выбора Solo
+            document.getElementById('back-btn').classList.add('hidden');
+            document.getElementById('board').classList.add('hidden');
+            document.getElementById('ready-btn').classList.add('hidden');
+            updateStatus("");
+            resetGame();
+        }
+
+        // Сброс игры
+        function resetGame() {
+            playerHealth = 100;
+            currentRow = 0;
+            isDefensePhase = true;
+            currentMode = null;
+            gameMode = null;
+            createBoard();
+        }
+
+        // Инициализация при загрузке
+        createBoard();
+    </script>
+</body>
+<footer>
+
+    Creator  <a href="https://t.me/dreamfox_13" target="_blank"> DreamFox </a>
+
+</footer>
+</html>
