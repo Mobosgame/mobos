@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MobOS_DemoGame - Онлайн режим</title>
+    <style>
+        /* Стили из index.html */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1a1a1a;
+            color: white;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 14px;
+        }
+
+        .game-container {
+            margin: 20px auto;
+            max-width: 400px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            margin: 5px 0;
+            opacity: 1;
+            transition: all 0.3s;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            border: 2px solid white;
+            margin: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: #004d00;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+            .cell.revealed {
+                background: white;
+                border: 2px solid #00ff00;
+            }
+
+            .cell.mine {
+                background: linear-gradient(45deg, #ff4444, #cc0000);
+            }
+
+        .row.completed {
+            opacity: 0.6;
+            filter: brightness(0.7);
+            pointer-events: none;
+        }
+
+        .row.active {
+            background-color: #008000;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #004d00;
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+        }
+
+        .status {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 1000;
+            animation: fadeOut 2s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                display: none;
+            }
+        }
+
+        .game-over-menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="menu" id="online-menu">
+            <h1>Онлайн режим</h1>
+            <button onclick="startTestMode()">Играть с ботом</button>
+            <button onclick="startSearch()">Начать поиск игрока</button>
+            <button onclick="goBack()">Назад</button>
+        </div>
+
+        <div id="board" class="hidden"></div>
+        <div class="status" id="status"></div>
+        <button id="ready-btn" class="hidden" onclick="confirmMines()">Готово</button>
+    </div>
+
+    <div id="notification" class="notification hidden"></div>
+
+    <div id="game-over-menu" class="game-over-menu hidden">
+        <h1 id="game-over-title"></h1>
+        <button onclick="showMainMenu()">ОК</button>
+    </div>
+
+    <script>
+        const rows = 7;
+        const cols = 4;
+        const minesPerRow = 2;
+        let board = [];
+        let playerRole = null; // Роль игрока: 'attack' или 'defense'
+        let playerHealth = 100;
+        let currentRow = 0;
+        let isDefensePhase = true;
+        let isScriptAttacking = false;
+        let playerWins = 0;
+        let scriptWins = 0;
+        let round = 1;
+        let attackTimer;
+        let defenseTimer;
+
+        // Инициализация игры
+        function createBoard() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+            board = []; // Инициализация массива board
+
+            for (let i = 0; i < rows; i++) {
+                const row = document.createElement('div');
+                row.className = 'row hidden';
+                board[i] = []; // Инициализация каждой строки массива
+
+                for (let j = 0; j < cols; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    cell.addEventListener('click', handleCellClick);
+                    row.appendChild(cell);
+                    board[i][j] = { isMine: false, revealed: false }; // Инициализация каждой ячейки
+                }
+                boardElement.appendChild(row);
+            }
+        }
+
+        // Обработка кликов по клеткам
+        function handleCellClick(e) {
+            if (isScriptAttacking) return;
+
+            const cell = e.target;
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+
+            // Проверка на допустимость индексов
+            if (row < 0 || row >= rows || col < 0 || col >= cols) {
+                console.error("Недопустимые индексы строки или столбца:", row, col);
+                return;
+            }
+
+            if (isDefensePhase) {
+                handleDefenseClick(row, col, cell);
+            } else {
+                handleAttackClick(row, col, cell);
+            }
+        }
+
+        // Логика для защиты
+        function handleDefenseClick(row, col, cell) {
+            if (board[row][col].isMine) return;
+
+            const minesInRow = board[row].filter(c => c.isMine).length;
+            if (minesInRow >= minesPerRow) {
+                showNotification(`В этом ряду уже ${minesPerRow} мины!`);
+                return;
+            }
+
+            board[row][col].isMine = true;
+            cell.classList.add('mine');
+
+            if (minesInRow + 1 === minesPerRow) {
+                document.querySelectorAll('.row')[row].classList.add('completed');
+            }
+        }
+
+        // Логика для атаки
+        function handleAttackClick(row, col, cell) {
+            // Проверка на допустимость индексов
+            if (row < 0 || row >= rows || col < 0 || col >= cols) {
+                console.error("Недопустимые индексы строки или столбца:", row, col);
+                return;
+            }
+
+            if (row !== currentRow || board[row][col].revealed) return;
+
+            board[row][col].revealed = true;
+
+            if (board[row][col].isMine) {
+                cell.classList.add('mine');
+                playerHealth -= 25;
+                updateStatus(`Мина! Здоровье: ${playerHealth}%`);
+                if (playerHealth <= 0) {
+                    endRound(false);
+                }
+            } else {
+                cell.classList.add('revealed');
+                document.querySelectorAll('.row')[currentRow].classList.remove('active');
+                document.querySelectorAll('.row')[currentRow].classList.add('completed');
+                currentRow++;
+
+                // Проверка, что currentRow не выходит за пределы массива
+                if (currentRow < rows) {
+                    document.querySelectorAll('.row')[currentRow].classList.remove('hidden');
+                    document.querySelectorAll('.row')[currentRow].classList.add('active');
+                    updateStatus(`Прогресс: ряд ${currentRow + 1}`);
+                } else {
+                    endRound(true);
+                }
+            }
+        }
+
+        // Начать тестовый режим
+        function startTestMode() {
+            playerWins = 0;
+            scriptWins = 0;
+            round = 1;
+            startRound();
+        }
+
+        // Начать раунд
+        function startRound() {
+            if (round === 1) {
+                // В первом раунде роли назначаются случайно
+                playerRole = Math.random() > 0.5 ? 'attack' : 'defense';
+            } else {
+                // В следующих раундах роли меняются
+                playerRole = playerRole === 'attack' ? 'defense' : 'attack';
+            }
+
+            updateStatus(`Раунд ${round}. Вы играете за ${playerRole === 'attack' ? 'атаку' : 'защиту'}.`);
+            resetGame();
+            startGame();
+        }
+
+        // Начать игру
+        function startGame() {
+            document.getElementById('online-menu').classList.add('hidden');
+            document.getElementById('board').classList.remove('hidden');
+            createBoard();
+
+            if (playerRole === 'defense') {
+                startDefensePhase();
+            } else {
+                // Если игрок в роли атаки, скрипт расставляет мины
+                placeRandomMines();
+                startAttackPhase();
+            }
+        }
+
+        // Случайная расстановка мин (для скрипта)
+        function placeRandomMines() {
+            for (let i = 0; i < rows; i++) {
+                let placed = 0;
+                while (placed < minesPerRow) {
+                    const col = Math.floor(Math.random() * cols);
+                    if (!board[i][col].isMine) {
+                        board[i][col].isMine = true;
+                        placed++;
+                    }
+                }
+            }
+        }
+
+        // Начать фазу защиты
+        function startDefensePhase() {
+            isDefensePhase = true;
+            document.getElementById('ready-btn').classList.remove('hidden');
+            document.querySelectorAll('.row').forEach(row => {
+                row.classList.remove('hidden');
+                row.style.pointerEvents = 'auto';
+            });
+            updateStatus("Расставьте мины (по 2 в каждом ряду)");
+            startDefenseTimer();
+        }
+
+        // Подтвердить мины
+        function confirmMines() {
+            clearInterval(defenseTimer);
+            for (let i = 0; i < rows; i++) {
+                if (board[i].filter(c => c.isMine).length !== minesPerRow) {
+                    showNotification(`Ряд ${i + 1} не полностью заполнен!`);
+                }
+            }
+            hideMines();
+            startAttackPhase();
+        }
+
+        // Скрыть мины
+        function hideMines() {
+            document.querySelectorAll('.mine').forEach(cell => {
+                cell.classList.remove('mine');
+            });
+        }
+
+        // Начать фазу атаки
+        function startAttackPhase() {
+            isDefensePhase = false;
+            document.getElementById('ready-btn').classList.add('hidden');
+
+            document.querySelectorAll('.row').forEach((row, index) => {
+                if (index === 0) {
+                    row.classList.remove('hidden');
+                    row.classList.add('active');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            if (playerRole === 'attack') {
+                updateStatus("Начните с первого ряда!");
+                startAttackTimer();
+            } else {
+                updateStatus("Скрипт начинает атаку...");
+                simulateAttacker();
+            }
+        }
+
+        // Имитация атаки скриптом
+        function simulateAttacker() {
+            isScriptAttacking = true;
+            const interval = setInterval(() => {
+                // Проверка, что currentRow не выходит за пределы массива
+                if (currentRow >= rows || playerHealth <= 0) {
+                    clearInterval(interval);
+                    isScriptAttacking = false;
+                    endRound(currentRow >= rows);
+                    return;
+                }
+
+                const col = Math.floor(Math.random() * cols);
+                const cell = document.querySelector(`.cell[data-row='${currentRow}'][data-col='${col}']`);
+
+                // Проверка, что ячейка существует и не открыта
+                if (cell && !board[currentRow][col].revealed) {
+                    if (board[currentRow][col].isMine) {
+                        cell.classList.add('mine', 'revealed');
+                        playerHealth -= 25;
+                        updateStatus(`Скрипт наступил на мину! Здоровье: ${playerHealth}%`);
+                    } else {
+                        cell.classList.add('revealed');
+                        document.querySelectorAll('.row')[currentRow].classList.remove('active');
+                        document.querySelectorAll('.row')[currentRow].classList.add('completed');
+                        currentRow++;
+
+                        // Проверка, что currentRow не выходит за пределы массива
+                        if (currentRow < rows) {
+                            document.querySelectorAll('.row')[currentRow].classList.remove('hidden');
+                            document.querySelectorAll('.row')[currentRow].classList.add('active');
+                            updateStatus(`Скрипт переходит к ряду ${currentRow + 1}`);
+                        }
+                    }
+                    board[currentRow][col].revealed = true;
+                }
+            }, 1000);
+        }
+
+        // Завершение раунда
+        function endRound(isWin) {
+            if (isWin) {
+                if (playerRole === 'attack') {
+                    playerWins++;
+                } else {
+                    scriptWins++;
+                }
+            } else {
+                if (playerRole === 'attack') {
+                    scriptWins++;
+                } else {
+                    playerWins++;
+                }
+            }
+
+            // Показать результат раунда
+            showNotification(
+                `Раунд ${round} завершен. ${isWin ? 'Вы победили!' : 'Скрипт победил!'} Счет: Игрок ${playerWins} - ${scriptWins} Скрипт`
+            );
+
+            if (playerWins >= 2 || scriptWins >= 2) {
+                endGame(playerWins >= 2);
+            } else {
+                round++;
+                currentRow = 0; // Сброс currentRow
+                playerHealth = 100; // Сброс здоровья
+                startRound();
+            }
+        }
+
+        // Завершение игры
+        function endGame(isWin) {
+            const gameOverMenu = document.getElementById('game-over-menu');
+            const gameOverTitle = document.getElementById('game-over-title');
+            gameOverTitle.textContent = isWin ? 'Вы победили!' : 'Вы проиграли!';
+            gameOverMenu.classList.remove('hidden');
+        }
+
+        // Обновление статуса
+        function updateStatus(text) {
+            document.getElementById('status').textContent = text;
+        }
+
+        // Показать уведомление
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.remove('hidden');
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000); // Уведомление исчезает через 3 секунды
+        }
+
+        // Вернуться в главное меню
+        function showMainMenu() {
+            document.getElementById('online-menu').classList.remove('hidden');
+            document.getElementById('game-over-menu').classList.add('hidden');
+            resetGame();
+        }
+
+        // Вернуться в index.html
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Сброс игры
+        function resetGame() {
+            playerHealth = 100;
+            currentRow = 0;
+            isDefensePhase = true;
+            isScriptAttacking = false;
+            createBoard();
+        }
+
+        // Таймер для атаки
+        function startAttackTimer() {
+            let timeLeft = 30;
+            attackTimer = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(attackTimer);
+                    endRound(false);
+                    return;
+                }
+                updateStatus(`Осталось времени: ${timeLeft} сек`);
+                timeLeft--;
+            }, 1000);
+        }
+
+        // Таймер для защиты
+        function startDefenseTimer() {
+            let timeLeft = 15;
+            defenseTimer = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(defenseTimer);
+                    confirmMines();
+                    return;
+                }
+                updateStatus(`Осталось времени: ${timeLeft} сек`);
+                timeLeft--;
+            }, 1000);
+        }
+
+        // Начать поиск игрока
+        function startSearch() {
+            showNotification("Поиск игрока...");
+            setTimeout(() => {
+                showNotification("Игрок не найден. Запуск игры с ботом.");
+                startTestMode();
+            }, 10000); // 10 секунд на поиск
+        }
+    </script>
+</body>
+<footer>
+    Creator  <a href="https://t.me/dreamfox_13" target="_blank"> DreamFox </a>
+</footer>
+</html></html>
