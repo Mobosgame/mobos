@@ -25,10 +25,14 @@
         .header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             padding: 15px;
             background-color: rgba(0, 0, 0, 0.7);
-            position: relative;
-            z-index: 10;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            box-sizing: border-box;
         }
         
         .profile {
@@ -44,55 +48,14 @@
             object-fit: cover;
         }
         
-        .menu-toggle {
-            position: absolute;
-            right: 15px;
-            background: none;
-            border: none;
-            color: var(--text-color);
-            font-size: 24px;
-            cursor: pointer;
-        }
-        
-        .main-menu {
-            position: fixed;
-            top: 0;
-            left: -300px;
-            width: 250px;
-            height: 100%;
-            background-color: var(--primary-color);
-            transition: left 0.3s;
-            z-index: 100;
-            padding: 20px;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
-        }
-        
-        .main-menu.active {
-            left: 0;
-        }
-        
-        .menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 99;
-            display: none;
-        }
-        
-        .menu-overlay.active {
-            display: block;
-        }
-        
         .content {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: calc(100vh - 70px);
-            padding: 20px;
+            height: 100vh;
+            padding: 70px 20px 20px;
+            box-sizing: border-box;
         }
         
         .main-button {
@@ -118,45 +81,65 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
-        .main-button i {
-            font-size: 24px;
-        }
-        
         #game-container {
             position: fixed;
-            top: 0;
+            top: 70px;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: calc(100% - 70px);
             background-color: var(--bg-color);
             z-index: 5;
             display: none;
             overflow-y: auto;
         }
         
-        .back-button {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
         .game-iframe {
             width: 100%;
             height: 100%;
             border: none;
-            margin-top: 60px;
+        }
+        
+        /* Стили для игрового меню */
+        .game-menu {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 70px);
+            background-color: var(--bg-color);
+            z-index: 10;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .game-menu-button {
+            width: 80%;
+            max-width: 300px;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4a6fa5, #166088);
+            color: var(--text-color);
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .back-button {
+            position: absolute;
+            bottom: 20px;
+            width: 80%;
+            max-width: 300px;
+            padding: 10px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -166,41 +149,36 @@
             <img id="user-photo" class="profile-pic" src="" alt="Profile">
             <span id="user-name"></span>
         </div>
-        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     </div>
-    
-    <div class="main-menu">
-        <h2>MobOS Menu</h2>
-        <button class="main-button" onclick="openSection('home')">
-            <i>🏠</i> Дом
-        </button>
-        <button class="main-button" onclick="openSection('cyber')">
-            <i>🕹️</i> Кибер-пространство
-        </button>
-        <button class="main-button" onclick="openSection('upgrades')">
-            <i>⚡</i> Улучшения
-        </button>
-        <button class="main-button" onclick="openSection('settings')">
-            <i>⚙️</i> Настройки
-        </button>
-    </div>
-    
-    <div class="menu-overlay" onclick="toggleMenu()"></div>
     
     <div class="content">
         <button class="main-button" onclick="openSection('home')">
-            <i>🏠</i> Дом
+            🏠 Дом
         </button>
-        <button class="main-button" onclick="openSection('cyber')">
-            <i>🕹️</i> Кибер-пространство
+        <button class="main-button" onclick="openGameMenu()">
+            🕹️ Кибер-пространство
         </button>
         <button class="main-button" onclick="openSection('upgrades')">
-            <i>⚡</i> Улучшения
+            ⚡ Улучшения
         </button>
     </div>
     
+    <!-- Меню выбора режима игры -->
+    <div class="game-menu" id="game-menu">
+        <h2>Выберите режим игры</h2>
+        <button class="game-menu-button" onclick="startGame('solo')">
+            Одиночная игра
+        </button>
+        <button class="game-menu-button" onclick="startGame('duo')">
+            Игра на двоих
+        </button>
+        <button class="back-button" onclick="closeGameMenu()">
+            Назад в меню
+        </button>
+    </div>
+    
+    <!-- Контейнер для игры -->
     <div id="game-container">
-        <button class="back-button" onclick="closeGame()">←</button>
         <iframe id="game-iframe" class="game-iframe" src="about:blank"></iframe>
     </div>
     
@@ -224,40 +202,49 @@
             }
         }
         
-        // Меню
-        function toggleMenu() {
-            document.querySelector('.main-menu').classList.toggle('active');
-            document.querySelector('.menu-overlay').classList.toggle('active');
-        }
-        
         // Навигация
         function openSection(section) {
-            toggleMenu();
-            
-            switch(section) {
-                case 'cyber':
-                    openGame();
-                    break;
-                case 'home':
-                    // Здесь будет домашний экран
-                    break;
-                case 'upgrades':
-                    // Здесь будет экран улучшений
-                    break;
-                default:
-                    // Другие разделы
-            }
+            // Здесь будет логика для разных разделов
+            console.log("Открыт раздел:", section);
         }
         
-        // Игра
-        function openGame() {
+        // Игровое меню
+        function openGameMenu() {
+            document.getElementById('game-menu').style.display = 'flex';
+            document.querySelector('.content').style.display = 'none';
+        }
+        
+        function closeGameMenu() {
+            document.getElementById('game-menu').style.display = 'none';
+            document.querySelector('.content').style.display = 'flex';
+        }
+        
+        // Запуск игры
+        function startGame(mode) {
+            document.getElementById('game-menu').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
-            document.getElementById('game-iframe').src = 'https://mobosgame.github.io/mobos/index.html';
-        }
-        
-        function closeGame() {
-            document.getElementById('game-container').style.display = 'none';
-            document.getElementById('game-iframe').src = 'about:blank';
+            
+            // Загружаем игру в iframe
+            const iframe = document.getElementById('game-iframe');
+            iframe.src = 'https://mobosgame.github.io/mobos/index.html';
+            
+            // Добавляем кнопку "Выход" в игру
+            const exitButton = document.createElement('button');
+            exitButton.className = 'back-button';
+            exitButton.textContent = 'Выход в меню';
+            exitButton.style.position = 'fixed';
+            exitButton.style.bottom = '20px';
+            exitButton.style.left = '50%';
+            exitButton.style.transform = 'translateX(-50%)';
+            exitButton.style.zIndex = '20';
+            exitButton.onclick = function() {
+                iframe.src = 'about:blank';
+                document.getElementById('game-container').style.display = 'none';
+                document.querySelector('.content').style.display = 'flex';
+                this.remove();
+            };
+            
+            document.getElementById('game-container').appendChild(exitButton);
         }
         
         // Инициализация при загрузке
