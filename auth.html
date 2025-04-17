@@ -4,9 +4,44 @@
     <title>MobOS Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: Arial; text-align: center; padding: 20px; }
-        button { padding: 10px 15px; margin: 10px; }
-        #auth-form { display: none; }
+        body { 
+            font-family: Arial; 
+            text-align: center; 
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        button {
+            padding: 12px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 80%;
+            max-width: 300px;
+        }
+        #auth-form, #game-content {
+            display: none;
+            margin-top: 20px;
+        }
+        .menu-button {
+            display: block;
+            width: 80%;
+            max-width: 250px;
+            margin: 15px auto;
+        }
     </style>
 </head>
 <body>
@@ -14,44 +49,79 @@
         <h1>MobOS Game</h1>
         
         <div id="auth-form">
+            <h2>Регистрация</h2>
             <input type="text" id="nickname" placeholder="Придумайте ник" />
             <button onclick="auth()">Авторизоваться</button>
         </div>
         
         <div id="game-content">
-            <!-- Контент игры будет здесь -->
+            <h2>Добро пожаловать, <span id="user-nickname"></span>!</h2>
+            <p>Вы успешно авторизованы</p>
+            
+            <button class="menu-button" onclick="openMainMenu()">📋 Главное меню</button>
+            <button class="menu-button" onclick="openProfile()">👤 Мой профиль</button>
+            <button class="menu-button" onclick="tg.close()">✖ Закрыть</button>
         </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.enableClosingConfirmation();
         
-        // Проверяем, авторизован ли пользователь
+        // Проверяем авторизацию
         if (!tg.initDataUnsafe.user) {
             document.getElementById('auth-form').style.display = 'block';
         } else {
-            loadGameContent();
+            showGameContent();
         }
         
         function auth() {
             const nickname = document.getElementById('nickname').value;
-            if (!nickname) return alert("Введите ник!");
+            if (!nickname || nickname.length < 3) {
+                return alert("Ник должен содержать минимум 3 символа!");
+            }
             
             const data = {
                 action: "auth",
-                nickname: nickname
+                nickname: nickname,
+                user_id: tg.initDataUnsafe.user?.id
             };
             
             tg.sendData(JSON.stringify(data));
-            tg.close();
+            tg.showAlert("Авторизация прошла успешно!");
         }
         
-        function loadGameContent() {
-            document.getElementById('game-content').innerHTML = `
-                <h2>Добро пожаловать в игру!</h2>
-                <p>Используйте меню бота для управления</p>
-            `;
+        function showGameContent() {
+            document.getElementById('auth-form').style.display = 'none';
+            document.getElementById('game-content').style.display = 'block';
+            
+            // Показываем ник пользователя
+            if (tg.initDataUnsafe.user) {
+                const firstName = tg.initDataUnsafe.user.first_name || '';
+                const lastName = tg.initDataUnsafe.user.last_name || '';
+                const username = tg.initDataUnsafe.user.username || '';
+                
+                document.getElementById('user-nickname').textContent = 
+                    firstName + (lastName ? ' ' + lastName : '') + 
+                    (username ? ` (@${username})` : '');
+            }
+        }
+        
+        function openMainMenu() {
+            const data = {
+                action: "open_menu",
+                menu_type: "main"
+            };
+            tg.sendData(JSON.stringify(data));
+        }
+        
+        function openProfile() {
+            const data = {
+                action: "open_profile",
+                user_id: tg.initDataUnsafe.user?.id
+            };
+            tg.sendData(JSON.stringify(data));
         }
     </script>
 </body>
