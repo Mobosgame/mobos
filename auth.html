@@ -59,7 +59,7 @@
             <p>Вы успешно авторизованы</p>
             
             <button class="menu-button" onclick="openMainMenu()">📋 Главное меню</button>
-            <button class="menu-button" onclick="https://mobosgame.github.io/mobos/index.html">Game</button>
+            <button class="menu-button" onclick="openGamePage()">🎮 Играть</button>
             <button class="menu-button" onclick="tg.close()">✖ Закрыть</button>
         </div>
     </div>
@@ -99,10 +99,7 @@
             // Показываем ник пользователя
             if (tg.initDataUnsafe.user) {
                 const firstName = tg.initDataUnsafe.user.first_name || '';
-                
-                
-                document.getElementById('user-nickname').textContent = 
-                    firstName;
+                document.getElementById('user-nickname').textContent = firstName;
             }
         }
         
@@ -114,12 +111,11 @@
             tg.sendData(JSON.stringify(data));
         }
         
-        function openProfile() {
-            const data = {
-                action: "open_profile",
-                user_id: tg.initDataUnsafe.user?.id
-            };
-            tg.sendData(JSON.stringify(data));
+        function openGamePage() {
+            // Открываем страницу игры через Telegram WebApp
+            Telegram.WebApp.openLink('https://mobosgame.github.io/mobos/index.html', {
+                try_instant_view: true
+            });
         }
     </script>
 </body>
