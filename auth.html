@@ -4,139 +4,266 @@
     <title>MobOS Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { 
-            font-family: Arial; 
-            text-align: center; 
-            padding: 20px;
-            background-color: #f5f5f5;
+        :root {
+            --primary-color: #2b2d42;
+            --secondary-color: #8d99ae;
+            --accent-color: #ef233c;
+            --text-color: #edf2f4;
+            --bg-color: #1a1a1a;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
             margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
         }
-        button {
-            padding: 12px 20px;
-            margin: 10px;
+        
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.7);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .menu-toggle {
+            position: absolute;
+            right: 15px;
+            background: none;
             border: none;
-            border-radius: 8px;
-            background-color: #007bff;
-            color: white;
+            color: var(--text-color);
+            font-size: 24px;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
         }
-        button:hover {
-            background-color: #0056b3;
+        
+        .main-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 250px;
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: left 0.3s;
+            z-index: 100;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
         }
-        input {
-            padding: 10px;
-            margin: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            width: 80%;
-            max-width: 300px;
+        
+        .main-menu.active {
+            left: 0;
         }
-        #auth-form, #game-content, #game-frame {
-            display: none;
-            margin-top: 20px;
-            height: calc(100vh - 100px);
-            width: 100%;
-        }
-        .menu-button {
-            display: block;
-            width: 80%;
-            max-width: 250px;
-            margin: 15px auto;
-        }
-        iframe {
-            border: none;
+        
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            display: none;
         }
+        
+        .menu-overlay.active {
+            display: block;
+        }
+        
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 70px);
+            padding: 20px;
+        }
+        
+        .main-button {
+            width: 80%;
+            max-width: 300px;
+            padding: 15px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .main-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .main-button i {
+            font-size: 24px;
+        }
+        
+        #game-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            z-index: 5;
+            display: none;
+            overflow-y: auto;
+        }
+        
         .back-button {
-            background-color: #6c757d;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            margin-top: 60px;
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <h1>MobOS Game</h1>
-        
-        <div id="auth-form">
-            <h2>Регистрация</h2>
-            <input type="text" id="nickname" placeholder="Придумайте ник" />
-            <button onclick="auth()">Авторизоваться</button>
+    <div class="header">
+        <div class="profile">
+            <img id="user-photo" class="profile-pic" src="" alt="Profile">
+            <span id="user-name"></span>
         </div>
-        
-        <div id="game-content">
-            <h2>Добро пожаловать, <span id="user-nickname"></span>!</h2>
-            <p>Вы успешно авторизованы</p>
-            
-            <button class="menu-button" onclick="openMainMenu()">📋 Главное меню</button>
-            <button class="menu-button" onclick="loadGame()">🎮 Играть</button>
-            <button class="menu-button" onclick="tg.close()">✖ Закрыть</button>
-        </div>
-
-        <div id="game-frame">
-            <button class="menu-button back-button" onclick="hideGame()">← Назад</button>
-            <iframe id="game-iframe" src="about:blank"></iframe>
-        </div>
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     </div>
-
+    
+    <div class="main-menu">
+        <h2>MobOS Menu</h2>
+        <button class="main-button" onclick="openSection('home')">
+            <i>🏠</i> Дом
+        </button>
+        <button class="main-button" onclick="openSection('cyber')">
+            <i>🕹️</i> Кибер-пространство
+        </button>
+        <button class="main-button" onclick="openSection('upgrades')">
+            <i>⚡</i> Улучшения
+        </button>
+        <button class="main-button" onclick="openSection('settings')">
+            <i>⚙️</i> Настройки
+        </button>
+    </div>
+    
+    <div class="menu-overlay" onclick="toggleMenu()"></div>
+    
+    <div class="content">
+        <button class="main-button" onclick="openSection('home')">
+            <i>🏠</i> Дом
+        </button>
+        <button class="main-button" onclick="openSection('cyber')">
+            <i>🕹️</i> Кибер-пространство
+        </button>
+        <button class="main-button" onclick="openSection('upgrades')">
+            <i>⚡</i> Улучшения
+        </button>
+    </div>
+    
+    <div id="game-container">
+        <button class="back-button" onclick="closeGame()">←</button>
+        <iframe id="game-iframe" class="game-iframe" src="about:blank"></iframe>
+    </div>
+    
     <script>
         const tg = window.Telegram.WebApp;
+        
+        // Инициализация
         tg.expand();
         tg.enableClosingConfirmation();
         
-        // Проверяем авторизацию
-        if (!tg.initDataUnsafe.user) {
-            document.getElementById('auth-form').style.display = 'block';
-        } else {
-            showGameContent();
-        }
-        
-        function auth() {
-            const nickname = document.getElementById('nickname').value;
-            if (!nickname || nickname.length < 3) {
-                return alert("Ник должен содержать минимум 3 символа!");
-            }
-            
-            const data = {
-                action: "auth",
-                nickname: nickname,
-                user_id: tg.initDataUnsafe.user?.id
-            };
-            
-            tg.sendData(JSON.stringify(data));
-            tg.showAlert("Авторизация прошла успешно!");
-        }
-        
-        function showGameContent() {
-            document.getElementById('auth-form').style.display = 'none';
-            document.getElementById('game-content').style.display = 'block';
-            
-            if (tg.initDataUnsafe.user) {
-                const firstName = tg.initDataUnsafe.user.first_name || '';
-                document.getElementById('user-nickname').textContent = firstName;
+        // Загрузка данных пользователя
+        function loadUserData() {
+            const user = tg.initDataUnsafe.user;
+            if (user) {
+                document.getElementById('user-name').textContent = user.first_name || 'Пользователь';
+                if (user.photo_url) {
+                    document.getElementById('user-photo').src = user.photo_url;
+                } else {
+                    document.getElementById('user-photo').src = 'https://via.placeholder.com/40';
+                }
             }
         }
-
-        function loadGame() {
-            document.getElementById('game-content').style.display = 'none';
-            document.getElementById('game-frame').style.display = 'block';
-            document.getElementById('game-iframe').src = "https://mobosgame.github.io/mobos/index.html";
-        }
-
-        function hideGame() {
-            document.getElementById('game-frame').style.display = 'none';
-            document.getElementById('game-iframe').src = "about:blank";
-            document.getElementById('game-content').style.display = 'block';
+        
+        // Меню
+        function toggleMenu() {
+            document.querySelector('.main-menu').classList.toggle('active');
+            document.querySelector('.menu-overlay').classList.toggle('active');
         }
         
-        function openMainMenu() {
-            const data = {
-                action: "open_menu",
-                menu_type: "main"
-            };
-            tg.sendData(JSON.stringify(data));
+        // Навигация
+        function openSection(section) {
+            toggleMenu();
+            
+            switch(section) {
+                case 'cyber':
+                    openGame();
+                    break;
+                case 'home':
+                    // Здесь будет домашний экран
+                    break;
+                case 'upgrades':
+                    // Здесь будет экран улучшений
+                    break;
+                default:
+                    // Другие разделы
+            }
         }
+        
+        // Игра
+        function openGame() {
+            document.getElementById('game-container').style.display = 'block';
+            document.getElementById('game-iframe').src = 'https://mobosgame.github.io/mobos/index.html';
+        }
+        
+        function closeGame() {
+            document.getElementById('game-container').style.display = 'none';
+            document.getElementById('game-iframe').src = 'about:blank';
+        }
+        
+        // Инициализация при загрузке
+        window.onload = function() {
+            loadUserData();
+        };
     </script>
 </body>
 </html>
