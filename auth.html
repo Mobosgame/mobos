@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MobOS Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 20px; }
+        button { padding: 10px 15px; margin: 10px; }
+        #auth-form { display: none; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>MobOS Game</h1>
+        
+        <div id="auth-form">
+            <input type="text" id="nickname" placeholder="Придумайте ник" />
+            <button onclick="auth()">Авторизоваться</button>
+        </div>
+        
+        <div id="game-content">
+            <!-- Контент игры будет здесь -->
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        // Проверяем, авторизован ли пользователь
+        if (!tg.initDataUnsafe.user) {
+            document.getElementById('auth-form').style.display = 'block';
+        } else {
+            loadGameContent();
+        }
+        
+        function auth() {
+            const nickname = document.getElementById('nickname').value;
+            if (!nickname) return alert("Введите ник!");
+            
+            const data = {
+                action: "auth",
+                nickname: nickname
+            };
+            
+            tg.sendData(JSON.stringify(data));
+            tg.close();
+        }
+        
+        function loadGameContent() {
+            document.getElementById('game-content').innerHTML = `
+                <h2>Добро пожаловать в игру!</h2>
+                <p>Используйте меню бота для управления</p>
+            `;
+        }
+    </script>
+</body>
+</html>
