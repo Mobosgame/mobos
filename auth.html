@@ -59,7 +59,7 @@
             <p>Вы успешно авторизованы</p>
             
             <button class="menu-button" onclick="openMainMenu()">📋 Главное меню</button>
-            <button class="menu-button" onclick="openProfile()">👤 Мой профиль</button>
+            <button class="menu-button" onclick="https://mobosgame.github.io/mobos/index.html">Game</button>
             <button class="menu-button" onclick="tg.close()">✖ Закрыть</button>
         </div>
     </div>
@@ -99,12 +99,10 @@
             // Показываем ник пользователя
             if (tg.initDataUnsafe.user) {
                 const firstName = tg.initDataUnsafe.user.first_name || '';
-                const lastName = tg.initDataUnsafe.user.last_name || '';
-                const username = tg.initDataUnsafe.user.username || '';
+                
                 
                 document.getElementById('user-nickname').textContent = 
-                    firstName + (lastName ? ' ' + lastName : '') + 
-                    (username ? ` (@${username})` : '');
+                    firstName;
             }
         }
         
