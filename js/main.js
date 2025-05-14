@@ -1,13 +1,24 @@
-// Упрощенная версия без ожидания загрузки изображений
-document.addEventListener('DOMContentLoaded', function() {
-    // Показываем загрузку
-    document.getElementById('loading-screen').classList.add('active');
+document.addEventListener('DOMContentLoaded', async function() {
+    // Инициализация Telegram WebApp
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.enableClosingConfirmation();
     
-    // Через 2 секунды переключаемся
-    setTimeout(() => {
-        document.getElementById('loading-screen').classList.remove('active');
-        document.getElementById('main-screen').classList.add('active');
-    }, 2000);
+    // Ждем загрузки всех изображений
+    await preloadImages();
+    
+    // Получаем данные пользователя
+    const user = tg.initDataUnsafe.user;
+    if (user) {
+        const nickname = user.username || 
+                       `${user.first_name || ''} ${user.last_name || ''}`.trim();
+        document.getElementById('user-nickname').textContent = nickname || 'Player';
+    }
+    
+    // Переключаемся на главный экран после загрузки
+    switchScreen('main');
+    
+    // Остальной код...
 });
     
     // Элементы интерфейса
