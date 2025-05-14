@@ -1,12 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация Telegram Web App
+    // Инициализация Telegram WebApp
     const tg = window.Telegram.WebApp;
     tg.expand();
+    tg.enableClosingConfirmation();
     
-    // Получаем данные пользователя из Telegram
+    // Получаем данные пользователя
     const user = tg.initDataUnsafe.user;
     if (user) {
-        document.getElementById('user-nickname').textContent = user.username || `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
+        const nickname = user.username || 
+                       `${user.first_name || ''} ${user.last_name || ''}`.trim();
+        document.getElementById('user-nickname').textContent = nickname || 'Player';
     }
     
     // Элементы интерфейса
@@ -17,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         call: document.getElementById('call-screen')
     };
     
-    // Кнопки навигации
+    // Навигация
     document.querySelectorAll('.app-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const app = this.dataset.app;
@@ -32,7 +35,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Имитация загрузки
     setTimeout(() => {
         switchScreen('main');
-    }, 2000);
+        
+        // Тестовые данные
+        setTimeout(() => {
+            document.getElementById('user-points').textContent = '100 points';
+        }, 500);
+    }, 2500);
     
     // Функция переключения экранов
     function switchScreen(screenName) {
@@ -53,20 +61,73 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Загрузка сообщений (заглушка)
     function loadSMS() {
-        // Здесь будет реальная загрузка сообщений
-        console.log('Loading SMS...');
+        const messageList = document.querySelector('.message-list');
+        messageList.innerHTML = '';
+        
+        // Тестовые сообщения
+        const testMessages = [
+            { name: 'Хакер', count: 3 },
+            { name: 'Друг', count: 1 },
+            { name: 'Неизвестный', count: 0 }
+        ];
+        
+        testMessages.forEach(msg => {
+            const messageItem = document.createElement('div');
+            messageItem.className = 'message-item';
+            messageItem.innerHTML = `
+                <div class="sender-info">
+                    <span class="sender-name">${msg.name}</span>
+                    ${msg.count > 0 ? `<span class="new-message-count">${msg.count}</span>` : ''}
+                </div>
+            `;
+            messageList.appendChild(messageItem);
+        });
     }
     
     // Загрузка звонков (заглушка)
     function loadCalls() {
-        // Здесь будет реальная загрузка звонков
-        console.log('Loading calls...');
+        const callList = document.querySelector('.call-list');
+        callList.innerHTML = '';
+        
+        // Тестовые звонки
+        const testCalls = [
+            { name: 'Хакер', type: 'incoming' },
+            { name: 'Друг', type: 'outgoing' },
+            { name: 'Неизвестный', type: 'missed' }
+        ];
+        
+        testCalls.forEach(call => {
+            const callItem = document.createElement('div');
+            callItem.className = 'call-item';
+            callItem.innerHTML = `
+                <span class="caller-name">${call.name}</span>
+                <span class="call-type ${call.type}">
+                    ${call.type === 'incoming' ? 'входящий' : 
+                      call.type === 'outgoing' ? 'исходящий' : 'пропущенный'}
+                </span>
+            `;
+            callList.appendChild(callItem);
+        });
     }
     
-    // Для тестирования - добавляем несколько сообщений и звонков
-    function initTestData() {
-        // Тестовые данные
+    // Предзагрузка изображений
+    function preloadImages() {
+        const images = [
+            './images/logo_loading.png',
+            './images/logo_main.png',
+            './images/icon_call.png',
+            './images/icon_sms.png',
+            './images/icon_browser.png',
+            './images/icon_chat.png'
+        ];
+        
+        images.forEach(src => {
+            new Image().src = src;
+        });
     }
+    
+    preloadImages();
+});
     
     initTestData();
 });
