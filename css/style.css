@@ -13,8 +13,8 @@ body {
     overflow: hidden;
 }
 
-/* Экран загрузки */
-#loading-screen {
+/* Система экранов */
+.screen {
     position: fixed;
     top: 0;
     left: 0;
@@ -22,6 +22,24 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    padding: 15px;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.screen.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+/* Экран загрузки */
+#loading-screen {
     justify-content: center;
     align-items: center;
     background-color: #000;
@@ -46,18 +64,7 @@ body {
     color: #aaa;
 }
 
-/* Главный экран */
-#main-screen {
-    display: none;
-    flex-direction: column;
-    height: 100vh;
-    padding: 15px;
-}
-
-#main-screen.active {
-    display: flex;
-}
-
+/* Главное меню */
 .header {
     display: flex;
     justify-content: space-between;
@@ -84,7 +91,7 @@ body {
     margin: 20px auto;
 }
 
-/* Сетка приложений 4x4 */
+/* Сетка приложений */
 .dummy-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -180,22 +187,6 @@ body {
 }
 
 /* Окна приложений */
-.app-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #121212;
-    z-index: 1000;
-    display: none;
-    flex-direction: column;
-}
-
-.app-screen.active {
-    display: flex;
-}
-
 .app-header {
     display: flex;
     justify-content: space-between;
