@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Simulator</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <!-- Экран загрузки -->
+    <div id="loading-screen" class="screen active">
+        <div class="loading-logo">I'm a great<br>screw</div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <!-- Главное меню -->
+    <div id="main-screen" class="screen">
+        <div class="header">
+            <span id="user-nickname">User</span>
+            <span id="user-points">0 points</span>
+        </div>
+        
+        <div class="main-logo">dogStyle</div>
+        
+        <div class="app-grid">
+            <!-- Будет заполняться динамически -->
+        </div>
+        
+        <div class="bottom-nav">
+            <button class="app-btn" data-app="call">C</button>
+            <button class="app-btn" data-app="sms">S</button>
+            <button class="app-btn" data-app="browser">B</button>
+            <button class="app-btn" data-app="chat">Ch</button>
+        </div>
+    </div>
+
+    <!-- Экран сообщений -->
+    <div id="sms-screen" class="screen">
+        <div class="app-header">
+            <h2>SMS</h2>
+            <button id="close-sms" class="close-btn">[X]</button>
+        </div>
+        
+        <div class="message-list">
+            <div class="message-item">
+                <div class="sender-info">
+                    <span class="sender-name">Nickname1</span>
+                    <span class="new-message-count">3</span>
+                </div>
+            </div>
+            <!-- Другие сообщения будут добавляться динамически -->
+        </div>
+    </div>
+
+    <!-- Экран звонков -->
+    <div id="call-screen" class="screen">
+        <div class="app-header">
+            <h2>Call</h2>
+            <button id="close-call" class="close-btn">[X]</button>
+        </div>
+        
+        <div class="call-list">
+            <div class="call-item">
+                <span class="caller-name">Nickname1</span>
+                <span class="call-type incoming">входящий</span>
+            </div>
+            <!-- Другие звонки будут добавляться динамически -->
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

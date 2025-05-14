@@ -1,0 +1,133 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.screen {
+    display: none;
+    flex-direction: column;
+    height: 100vh;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Экран загрузки */
+#loading-screen {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.loading-logo {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.loading-text {
+    font-size: 16px;
+}
+
+/* Главное меню */
+#main-screen .header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.main-logo {
+    text-align: center;
+    font-size: 24px;
+    margin: 40px 0;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    border-top: 1px solid #333;
+}
+
+.app-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+/* Общие стили для экранов приложений */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Стили для списка сообщений */
+.message-list, .call-list {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.message-item, .call-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+}
+
+.sender-info {
+    display: flex;
+    justify-content: space-between;
+}
+
+.new-message-count {
+    background-color: #4CAF50;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+}
+
+/* Стили для звонков */
+.call-type {
+    font-size: 14px;
+}
+
+.incoming {
+    color: #4CAF50;
+}
+
+.outgoing {
+    color: #2196F3;
+}
+
+.missed {
+    color: #F44336;
+}
