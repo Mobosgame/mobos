@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
         init: function() {
             console.log('Initializing app...');
             
+            // Инициализация Telegram WebApp
+            this.initTelegram();
+            
             // Показываем экран загрузки
             this.showScreen('loading');
             
@@ -25,6 +28,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.showScreen('main');
                 console.log('App initialized');
             }, 2000);
+        },
+        
+        initTelegram: function() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.expand();
+                
+                // Получаем данные пользователя
+                const user = tg.initDataUnsafe?.user;
+                if (user) {
+                    const nickname = user.username || 
+                                   `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                    document.getElementById('user-nickname').textContent = nickname || 'Player';
+                    console.log('User nickname set:', nickname);
+                } else {
+                    console.log('Telegram user data not available');
+                }
+            } else {
+                console.log('Telegram WebApp not detected, running in standalone mode');
+                document.getElementById('user-nickname').textContent = 'Player';
+            }
         },
         
         showScreen: function(screenName) {
