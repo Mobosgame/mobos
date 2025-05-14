@@ -1,44 +1,71 @@
-// Упрощенная и надежная версия
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded'); // Отладочное сообщение
+    console.log('DOM loaded');
     
-    // Простая функция переключения экранов
-    function showScreen(screenId) {
-        console.log('Showing screen:', screenId); // Логирование
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('active');
-        });
-        const screen = document.getElementById(screenId);
-        if (screen) screen.classList.add('active');
-    }
-
-    // Инициализация Telegram WebApp (если доступно)
-    if (window.Telegram && window.Telegram.WebApp) {
-        try {
-            const tg = window.Telegram.WebApp;
-            tg.expand();
-            console.log('Telegram WebApp initialized');
-        } catch (e) {
-            console.error('Telegram init error:', e);
+    // Состояние приложения
+    const AppState = {
+        currentScreen: null,
+        screens: {
+            loading: document.getElementById('loading-screen'),
+            main: document.getElementById('main-screen'),
+            call: document.getElementById('call-screen'),
+            sms: document.getElementById('sms-screen')
+        },
+        
+        init: function() {
+            console.log('Initializing app...');
+            
+            // Показываем экран загрузки
+            this.showScreen('loading');
+            
+            // Настройка обработчиков событий
+            this.setupEventListeners();
+            
+            // Имитация загрузки
+            setTimeout(() => {
+                this.showScreen('main');
+                console.log('App initialized');
+            }, 2000);
+        },
+        
+        showScreen: function(screenName) {
+            console.log(`Showing screen: ${screenName}`);
+            
+            // Скрываем текущий экран
+            if (this.currentScreen) {
+                this.currentScreen.classList.remove('visible');
+                this.currentScreen.classList.add('hidden');
+            }
+            
+            // Показываем новый экран
+            const screen = this.screens[screenName];
+            if (screen) {
+                screen.classList.remove('hidden');
+                screen.classList.add('visible');
+                this.currentScreen = screen;
+            } else {
+                console.error(`Screen ${screenName} not found`);
+            }
+        },
+        
+        setupEventListeners: function() {
+            // Кнопки навигации
+            document.getElementById('call-btn').addEventListener('click', () => {
+                this.showScreen('call');
+            });
+            
+            document.getElementById('sms-btn').addEventListener('click', () => {
+                this.showScreen('sms');
+            });
+            
+            // Кнопки закрытия
+            document.querySelectorAll('.close-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    this.showScreen('main');
+                });
+            });
         }
-    }
-
-    // Обработчики кнопок (упрощенная версия)
-    document.getElementById('call-btn')?.addEventListener('click', () => showScreen('call-screen'));
-    document.getElementById('sms-btn')?.addEventListener('click', () => showScreen('sms-screen'));
-    document.querySelectorAll('.close-btn').forEach(btn => {
-        btn.addEventListener('click', () => showScreen('main-screen'));
-    });
-
-    // Установка имени пользователя (упрощенная версия)
-    const nicknameElement = document.getElementById('user-nickname');
-    if (nicknameElement) {
-        nicknameElement.textContent = 'Player'; // Значение по умолчанию
-    }
-
-    // Принудительное переключение через 3 секунды (гарантированно)
-    setTimeout(() => {
-        console.log('Force showing main screen');
-        showScreen('main-screen');
-    }, 3000);
+    };
+    
+    // Инициализация приложения
+    AppState.init();
 });
