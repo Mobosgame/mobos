@@ -1,64 +1,67 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded');
-    
-    const AppState = {
-        currentScreen: null,
-        screens: {
-            loading: document.getElementById('loading-screen'),
-            main: document.getElementById('main-screen'),
-            call: document.getElementById('call-screen'),
-            sms: document.getElementById('sms-screen')
+    const App = {
+        // Элементы интерфейса
+        elements: {
+            authScreen: document.getElementById('auth-screen'),
+            mainScreen: document.getElementById('main-screen'),
+            callScreen: document.getElementById('call-screen'),
+            smsScreen: document.getElementById('sms-screen'),
+            authError: document.getElementById('auth-error'),
+            retryBtn: document.getElementById('retry-btn'),
+            username: document.getElementById('user-nickname'),
+            callBtn: document.getElementById('call-btn'),
+            smsBtn: document.getElementById('sms-btn')
         },
         
+        // Инициализация приложения
         init: function() {
             console.log('Initializing app...');
-            
-            // 1. Сначала пробуем получить данные пользователя
-            this.loadUserData();
-            
-            // 2. Показываем экран загрузки
-            this.showScreen('loading');
-            
-            // 3. Настройка обработчиков
             this.setupEventListeners();
-            
-            // 4. Завершение загрузки
-            setTimeout(() => {
-                this.showScreen('main');
-                console.log('App initialized');
-            }, 2000);
+            this.checkAuth();
         },
         
-        loadUserData: function() {
-            // Способ 1: Через WebApp.initData
-            if (window.Telegram?.WebApp?.initData) {
-                try {
+        // Проверка авторизации
+        checkAuth: function() {
+            this.showAuthScreen();
+            
+            setTimeout(() => {
+                if (this.getTelegramUser()) {
+                    this.showMainScreen();
+                } else {
+                    this.showAuthError();
+                }
+            }, 1000);
+        },
+        
+        // Получение данных пользователя Telegram
+        getTelegramUser: function() {
+            try {
+                // Способ 1: Через initData (новый способ)
+                if (window.Telegram?.WebApp?.initData) {
                     const initData = new URLSearchParams(window.Telegram.WebApp.initData);
                     const userJson = initData.get('user');
                     if (userJson) {
                         const user = JSON.parse(userJson);
-                        this.displayUsername(user);
-                        console.log('User data loaded from initData');
-                        return;
+                        this.setUsername(user);
+                        return true;
                     }
-                } catch (e) {
-                    console.error('Error parsing initData:', e);
                 }
+                
+                // Способ 2: Через initDataUnsafe (старый способ)
+                if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                    const user = window.Telegram.WebApp.initDataUnsafe.user;
+                    this.setUsername(user);
+                    return true;
+                }
+            } catch (e) {
+                console.error('Auth error:', e);
             }
             
-            // Способ 2: Через WebApp.initDataUnsafe (старый способ)
-            if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-                this.displayUsername(window.Telegram.WebApp.initDataUnsafe.user);
-                console.log('User data loaded from initDataUnsafe');
-                return;
-            }
-            
-            // Если данные не получены
-            console.log('No Telegram user data available');
-            document.getElementById('user-nickname').textContent = 'Player';
+            return false;
         },
         
-        displayUsername: function(user) {
+        // Установка имени пользователя
+        setUsername: function(user) {
             let username = 'Player';
             
             if (user.username) {
@@ -70,46 +73,78 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            console.log('Displaying username:', username);
-            document.getElementById('user-nickname').textContent = username;
+            this.elements.username.textContent = username;
             
             // Инициализация Telegram WebApp
-            window.Telegram.WebApp.expand();
-            window.Telegram.WebApp.enableClosingConfirmation();
-        },
-        
-        showScreen: function(screenName) {
-            console.log(`Showing screen: ${screenName}`);
-            
-            if (this.currentScreen) {
-                this.currentScreen.classList.remove('visible');
-                this.currentScreen.classList.add('hidden');
-            }
-            
-            const screen = this.screens[screenName];
-            if (screen) {
-                screen.classList.remove('hidden');
-                screen.classList.add('visible');
-                this.currentScreen = screen;
+            if (window.Telegram?.WebApp) {
+                window.Telegram.WebApp.expand();
+                window.Telegram.WebApp.enableClosingConfirmation();
             }
         },
         
+        // Показать экран авторизации
+        showAuthScreen: function() {
+            this.hideAllScreens();
+            this.elements.authScreen.classList.remove('hidden');
+            this.elements.authError.classList.add('hidden');
+        },
+        
+        // Показать ошибку авторизации
+        showAuthError: function() {
+            this.elements.authError.classList.remove('hidden');
+        },
+        
+        // Показать главный экран
+        showMainScreen: function() {
+            this.hideAllScreens();
+            this.elements.mainScreen.classList.remove('hidden');
+        },
+        
+        // Показать экран вызовов
+        showCallScreen: function() {
+            this.hideAllScreens();
+            this.elements.callScreen.classList.remove('hidden');
+        },
+        
+        // Показать экран сообщений
+        showSmsScreen: function() {
+            this.hideAllScreens();
+            this.elements.smsScreen.classList.remove('hidden');
+        },
+        
+        // Скрыть все экраны
+        hideAllScreens: function() {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+        },
+        
+        // Настройка обработчиков событий
         setupEventListeners: function() {
-            document.getElementById('call-btn').addEventListener('click', () => {
-                this.showScreen('call');
+            // Кнопка повтора авторизации
+            this.elements.retryBtn.addEventListener('click', () => {
+                this.checkAuth();
             });
             
-            document.getElementById('sms-btn').addEventListener('click', () => {
-                this.showScreen('sms');
+            // Кнопка вызовов
+            this.elements.callBtn.addEventListener('click', () => {
+                this.showCallScreen();
             });
             
+            // Кнопка сообщений
+            this.elements.smsBtn.addEventListener('click', () => {
+                this.showSmsScreen();
+            });
+            
+            // Кнопки закрытия
             document.querySelectorAll('.close-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    this.showScreen('main');
+                    this.showMainScreen();
                 });
             });
         }
     };
     
-    AppState.init();
+    // Запуск приложения
+    App.init();
 });
