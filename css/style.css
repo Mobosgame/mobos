@@ -1,75 +1,151 @@
+/* Base Styles */
 body {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     background-color: #121212;
-    color: white;
+    color: #ffffff;
     height: 100vh;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .screen {
     display: none;
     flex-direction: column;
     height: 100vh;
-    padding: 10px;
+    padding: 15px;
     box-sizing: border-box;
+    position: relative;
 }
 
 .screen.active {
     display: flex;
 }
 
-/* Экран загрузки */
+/* Loading Screen */
 #loading-screen {
     justify-content: center;
     align-items: center;
-    text-align: center;
+    background-color: #000000;
 }
 
 .loading-logo {
-    font-size: 24px;
-    margin-bottom: 20px;
+    width: 150px;
+    height: 150px;
+    margin-bottom: 30px;
+    object-fit: contain;
+    animation: pulse 2s infinite;
 }
 
 .loading-text {
-    font-size: 16px;
+    font-size: 18px;
+    color: #aaaaaa;
+    letter-spacing: 2px;
 }
 
-/* Главное меню */
-#main-screen .header {
+@keyframes pulse {
+    0% { opacity: 0.6; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 0.6; transform: scale(0.95); }
+}
+
+/* Main Screen */
+.header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 30px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#user-nickname {
+    font-weight: bold;
+    font-size: 18px;
+    color: #4CAF50;
+}
+
+#user-points {
+    font-size: 16px;
+    color: #FFC107;
+    background-color: #333333;
+    padding: 3px 10px;
+    border-radius: 15px;
 }
 
 .main-logo {
-    text-align: center;
-    font-size: 24px;
-    margin: 40px 0;
-    flex-grow: 1;
+    width: 180px;
+    height: 180px;
+    margin: 20px auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(76, 175, 80, 0.3));
+}
+
+/* Dummy Buttons Grid */
+.dummy-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.dummy-btn {
+    background-color: #252525;
+    border-radius: 10px;
+    height: 80px;
     display: flex;
     justify-content: center;
     align-items: center;
+    color: #555555;
+    font-size: 24px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
+.dummy-btn:hover {
+    background-color: #333333;
+    transform: translateY(-2px);
+}
+
+/* Bottom Navigation */
 .bottom-nav {
-    display: flex;
-    justify-content: space-around;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
     padding: 10px 0;
-    border-top: 1px solid #333;
+    background-color: #1a1a1a;
+    border-radius: 15px;
+    margin-top: auto;
 }
 
 .app-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background: none;
     border: none;
     color: white;
-    font-size: 18px;
-    padding: 10px 20px;
+    padding: 8px 5px;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
-/* Общие стили для экранов приложений */
+.app-icon {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 5px;
+    object-fit: contain;
+}
+
+.app-btn span {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.app-btn:active {
+    transform: scale(0.95);
+}
+
+/* App Screens */
 .app-header {
     display: flex;
     justify-content: space-between;
@@ -85,49 +161,55 @@ body {
     color: white;
     font-size: 16px;
     cursor: pointer;
+    padding: 5px 10px;
 }
 
-/* Стили для списка сообщений */
 .message-list, .call-list {
     flex-grow: 1;
     overflow-y: auto;
 }
 
 .message-item, .call-item {
-    padding: 12px 0;
-    border-bottom: 1px solid #333;
-    cursor: pointer;
+    padding: 15px 0;
+    border-bottom: 1px solid #252525;
 }
 
 .sender-info {
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
 .new-message-count {
     background-color: #4CAF50;
+    color: white;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 12px;
+    font-weight: bold;
 }
 
-/* Стили для звонков */
 .call-type {
     font-size: 14px;
+    padding: 3px 8px;
+    border-radius: 4px;
 }
 
 .incoming {
+    background-color: rgba(76, 175, 80, 0.2);
     color: #4CAF50;
 }
 
 .outgoing {
+    background-color: rgba(33, 150, 243, 0.2);
     color: #2196F3;
 }
 
 .missed {
+    background-color: rgba(244, 67, 54, 0.2);
     color: #F44336;
 }
