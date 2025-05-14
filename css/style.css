@@ -22,36 +22,66 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 15px;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition: opacity 0.3s ease;
 }
 
 .screen.hidden {
     opacity: 0;
-    visibility: hidden;
     pointer-events: none;
+    display: none;
 }
 
-.screen.visible {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: all;
-}
-
-/* Экран загрузки */
-#loading-screen {
+/* Экран авторизации */
+#auth-screen {
     justify-content: center;
     align-items: center;
     background-color: #000;
     z-index: 1000;
 }
 
-.loading-logo {
-    width: 150px;
-    height: 150px;
-    object-fit: contain;
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 300px;
+    padding: 20px;
+}
+
+.auth-logo {
+    width: 120px;
+    height: 120px;
     margin-bottom: 20px;
     animation: pulse 1.5s infinite;
+}
+
+.auth-text {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.auth-error {
+    color: #ff5555;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    background: rgba(255, 85, 85, 0.1);
+    max-width: 100%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.retry-btn {
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
 }
 
 @keyframes pulse {
@@ -59,16 +89,12 @@ body {
     50% { transform: scale(1.05); opacity: 1; }
 }
 
-.loading-text {
-    font-size: 18px;
-    color: #aaa;
-}
-
 /* Главное меню */
 .header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
+    padding: 0 15px;
 }
 
 #user-nickname {
@@ -96,7 +122,7 @@ body {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
-    margin: 20px 0;
+    margin: 20px 15px;
 }
 
 .app-cell {
@@ -146,7 +172,7 @@ body {
     gap: 5px;
     margin-top: auto;
     background: #1a1a1a;
-    padding: 10px;
+    padding: 10px 15px;
     border-radius: 15px;
 }
 
@@ -187,6 +213,18 @@ body {
 }
 
 /* Окна приложений */
+.app-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #121212;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
 .app-header {
     display: flex;
     justify-content: space-between;
