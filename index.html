@@ -1,29 +1,16 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://telegram.org; connect-src 'self' https://telegram.org;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phone Simulator</title>
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-    <!-- Экран авторизации -->
-    <div id="auth-screen" class="screen">
-        <div class="auth-container">
-            <img src="./Img/logo_loading.png" alt="Logo" class="auth-logo">
-            <div class="auth-text">Идет авторизация...</div>
-            <div id="auth-error" class="auth-error hidden">
-                Ошибка авторизации. Пожалуйста, откройте приложение через Telegram.
-                <button id="retry-btn" class="retry-btn">Попробовать снова</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Главное меню -->
-    <div id="main-screen" class="screen hidden">
+    <!-- Главный экран -->
+    <div id="main-screen" class="screen">
         <div class="header">
-            <span id="user-nickname">User</span>
+            <span id="user-nickname">TG User</span>
             <span id="user-points">0 points</span>
         </div>
         
@@ -115,6 +102,6 @@
         </div>
     </div>
 
-    <script src="./js/main.js?v=1.0.1"></script>
+    <script src="./js/main.js"></script>
 </body>
 </html>
