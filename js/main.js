@@ -1,56 +1,44 @@
+// Упрощенная и надежная версия
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация Telegram WebApp
-    const tg = window.Telegram.WebApp;
-    if (tg) {
-        tg.expand();
-        tg.enableClosingConfirmation();
-    }
-
-    // Элементы интерфейса
-    const screens = {
-        loading: document.getElementById('loading-screen'),
-        main: document.getElementById('main-screen'),
-        call: document.getElementById('call-screen'),
-        sms: document.getElementById('sms-screen')
-    };
-
-    // Функция переключения экранов
-    function switchScreen(screenName) {
-        Object.values(screens).forEach(screen => {
+    console.log('DOM loaded'); // Отладочное сообщение
+    
+    // Простая функция переключения экранов
+    function showScreen(screenId) {
+        console.log('Showing screen:', screenId); // Логирование
+        document.querySelectorAll('.screen').forEach(screen => {
             screen.classList.remove('active');
         });
-        
-        if (screenName && screens[screenName]) {
-            screens[screenName].classList.add('active');
+        const screen = document.getElementById(screenId);
+        if (screen) screen.classList.add('active');
+    }
+
+    // Инициализация Telegram WebApp (если доступно)
+    if (window.Telegram && window.Telegram.WebApp) {
+        try {
+            const tg = window.Telegram.WebApp;
+            tg.expand();
+            console.log('Telegram WebApp initialized');
+        } catch (e) {
+            console.error('Telegram init error:', e);
         }
     }
 
-    // Обработчики кнопок
-    document.getElementById('call-btn').addEventListener('click', function() {
-        switchScreen('call');
-    });
-
-    document.getElementById('sms-btn').addEventListener('click', function() {
-        switchScreen('sms');
-    });
-
-    // Обработчики закрытия окон
+    // Обработчики кнопок (упрощенная версия)
+    document.getElementById('call-btn')?.addEventListener('click', () => showScreen('call-screen'));
+    document.getElementById('sms-btn')?.addEventListener('click', () => showScreen('sms-screen'));
     document.querySelectorAll('.close-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            switchScreen('main');
-        });
+        btn.addEventListener('click', () => showScreen('main-screen'));
     });
 
-    // Установка имени пользователя
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        const user = tg.initDataUnsafe.user;
-        const nickname = user.username || 
-                       [user.first_name, user.last_name].filter(Boolean).join(' ');
-        document.getElementById('user-nickname').textContent = nickname || 'Player';
+    // Установка имени пользователя (упрощенная версия)
+    const nicknameElement = document.getElementById('user-nickname');
+    if (nicknameElement) {
+        nicknameElement.textContent = 'Player'; // Значение по умолчанию
     }
 
-    // Имитация загрузки
-    setTimeout(function() {
-        switchScreen('main');
-    }, 2000);
+    // Принудительное переключение через 3 секунды (гарантированно)
+    setTimeout(() => {
+        console.log('Force showing main screen');
+        showScreen('main-screen');
+    }, 3000);
 });
