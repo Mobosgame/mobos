@@ -13,51 +13,69 @@ document.addEventListener('DOMContentLoaded', function() {
         init: function() {
             console.log('Initializing app...');
             
-            // 1. Сначала загружаем данные Telegram
-            this.loadTelegramData();
+            // 1. Сначала пробуем получить данные пользователя
+            this.loadUserData();
             
             // 2. Показываем экран загрузки
             this.showScreen('loading');
             
-            // 3. Настраиваем обработчики
+            // 3. Настройка обработчиков
             this.setupEventListeners();
             
-            // 4. Имитация загрузки
+            // 4. Завершение загрузки
             setTimeout(() => {
                 this.showScreen('main');
                 console.log('App initialized');
             }, 2000);
         },
         
-        loadTelegramData: function() {
-            // Проверяем, есть ли Telegram WebApp
-            if (window.Telegram && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.expand();
-                
-                // Проверяем данные пользователя
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    const user = tg.initDataUnsafe.user;
-                    let nickname = 'Player';
-                    
-                    // Формируем nickname по приоритетам:
-                    if (user.username) {
-                        nickname = `@${user.username}`;
-                    } else if (user.first_name) {
-                        nickname = user.first_name;
-                        if (user.last_name) {
-                            nickname += ` ${user.last_name}`;
-                        }
+        loadUserData: function() {
+            // Способ 1: Через WebApp.initData
+            if (window.Telegram?.WebApp?.initData) {
+                try {
+                    const initData = new URLSearchParams(window.Telegram.WebApp.initData);
+                    const userJson = initData.get('user');
+                    if (userJson) {
+                        const user = JSON.parse(userJson);
+                        this.displayUsername(user);
+                        console.log('User data loaded from initData');
+                        return;
                     }
-                    
-                    console.log('Setting Telegram nickname:', nickname);
-                    document.getElementById('user-nickname').textContent = nickname;
-                    return;
+                } catch (e) {
+                    console.error('Error parsing initData:', e);
                 }
             }
             
-            console.log('Using default nickname');
+            // Способ 2: Через WebApp.initDataUnsafe (старый способ)
+            if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                this.displayUsername(window.Telegram.WebApp.initDataUnsafe.user);
+                console.log('User data loaded from initDataUnsafe');
+                return;
+            }
+            
+            // Если данные не получены
+            console.log('No Telegram user data available');
             document.getElementById('user-nickname').textContent = 'Player';
+        },
+        
+        displayUsername: function(user) {
+            let username = 'Player';
+            
+            if (user.username) {
+                username = `@${user.username}`;
+            } else if (user.first_name) {
+                username = user.first_name;
+                if (user.last_name) {
+                    username += ` ${user.last_name}`;
+                }
+            }
+            
+            console.log('Displaying username:', username);
+            document.getElementById('user-nickname').textContent = username;
+            
+            // Инициализация Telegram WebApp
+            window.Telegram.WebApp.expand();
+            window.Telegram.WebApp.enableClosingConfirmation();
         },
         
         showScreen: function(screenName) {
