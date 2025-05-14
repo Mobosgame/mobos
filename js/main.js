@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded');
     
-    // Состояние приложения
     const AppState = {
         currentScreen: null,
         screens: {
@@ -14,39 +13,45 @@ document.addEventListener('DOMContentLoaded', function() {
         init: function() {
             console.log('Initializing app...');
             
-            // Инициализация Telegram WebApp
-            this.initTelegram();
+            // Сначала загружаем данные Telegram
+            this.loadTelegramData();
             
-            // Показываем экран загрузки
+            // Затем показываем экран загрузки
             this.showScreen('loading');
             
-            // Настройка обработчиков событий
+            // Настройка обработчиков
             this.setupEventListeners();
             
-            // Имитация загрузки
+            // Завершение загрузки
             setTimeout(() => {
                 this.showScreen('main');
                 console.log('App initialized');
             }, 2000);
         },
         
-        initTelegram: function() {
-            if (window.Telegram && window.Telegram.WebApp) {
+        loadTelegramData: function() {
+            if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
                 const tg = window.Telegram.WebApp;
-                tg.expand();
+                const user = tg.initDataUnsafe.user;
                 
-                // Получаем данные пользователя
-                const user = tg.initDataUnsafe?.user;
-                if (user) {
-                    const nickname = user.username || 
-                                   `${user.first_name || ''} ${user.last_name || ''}`.trim();
-                    document.getElementById('user-nickname').textContent = nickname || 'Player';
-                    console.log('User nickname set:', nickname);
-                } else {
-                    console.log('Telegram user data not available');
+                // Формируем имя пользователя
+                let username = 'Player';
+                if (user.username) {
+                    username = `@${user.username}`;
+                } else if (user.first_name) {
+                    username = user.first_name;
+                    if (user.last_name) {
+                        username += ` ${user.last_name}`;
+                    }
                 }
+                
+                console.log('Telegram user:', username);
+                document.getElementById('user-nickname').textContent = username;
+                
+                tg.expand();
+                tg.enableClosingConfirmation();
             } else {
-                console.log('Telegram WebApp not detected, running in standalone mode');
+                console.log('Running outside Telegram');
                 document.getElementById('user-nickname').textContent = 'Player';
             }
         },
@@ -54,25 +59,20 @@ document.addEventListener('DOMContentLoaded', function() {
         showScreen: function(screenName) {
             console.log(`Showing screen: ${screenName}`);
             
-            // Скрываем текущий экран
             if (this.currentScreen) {
                 this.currentScreen.classList.remove('visible');
                 this.currentScreen.classList.add('hidden');
             }
             
-            // Показываем новый экран
             const screen = this.screens[screenName];
             if (screen) {
                 screen.classList.remove('hidden');
                 screen.classList.add('visible');
                 this.currentScreen = screen;
-            } else {
-                console.error(`Screen ${screenName} not found`);
             }
         },
         
         setupEventListeners: function() {
-            // Кнопки навигации
             document.getElementById('call-btn').addEventListener('click', () => {
                 this.showScreen('call');
             });
@@ -81,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.showScreen('sms');
             });
             
-            // Кнопки закрытия
             document.querySelectorAll('.close-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     this.showScreen('main');
@@ -90,6 +89,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    // Инициализация приложения
     AppState.init();
 });
