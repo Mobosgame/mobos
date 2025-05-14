@@ -39,8 +39,11 @@ body {
 }
 
 .loading-logo {
-    width: 150px;
-    height: 150px;
+    width: auto;
+    height: auto;
+    max-width: 60%;
+    max-height: 160px;
+    object-fit: contain;
     margin-bottom: 20px;
     animation: pulse 1.5s infinite;
 }
@@ -77,55 +80,71 @@ body {
 }
 
 .main-logo {
-    width: 180px;
-    height: 180px;
+    width: auto;
+    height: auto;
+    max-width: 200px;
+    max-height: 200px;
     margin: 20px auto;
     object-fit: contain;
 }
 
+/* Сетка 4x4 */
 .dummy-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 12px;
     margin: 20px 0;
+    height: calc(100vh - 400px);
+    min-height: 300px;
 }
 
 .dummy-btn {
     background: #252525;
-    height: 80px;
     border-radius: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: #555;
     font-size: 24px;
+    transition: transform 0.2s;
 }
 
+.dummy-btn:active {
+    transform: scale(0.95);
+}
+
+/* Нижняя панель навигации */
 .bottom-nav {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
     margin-top: auto;
     background: #1a1a1a;
-    padding: 10px;
+    padding: 12px 5px;
     border-radius: 15px;
 }
 
 .app-btn {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
     background: none;
     border: none;
-    color: white;
-    padding: 8px 5px;
+    padding: 5px;
     cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.app-btn:active {
+    transform: scale(0.9);
 }
 
 .app-icon {
-    width: 30px;
-    height: 30px;
-    margin-bottom: 5px;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
 }
 
 /* App Screens */
@@ -153,5 +172,7 @@ body {
 
 .message-item, .call-item {
     padding: 12px 0;
+    border-bottom: 1px solid #252525;
+}
     border-bottom: 1px solid #252525;
 }
