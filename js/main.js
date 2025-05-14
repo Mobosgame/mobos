@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     tg.enableClosingConfirmation();
     
     // Ждем загрузки всех изображений
-    await preloadImages();
+    // await preloadImages();
     
     // Получаем данные пользователя
     const user = tg.initDataUnsafe.user;
