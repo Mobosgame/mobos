@@ -1,4 +1,3 @@
-// Проверка загрузки DOM
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded');
     
@@ -10,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
         call: document.getElementById('call-screen')
     };
     
-    // Простая функция переключения экранов
+    // Функция переключения экранов
     function switchScreen(screenName) {
         console.log('Switching to screen:', screenName);
         
@@ -56,25 +55,21 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         switchScreen('main');
         console.log('Loading complete');
+        
+        // Тестовые данные
+        document.getElementById('user-points').textContent = '100 points';
     }, 3000);
     
     // Проверка загрузки изображений
-    const images = document.querySelectorAll('img');
-    let loadedImages = 0;
+    const checkImages = () => {
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            if (!img.complete) {
+                img.addEventListener('load', () => console.log('Image loaded:', img.src));
+                img.addEventListener('error', () => console.error('Error loading image:', img.src));
+            }
+        });
+    };
     
-    images.forEach(img => {
-        if (img.complete) {
-            loadedImages++;
-        } else {
-            img.addEventListener('load', () => {
-                loadedImages++;
-                console.log('Image loaded:', img.src);
-            });
-            img.addEventListener('error', () => {
-                console.error('Error loading image:', img.src);
-            });
-        }
-    });
-    
-    console.log('Total images:', images.length, 'Pre-loaded:', loadedImages);
+    checkImages();
 });
