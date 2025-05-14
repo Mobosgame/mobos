@@ -35,29 +35,24 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Получение данных пользователя Telegram
         getTelegramUser: function() {
-            try {
-                // Способ 1: Через initData (новый способ)
-                if (window.Telegram?.WebApp?.initData) {
-                    const initData = new URLSearchParams(window.Telegram.WebApp.initData);
-                    const userJson = initData.get('user');
-                    if (userJson) {
-                        const user = JSON.parse(userJson);
-                        this.setUsername(user);
-                        return true;
-                    }
-                }
-                
-                // Способ 2: Через initDataUnsafe (старый способ)
-                if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-                    const user = window.Telegram.WebApp.initDataUnsafe.user;
-                    this.setUsername(user);
-                    return true;
-                }
-            } catch (e) {
-                console.error('Auth error:', e);
-            }
-            
+            console.log('[DEBUG] initData:', Telegram.WebApp.initData);
+console.log('[DEBUG] initDataUnsafe:', Telegram.WebApp.initDataUnsafe);
+           if (window.Telegram?.WebApp?.initData) {
+    try {
+        const initData = new URLSearchParams(Telegram.WebApp.initData);
+        if (!initData.has('user')) {
+            console.error('User data missing in initData');
             return false;
+        }
+        const user = JSON.parse(initData.get('user'));
+        if (!user) throw new Error('Empty user data');
+        this.setUsername(user);
+        return true;
+    } catch (e) {
+        console.error('initData parse error:', e);
+    }
+}
+             return false;
         },
         
         // Установка имени пользователя
@@ -148,6 +143,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Запуск приложения
     App.init();
 });
-    // Запуск приложения
-    App.init();
-});
+   
