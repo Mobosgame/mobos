@@ -148,3 +148,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Запуск приложения
     App.init();
 });
+    // Запуск приложения
+    App.init();
+});
