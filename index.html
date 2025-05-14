@@ -5,17 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phone Simulator</title>
     <link rel="stylesheet" href="./css/style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <!-- Экран загрузки -->
-    <div id="loading-screen" class="screen active">
+    <div id="loading-screen" class="screen visible">
         <img src="./Img/logo_loading.png" alt="Game Logo" class="loading-logo">
         <div class="loading-text">Loading...</div>
     </div>
 
     <!-- Главное меню -->
-    <div id="main-screen" class="screen">
+    <div id="main-screen" class="screen hidden">
         <div class="header">
             <span id="user-nickname">User</span>
             <span id="user-points">0 points</span>
@@ -49,7 +48,7 @@
                 <div class="app-label">Майнер</div>
             </div>
             
-            <!-- Остальные 13 кнопок (прозрачные) -->
+            <!-- Остальные 13 кнопок -->
             <div class="app-cell">
                 <button class="dummy-btn transparent"></button>
                 <div class="app-label"></div>
@@ -98,7 +97,7 @@
     </div>
 
     <!-- Окно вызовов -->
-    <div id="call-screen" class="app-screen">
+    <div id="call-screen" class="screen hidden">
         <div class="app-header">
             <h2>Вызовы</h2>
             <button class="close-btn">✕</button>
@@ -108,12 +107,11 @@
                 <span class="caller-name">Хакер</span>
                 <span class="call-type incoming">входящий</span>
             </div>
-            <!-- Другие вызовы... -->
         </div>
     </div>
 
     <!-- Окно сообщений -->
-    <div id="sms-screen" class="app-screen">
+    <div id="sms-screen" class="screen hidden">
         <div class="app-header">
             <h2>Сообщения</h2>
             <button class="close-btn">✕</button>
@@ -123,7 +121,6 @@
                 <span class="sender-name">Хакер</span>
                 <span class="message-preview">Новое сообщение...</span>
             </div>
-            <!-- Другие сообщения... -->
         </div>
     </div>
 
