@@ -1,146 +1,104 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const App = {
-        // Элементы интерфейса
-        elements: {
-            authScreen: document.getElementById('auth-screen'),
-            mainScreen: document.getElementById('main-screen'),
-            callScreen: document.getElementById('call-screen'),
-            smsScreen: document.getElementById('sms-screen'),
-            authError: document.getElementById('auth-error'),
-            retryBtn: document.getElementById('retry-btn'),
-            username: document.getElementById('user-nickname'),
-            callBtn: document.getElementById('call-btn'),
-            smsBtn: document.getElementById('sms-btn')
-        },
-        
-        // Инициализация приложения
-        init: function() {
-            console.log('Initializing app...');
-            this.setupEventListeners();
-            this.checkAuth();
-        },
-        
-        // Проверка авторизации
-        checkAuth: function() {
-            this.showAuthScreen();
-            
-            setTimeout(() => {
-                if (this.getTelegramUser()) {
-                    this.showMainScreen();
-                } else {
-                    this.showAuthError();
-                }
-            }, 1000);
-        },
-        
-        // Получение данных пользователя Telegram
-        getTelegramUser: function() {
-            console.log('[DEBUG] initData:', Telegram.WebApp.initData);
-console.log('[DEBUG] initDataUnsafe:', Telegram.WebApp.initDataUnsafe);
-           if (window.Telegram?.WebApp?.initData) {
-    try {
-        const initData = new URLSearchParams(Telegram.WebApp.initData);
-        if (!initData.has('user')) {
-            console.error('User data missing in initData');
-            return false;
-        }
-        const user = JSON.parse(initData.get('user'));
-        if (!user) throw new Error('Empty user data');
-        this.setUsername(user);
-        return true;
-    } catch (e) {
-        console.error('initData parse error:', e);
+    console.log('[Init] App started');
+    
+    // Элементы интерфейса
+    const authScreen = document.getElementById('auth-screen');
+    const mainScreen = document.getElementById('main-screen');
+    const errorElement = document.getElementById('auth-error');
+    
+    // 1. Проверка среды выполнения
+    function isTelegramWebApp() {
+        return !!window.Telegram?.WebApp;
     }
-}
-             return false;
-        },
-        
-        // Установка имени пользователя
-        setUsername: function(user) {
-            let username = 'Player';
+    
+    // 2. Получение данных пользователя
+    function getTelegramUser() {
+        try {
+            const tg = window.Telegram.WebApp;
             
-            if (user.username) {
-                username = `@${user.username}`;
-            } else if (user.first_name) {
-                username = user.first_name;
-                if (user.last_name) {
-                    username += ` ${user.last_name}`;
-                }
+            // Проверяем новые и старые форматы данных
+            const userData = tg.initDataUnsafe?.user || 
+                           (tg.initData ? parseInitData(tg.initData) : null);
+            
+            if (!userData) {
+                console.warn('[Auth] No user data found');
+                return null;
             }
             
-            this.elements.username.textContent = username;
-            
-            // Инициализация Telegram WebApp
-            if (window.Telegram?.WebApp) {
-                window.Telegram.WebApp.expand();
-                window.Telegram.WebApp.enableClosingConfirmation();
-            }
-        },
-        
-        // Показать экран авторизации
-        showAuthScreen: function() {
-            this.hideAllScreens();
-            this.elements.authScreen.classList.remove('hidden');
-            this.elements.authError.classList.add('hidden');
-        },
-        
-        // Показать ошибку авторизации
-        showAuthError: function() {
-            this.elements.authError.classList.remove('hidden');
-        },
-        
-        // Показать главный экран
-        showMainScreen: function() {
-            this.hideAllScreens();
-            this.elements.mainScreen.classList.remove('hidden');
-        },
-        
-        // Показать экран вызовов
-        showCallScreen: function() {
-            this.hideAllScreens();
-            this.elements.callScreen.classList.remove('hidden');
-        },
-        
-        // Показать экран сообщений
-        showSmsScreen: function() {
-            this.hideAllScreens();
-            this.elements.smsScreen.classList.remove('hidden');
-        },
-        
-        // Скрыть все экраны
-        hideAllScreens: function() {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.add('hidden');
-            });
-        },
-        
-        // Настройка обработчиков событий
-        setupEventListeners: function() {
-            // Кнопка повтора авторизации
-            this.elements.retryBtn.addEventListener('click', () => {
-                this.checkAuth();
-            });
-            
-            // Кнопка вызовов
-            this.elements.callBtn.addEventListener('click', () => {
-                this.showCallScreen();
-            });
-            
-            // Кнопка сообщений
-            this.elements.smsBtn.addEventListener('click', () => {
-                this.showSmsScreen();
-            });
-            
-            // Кнопки закрытия
-            document.querySelectorAll('.close-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    this.showMainScreen();
-                });
-            });
+            console.log('[Auth] User data received:', userData);
+            return userData;
+        } catch (e) {
+            console.error('[Auth Error]', e);
+            return null;
         }
-    };
+    }
+    
+    function parseInitData(initData) {
+        const params = new URLSearchParams(initData);
+        const userJson = params.get('user');
+        return userJson ? JSON.parse(userJson) : null;
+    }
+    
+    // 3. Отображение имени пользователя
+    function displayUsername(user) {
+        let username = 'Player';
+        if (user.username) {
+            username = `@${user.username}`;
+        } else if (user.first_name) {
+            username = user.first_name;
+            if (user.last_name) username += ` ${user.last_name}`;
+        }
+        document.getElementById('user-nickname').textContent = username;
+    }
+    
+    // 4. Инициализация Telegram WebApp
+    function initTelegramWebApp() {
+        if (!isTelegramWebApp()) return;
+        
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+        
+        // Важная проверка готовности
+        tg.ready();
+        console.log('[Telegram] WebApp initialized');
+    }
+    
+    // 5. Основной поток авторизации
+    function initApp() {
+        if (isTelegramWebApp()) {
+            console.log('[Mode] Running inside Telegram');
+            
+            const user = getTelegramUser();
+            if (user) {
+                displayUsername(user);
+                initTelegramWebApp();
+                switchToMainScreen();
+                return;
+            }
+            
+            showError('Не удалось получить данные. Обновите Telegram.');
+        } else {
+            console.log('[Mode] Running outside Telegram');
+            showError('Откройте приложение через Telegram бота');
+        }
+        
+        // Фолбэк: через 5 сек показываем главный экран
+        setTimeout(switchToMainScreen, 5000);
+    }
+    
+    function switchToMainScreen() {
+        authScreen.classList.add('hidden');
+        mainScreen.classList.remove('hidden');
+        console.log('[UI] Switched to main screen');
+    }
+    
+    function showError(message) {
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+        console.error('[UI Error]', message);
+    }
     
     // Запуск приложения
-    App.init();
+    initApp();
 });
-   
