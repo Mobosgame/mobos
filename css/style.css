@@ -1,4 +1,4 @@
-/* Base Styles */
+/* Базовые стили */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -8,44 +8,37 @@
 body {
     font-family: 'Arial', sans-serif;
     background-color: #121212;
-    color: #ffffff;
+    color: white;
     height: 100vh;
     overflow: hidden;
-    position: relative;
 }
 
-/* Screen Management */
-.screen {
-    position: absolute;
+/* Экран загрузки */
+#loading-screen {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    padding: 15px;
-    display: none;
-    flex-direction: column;
-}
-
-.screen.active {
     display: flex;
-}
-
-/* Loading Screen */
-#loading-screen {
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     background-color: #000;
-    z-index: 100;
+    z-index: 1000;
 }
 
 .loading-logo {
-    width: auto;
-    height: auto;
-    max-width: 60%;
-    max-height: 160px;
+    width: 150px;
+    height: 150px;
     object-fit: contain;
     margin-bottom: 20px;
     animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(0.95); opacity: 0.7; }
+    50% { transform: scale(1.05); opacity: 1; }
 }
 
 .loading-text {
@@ -53,13 +46,18 @@ body {
     color: #aaa;
 }
 
-@keyframes pulse {
-    0% { transform: scale(0.95); opacity: 0.7; }
-    50% { transform: scale(1.05); opacity: 1; }
-    100% { transform: scale(0.95); opacity: 0.7; }
+/* Главный экран */
+#main-screen {
+    display: none;
+    flex-direction: column;
+    height: 100vh;
+    padding: 15px;
 }
 
-/* Main Screen Styles */
+#main-screen.active {
+    display: flex;
+}
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -80,99 +78,177 @@ body {
 }
 
 .main-logo {
-    width: auto;
-    height: auto;
-    max-width: 200px;
-    max-height: 200px;
-    margin: 20px auto;
+    width: 180px;
+    height: 180px;
     object-fit: contain;
+    margin: 20px auto;
 }
 
-/* Сетка 4x4 */
+/* Сетка приложений 4x4 */
 .dummy-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
     gap: 12px;
     margin: 20px 0;
-    height: calc(100vh - 400px);
-    min-height: 300px;
+}
+
+.app-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .dummy-btn {
-    background: #252525;
+    width: 50px;
+    height: 50px;
     border-radius: 10px;
+    background: #252525;
+    border: none;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #555;
-    font-size: 24px;
+    cursor: pointer;
     transition: transform 0.2s;
+}
+
+.dummy-btn.transparent {
+    background: transparent;
 }
 
 .dummy-btn:active {
     transform: scale(0.95);
 }
 
-/* Нижняя панель навигации */
+.app-icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.app-label {
+    margin-top: 5px;
+    font-size: 10px;
+    color: #aaa;
+    text-align: center;
+}
+
+/* Нижняя панель */
 .bottom-nav {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
     margin-top: auto;
     background: #1a1a1a;
-    padding: 12px 5px;
+    padding: 10px;
     border-radius: 15px;
 }
 
+.nav-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .app-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background: #252525;
+    border: none;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: none;
-    border: none;
-    padding: 5px;
     cursor: pointer;
     transition: transform 0.2s;
 }
 
 .app-btn:active {
-    transform: scale(0.9);
+    transform: scale(0.95);
 }
 
-.app-icon {
-    width: 40px;
-    height: 40px;
+.nav-icon {
+    width: 30px;
+    height: 30px;
     object-fit: contain;
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
 }
 
-/* App Screens */
+.nav-label {
+    margin-top: 5px;
+    font-size: 10px;
+    color: #aaa;
+    text-align: center;
+}
+
+/* Окна приложений */
+.app-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #121212;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+}
+
+.app-screen.active {
+    display: flex;
+}
+
 .app-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
+    padding: 15px;
+    background: #1a1a1a;
     border-bottom: 1px solid #333;
+}
+
+.app-header h2 {
+    font-size: 18px;
+    margin: 0;
 }
 
 .close-btn {
     background: none;
     border: none;
     color: white;
+    font-size: 20px;
     cursor: pointer;
     padding: 5px;
 }
 
-.message-list, .call-list {
+.app-content {
     flex: 1;
+    padding: 15px;
     overflow-y: auto;
 }
 
-.message-item, .call-item {
+/* Элементы списков */
+.call-item, .message-item {
     padding: 12px 0;
     border-bottom: 1px solid #252525;
+    display: flex;
+    justify-content: space-between;
 }
-    border-bottom: 1px solid #252525;
+
+.caller-name, .sender-name {
+    font-weight: bold;
+}
+
+.call-type {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.incoming {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+
+.message-preview {
+    color: #aaa;
+    font-size: 12px;
 }
