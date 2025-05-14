@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phone Simulator</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="./css/style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <!-- Экран загрузки -->
     <div id="loading-screen" class="screen active">
-        <div class="loading-logo">I'm a great<br>screw</div>
+        <img src="./images/logo_loading.png" alt="Game Logo" class="loading-logo">
         <div class="loading-text">Loading...</div>
     </div>
 
@@ -21,17 +21,35 @@
             <span id="user-points">0 points</span>
         </div>
         
-        <div class="main-logo">dogStyle</div>
+        <img src="./images/logo_main.png" alt="Main Logo" class="main-logo">
         
-        <div class="app-grid">
-            <!-- Будет заполняться динамически -->
+        <!-- Сетка пустышек (6 кнопок) -->
+        <div class="dummy-grid">
+            <div class="dummy-btn"></div>
+            <div class="dummy-btn"></div>
+            <div class="dummy-btn"></div>
+            <div class="dummy-btn"></div>
+            <div class="dummy-btn"></div>
+            <div class="dummy-btn"></div>
         </div>
         
         <div class="bottom-nav">
-            <button class="app-btn" data-app="call">C</button>
-            <button class="app-btn" data-app="sms">S</button>
-            <button class="app-btn" data-app="browser">B</button>
-            <button class="app-btn" data-app="chat">Ch</button>
+            <button class="app-btn" data-app="call">
+                <img src="./images/icon_call.png" alt="Calls" class="app-icon">
+                <span>C</span>
+            </button>
+            <button class="app-btn" data-app="sms">
+                <img src="./images/icon_sms.png" alt="Messages" class="app-icon">
+                <span>S</span>
+            </button>
+            <button class="app-btn" data-app="browser">
+                <img src="./images/icon_browser.png" alt="Browser" class="app-icon">
+                <span>B</span>
+            </button>
+            <button class="app-btn" data-app="chat">
+                <img src="./images/icon_chat.png" alt="Chat" class="app-icon">
+                <span>Ch</span>
+            </button>
         </div>
     </div>
 
@@ -49,7 +67,6 @@
                     <span class="new-message-count">3</span>
                 </div>
             </div>
-            <!-- Другие сообщения будут добавляться динамически -->
         </div>
     </div>
 
@@ -65,10 +82,9 @@
                 <span class="caller-name">Nickname1</span>
                 <span class="call-type incoming">входящий</span>
             </div>
-            <!-- Другие звонки будут добавляться динамически -->
         </div>
     </div>
 
-    <script src="js/main.js"></script>
+    <script src="./js/main.js"></script>
 </body>
 </html>
