@@ -30,12 +30,29 @@
         
         <!-- Сетка 4x4 -->
         <div class="dummy-grid">
-            <!-- Кнопки с иконками -->
             <div class="app-cell">
                 <button class="dummy-btn">
                     <img src="./Img/icon_settings.png" alt="Настройки" class="app-icon">
                 </button>
                 <div class="app-label">Настройки</div>
+            </div>
+            <div class="app-cell">
+                <button class="dummy-btn">
+                    <img src="./Img/icon_crypto.png" alt="КриптоКош" class="app-icon">
+                </button>
+                <div class="app-label">КриптоКош</div>
+            </div>
+            <div class="app-cell">
+                <button class="dummy-btn">
+                    <img src="./Img/icon_miner.png" alt="Майнер" class="app-icon">
+                </button>
+                <div class="app-label">Майнер</div>
+            </div>
+            
+            <!-- Остальные 13 кнопок -->
+            <div class="app-cell">
+                <button class="dummy-btn transparent"></button>
+                <div class="app-label"></div>
             </div>
             <!-- ... остальные кнопки ... -->
         </div>
@@ -48,18 +65,53 @@
                 </button>
                 <div class="nav-label">Вызовы</div>
             </div>
-            <!-- ... остальные кнопки ... -->
+            <div class="nav-cell">
+                <button class="app-btn" id="sms-btn">
+                    <img src="./Img/icon_sms.png" alt="Сообщения" class="nav-icon">
+                </button>
+                <div class="nav-label">Сообщения</div>
+            </div>
+            <div class="nav-cell">
+                <button class="app-btn">
+                    <img src="./Img/icon_browser.png" alt="Браузер" class="nav-icon">
+                </button>
+                <div class="nav-label">Браузер</div>
+            </div>
+            <div class="nav-cell">
+                <button class="app-btn">
+                    <img src="./Img/icon_chat.png" alt="Чат" class="nav-icon">
+                </button>
+                <div class="nav-label">Чат</div>
+            </div>
         </div>
     </div>
 
     <!-- Окно вызовов -->
     <div id="call-screen" class="app-screen hidden">
-        <!-- ... содержимое окна вызовов ... -->
+        <div class="app-header">
+            <h2>Вызовы</h2>
+            <button class="close-btn">✕</button>
+        </div>
+        <div class="app-content">
+            <div class="call-item">
+                <span class="caller-name">Хакер</span>
+                <span class="call-type incoming">входящий</span>
+            </div>
+        </div>
     </div>
 
     <!-- Окно сообщений -->
     <div id="sms-screen" class="app-screen hidden">
-        <!-- ... содержимое окна сообщений ... -->
+        <div class="app-header">
+            <h2>Сообщения</h2>
+            <button class="close-btn">✕</button>
+        </div>
+        <div class="app-content">
+            <div class="message-item">
+                <span class="sender-name">Хакер</span>
+                <span class="message-preview">Новое сообщение...</span>
+            </div>
+        </div>
     </div>
 
     <script src="./js/main.js"></script>
