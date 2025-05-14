@@ -1,16 +1,14 @@
+// Упрощенная версия без ожидания загрузки изображений
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация Telegram WebApp
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-    tg.enableClosingConfirmation();
+    // Показываем загрузку
+    document.getElementById('loading-screen').classList.add('active');
     
-    // Получаем данные пользователя
-    const user = tg.initDataUnsafe.user;
-    if (user) {
-        const nickname = user.username || 
-                       `${user.first_name || ''} ${user.last_name || ''}`.trim();
-        document.getElementById('user-nickname').textContent = nickname || 'Player';
-    }
+    // Через 2 секунды переключаемся
+    setTimeout(() => {
+        document.getElementById('loading-screen').classList.remove('active');
+        document.getElementById('main-screen').classList.add('active');
+    }, 2000);
+});
     
     // Элементы интерфейса
     const screens = {
@@ -111,20 +109,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Предзагрузка изображений
-    function preloadImages() {
-        const images = [
-            './images/logo_loading.png',
-            './images/logo_main.png',
-            './images/icon_call.png',
-            './images/icon_sms.png',
-            './images/icon_browser.png',
-            './images/icon_chat.png'
-        ];
-        
-        images.forEach(src => {
-            new Image().src = src;
-        });
+ function switchScreen(screenName) {
+    console.log(`Attempting to switch to: ${screenName}`);
+    
+    Object.values(screens).forEach(screen => {
+        screen.classList.remove('active');
+        console.log(`Hiding screen: ${screen.id}`);
+    });
+    
+    const targetScreen = screens[screenName];
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+        console.log(`Showing screen: ${targetScreen.id}`);
+    } else {
+        console.error(`Screen not found: ${screenName}`);
     }
+}
     
     preloadImages();
 });
