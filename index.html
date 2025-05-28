@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phone Simulator</title>
     <link rel="stylesheet" href="./css/style.css">
-    <!-- Подключение языков -->
-    <script src="./js/languages.js"></script>
     <link rel="stylesheet" href="./css/screens/calls.css">
     <link rel="stylesheet" href="./css/screens/sms.css">
     <link rel="stylesheet" href="./css/screens/settings.css">
     <link rel="stylesheet" href="./css/screens/darkwall.css">
+    <script src="./js/languages.js"></script>
 </head>
 <body class="theme-1">
     <!-- Главный экран -->
@@ -25,46 +24,62 @@
         
         <img src="./Img/Theme_1/logo_main.png" alt="Main Logo" class="main-logo">
         
-        <!-- Сетка приложений -->
+        <!-- Сетка 4x4 -->
         <div class="dummy-grid">
             <div class="app-cell">
                 <button class="dummy-btn" id="settings-btn">
-                    <img src="./Img/Theme_1/icon_settings.png" alt="Настройки" class="app-icon">
+                    <img src="./Img/Theme_1/icon_settings.png" alt="Settings" class="app-icon">
                 </button>
-                <div class="app-label">Настройки</div>
+                <div class="app-label" data-lang="settings">Настройки</div>
             </div>
             <div class="app-cell">
-    <button class="dummy-btn" id="darkwall-btn">
-        <img src="./Img/Theme_1/icon_darkwall.png" alt="ТемнаяСтена" class="app-icon">
-    </button>
-    <div class="app-label">ТемнаяСтена</div>
-</div>
-            <!-- Другие кнопки... -->
+                <button class="dummy-btn" id="darkwall-btn">
+                    <img src="./Img/Theme_1/icon_darkwall.png" alt="DarkWall" class="app-icon">
+                </button>
+                <div class="app-label" data-lang="darkwall">ТемнаяСтена</div>
+            </div>
+            <div class="app-cell">
+                <button class="dummy-btn">
+                    <img src="./Img/Theme_1/icon_crypto.png" alt="Crypto" class="app-icon">
+                </button>
+                <div class="app-label">КриптоКош</div>
+            </div>
+            <div class="app-cell">
+                <button class="dummy-btn">
+                    <img src="./Img/Theme_1/icon_miner.png" alt="Miner" class="app-icon">
+                </button>
+                <div class="app-label">Майнер</div>
+            </div>
+            <!-- Остальные кнопки -->
+            <div class="app-cell">
+                <button class="dummy-btn transparent"></button>
+                <div class="app-label"></div>
+            </div>
         </div>
         
         <!-- Нижняя панель -->
         <div class="bottom-nav">
             <div class="nav-cell">
                 <button class="app-btn" id="call-btn">
-                    <img src="./Img/Theme_1/icon_call.png" alt="Вызовы" class="nav-icon">
+                    <img src="./Img/Theme_1/icon_call.png" alt="Calls" class="nav-icon">
                 </button>
-                <div class="nav-label">Вызовы</div>
+                <div class="nav-label" data-lang="calls">Вызовы</div>
             </div>
             <div class="nav-cell">
                 <button class="app-btn" id="sms-btn">
-                    <img src="./Img/Theme_1/icon_sms.png" alt="Сообщения" class="nav-icon">
+                    <img src="./Img/Theme_1/icon_sms.png" alt="Messages" class="nav-icon">
                 </button>
-                <div class="nav-label">Сообщения</div>
+                <div class="nav-label" data-lang="messages">Сообщения</div>
             </div>
             <div class="nav-cell">
-                <button class="app-btn" id="browser-btn">
-                    <img src="./Img/Theme_1/icon_browser.png" alt="Браузер" class="nav-icon">
+                <button class="app-btn">
+                    <img src="./Img/Theme_1/icon_browser.png" alt="Browser" class="nav-icon">
                 </button>
                 <div class="nav-label">Браузер</div>
             </div>
             <div class="nav-cell">
-                <button class="app-btn" id="chat-btn">
-                    <img src="./Img/Theme_1/icon_chat.png" alt="Чат" class="nav-icon">
+                <button class="app-btn">
+                    <img src="./Img/Theme_1/icon_chat.png" alt="Chat" class="nav-icon">
                 </button>
                 <div class="nav-label">Чат</div>
             </div>
@@ -74,7 +89,7 @@
     <!-- Контейнер для динамически загружаемых экранов -->
     <div id="screens-container"></div>
 
-    <!-- Подключаем скрипты -->
+    <!-- Подключаем все JS -->
     <script src="./js/router.js"></script>
     <script src="./js/main.js"></script>
     <script src="./js/screens/calls.js"></script>
