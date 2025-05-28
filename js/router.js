@@ -40,6 +40,24 @@ class AppRouter {
                 console.error(`Error loading ${screenName}:`, error);
                 return;
             }
+            // После показа экрана
+    if (screenName === 'darkwall') {
+        // Ждем загрузки iframe
+        const iframe = this.screens[screenName].querySelector('.game-iframe');
+        iframe.onload = function() {
+            // Отправляем сообщение в игру с информацией о размере
+            const sizeData = {
+                width: iframe.offsetWidth,
+                height: iframe.offsetHeight,
+                devicePixelRatio: window.devicePixelRatio || 1
+            };
+            iframe.contentWindow.postMessage({ 
+                type: 'resize', 
+                data: sizeData 
+            }, '*');
+        };
+    }
+
         }
 
         // Скрываем все экраны
