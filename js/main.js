@@ -1,49 +1,20 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация интерфейса
-    const screens = {
-        main: document.getElementById('main-screen'),
-        call: document.getElementById('call-screen'),
-        sms: document.getElementById('sms-screen')
-    };
-
-    // Функция переключения экранов
-    function showScreen(screenName) {
-        // Скрываем все экраны
-        Object.values(screens).forEach(screen => {
-            screen.classList.add('hidden');
-        });
-        
-        // Показываем нужный экран
-        if (screens[screenName]) {
-            screens[screenName].classList.remove('hidden');
-        }
-    }
-
-    // Обработчики кнопок
-    document.getElementById('call-btn').addEventListener('click', function() {
-        showScreen('call');
-    });
-
-    document.getElementById('sms-btn').addEventListener('click', function() {
-        showScreen('sms');
-    });
-
-    // Кнопки закрытия
-    document.querySelectorAll('.close-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            showScreen('main');
-        });
-    });
-
-    // Инициализация Telegram WebApp (если доступен)
+    // Инициализация Telegram WebApp
     if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.expand();
         window.Telegram.WebApp.enableClosingConfirmation();
         
-        // Можно раскомментировать для отладки
-        // console.log('Telegram WebApp initialized');
+        const user = window.Telegram.WebApp.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('username').textContent = user.first_name || 'TG User';
+            if (user.photo_url) {
+                document.getElementById('profile-photo').src = user.photo_url;
+            }
+        }
     }
 
-    // Показываем главный экран
-    showScreen('main');
+    // Обработчики главного экрана
+    document.getElementById('settings-btn').addEventListener('click', () => showScreen('settings'));
+    document.getElementById('call-btn').addEventListener('click', () => showScreen('calls'));
+    document.getElementById('sms-btn').addEventListener('click', () => showScreen('sms'));
 });
