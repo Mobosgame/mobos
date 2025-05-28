@@ -420,7 +420,7 @@ function showMainMenu() {
             gameOverTitle.textContent = isWin ? 'Победа!' : 'Поражение!';
             gameOverMenu.classList.remove('hidden');
         setTimeout(() => {
-        window.parent.postMessage('gameClosed', '*');
+        //window.parent.postMessage('gameClosed', '*');
     }, 3000);
 }
 
