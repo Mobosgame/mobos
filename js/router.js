@@ -2,30 +2,44 @@ class Router {
     constructor() {
         this.screens = {};
         this.currentScreen = null;
+        this.screensContainer = document.getElementById('screens-container');
     }
 
     async loadScreen(screenName) {
         if (!this.screens[screenName]) {
-            const response = await fetch(`./screens/${screenName}.html`);
-            const html = await response.text();
-            
-            const temp = document.createElement('div');
-            temp.innerHTML = html;
-            this.screens[screenName] = temp.firstElementChild;
-            
-            document.body.appendChild(this.screens[screenName]);
+            try {
+                const response = await fetch(`./screens/${screenName}.html`);
+                if (!response.ok) throw new Error('Screen not found');
+                const html = await response.text();
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                this.screens[screenName] = doc.body.firstElementChild;
+                
+                this.screensContainer.appendChild(this.screens[screenName]);
+            } catch (error) {
+                console.error(`Error loading ${screenName}:`, error);
+                return;
+            }
         }
 
-        if (this.currentScreen) {
-            this.currentScreen.classList.add('hidden');
-        }
+        // Скрываем все экраны
+        document.querySelectorAll('.app-screen').forEach(screen => {
+            screen.classList.add('hidden');
+        });
         
+        // Показываем текущий экран
         this.currentScreen = this.screens[screenName];
         this.currentScreen.classList.remove('hidden');
         
-        // Инициализируем скрипт экрана
-        if (window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`]) {
-            window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`]();
+        // Инициализируем экран
+        this.initScreen(screenName);
+    }
+
+    initScreen(screenName) {
+        const initFunction = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
+        if (initFunction && typeof initFunction === 'function') {
+            initFunction();
         }
     }
 }
@@ -38,5 +52,8 @@ function showScreen(screenName) {
 }
 
 function goBack() {
-    router.loadScreen('main');
+    document.getElementById('main-screen').classList.remove('hidden');
+    if (router.currentScreen) {
+        router.currentScreen.classList.add('hidden');
+    }
 }
