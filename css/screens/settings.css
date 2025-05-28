@@ -1,1 +1,33 @@
+#settings-screen .app-content {
+    padding: 20px;
+}
 
+.theme-selector {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.theme-option {
+    cursor: pointer;
+    text-align: center;
+}
+
+.theme-option img {
+    width: 100%;
+    max-width: 120px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.theme-option.active img {
+    border-color: var(--theme-color);
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.theme-option span {
+    display: block;
+    margin-top: 5px;
+    font-size: 14px;
+}
