@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phone Simulator</title>
     <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/screens/calls.css">
+    <link rel="stylesheet" href="./css/screens/sms.css">
+    <link rel="stylesheet" href="./css/screens/settings.css">
 </head>
 <body class="theme-1">
+    <!-- Главный экран -->
     <div id="main-screen" class="screen">
         <div class="header">
             <div class="profile">
@@ -18,46 +22,7 @@
         
         <img src="./Img/Theme_1/logo_main.png" alt="Main Logo" class="main-logo">
         
-        <div class="dummy-grid">
-            <!-- Кнопки приложений -->
-          <!-- Настройки -->
-            <div class="app-cell">
-                <button class="dummy-btn" id="settings-btn">
-                    <img src="./Img/Theme_1/icon_settings.png" alt="Настройки" class="app-icon">
-                </button>
-                <div class="app-label">Настройки</div>
-            </div>
-            <!-- Вызовы -->
-            <div class="app-cell">
-                <button class="dummy-btn" id="calls-btn">
-                    <img src="./Img/Theme_1/icon_calls.png" alt="Вызовы" class="app-icon">
-                </button>
-                <div class="app-label">Вызовы</div>
-            </div>
-          <!-- Сообщения -->
-            <div class="app-cell">
-                <button class="dummy-btn" id="sms-btn">
-                    <img src="./Img/Theme_1/icon_sms.png" alt="Сообщения" class="app-icon">
-                </button>
-                <div class="app-label">Настройки</div>
-            </div>
-        </div>
-        
-        <div class="bottom-nav">
-            <!-- Навигация... -->
-          <!-- Главный экран -->
-    <div id="main-screen" class="screen">
-        <div class="header">
-            <div class="profile">
-                <img id="profile-photo" src="./Img/Theme_1/profile.png" alt="Profile" class="profile-photo">
-                <span id="username">TG User</span>
-            </div>
-            <span id="user-points">0 points</span>
-        </div>
-        
-        <img src="./Img/Theme_1/logo_main.png" alt="Main Logo" class="main-logo">
-        
-        <!-- Сетка 4x4 -->
+        <!-- Сетка приложений -->
         <div class="dummy-grid">
             <div class="app-cell">
                 <button class="dummy-btn" id="settings-btn">
@@ -65,24 +30,7 @@
                 </button>
                 <div class="app-label">Настройки</div>
             </div>
-            <div class="app-cell">
-                <button class="dummy-btn">
-                    <img src="./Img/Theme_1/icon_crypto.png" alt="КриптоКош" class="app-icon">
-                </button>
-                <div class="app-label">КриптоКош</div>
-            </div>
-            <div class="app-cell">
-                <button class="dummy-btn">
-                    <img src="./Img/Theme_1/icon_miner.png" alt="Майнер" class="app-icon">
-                </button>
-                <div class="app-label">Майнер</div>
-            </div>
-            
-            <!-- Остальные 13 кнопок -->
-            <div class="app-cell">
-                <button class="dummy-btn transparent"></button>
-                <div class="app-label"></div>
-            </div>
+            <!-- Другие кнопки... -->
         </div>
         
         <!-- Нижняя панель -->
@@ -99,28 +47,30 @@
                 </button>
                 <div class="nav-label">Сообщения</div>
             </div>
+            <div class="bottom-nav">
             <div class="nav-cell">
-                <button class="app-btn">
-                    <img src="./Img/Theme_1/icon_browser.png" alt="Браузер" class="nav-icon">
+                <button class="app-btn" id="browser-btn">
+                    <img src="./Img/Theme_1/icon_brawser.png" alt="Браузер" class="nav-icon">
                 </button>
                 <div class="nav-label">Браузер</div>
             </div>
             <div class="nav-cell">
-                <button class="app-btn">
+                <button class="app-btn" id="chat-btn">
                     <img src="./Img/Theme_1/icon_chat.png" alt="Чат" class="nav-icon">
                 </button>
                 <div class="nav-label">Чат</div>
             </div>
         </div>
     </div>
-        </div>
-    </div>
 
-    <!-- Подключаем все JS -->
+    <!-- Контейнер для динамически загружаемых экранов -->
+    <div id="screens-container"></div>
+
+    <!-- Подключаем скрипты -->
     <script src="./js/router.js"></script>
     <script src="./js/main.js"></script>
-    <script src="./js/screens/settings.js"></script>
     <script src="./js/screens/calls.js"></script>
     <script src="./js/screens/sms.js"></script>
+    <script src="./js/screens/settings.js"></script>
 </body>
 </html>
