@@ -13,8 +13,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Обработчики главного экрана
+    // Обработчики кнопок главного экрана
     document.getElementById('settings-btn').addEventListener('click', () => showScreen('settings'));
     document.getElementById('call-btn').addEventListener('click', () => showScreen('calls'));
     document.getElementById('sms-btn').addEventListener('click', () => showScreen('sms'));
+
+    // Показываем главный экран при загрузке
+    document.getElementById('main-screen').classList.remove('hidden');
 });
