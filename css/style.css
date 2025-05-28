@@ -1,3 +1,26 @@
+/* Профиль пользователя */
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 70%;
+}
+
+.profile-photo {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--theme-color);
+}
+
+#username {
+    font-weight: bold;
+    color: var(--theme-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 /* Базовые стили */
 * {
     box-sizing: border-box;
