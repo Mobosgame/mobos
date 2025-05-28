@@ -1,4 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация языка
+    const savedLang = localStorage.getItem('appLanguage') || 'ru';
+    setLanguage(savedLang);
+    
+    // Инициализация темы
+    const savedTheme = localStorage.getItem('appTheme') || '1';
+    document.body.className = `theme-${savedTheme}`;
+    
+    document.addEventListener('DOMContentLoaded', function() {
     // Инициализация Telegram WebApp
     if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.expand();
