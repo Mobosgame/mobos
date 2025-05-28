@@ -1,8 +1,43 @@
+let tgUserData = null;
 class Router {
     constructor() {
         this.screens = {};
         this.currentScreen = null;
         this.screensContainer = document.getElementById('screens-container');
+        // Инициализация данных пользователя
+        this.initUserData();
+    }
+    
+    initUserData() {
+        if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+            tgUserData = window.Telegram.WebApp.initDataUnsafe.user;
+            this.updateUserProfile();
+        }
+    }
+    
+    updateUserProfile() {
+        if (!tgUserData) return;
+        
+        const username = document.getElementById('username');
+        const profilePhoto = document.getElementById('profile-photo');
+        
+        // Обновление имени
+        if (tgUserData.first_name) {
+            let name = tgUserData.first_name;
+            if (tgUserData.last_name) name += ' ' + tgUserData.last_name;
+            username.textContent = name;
+        } else if (tgUserData.username) {
+            username.textContent = tgUserData.username;
+        }
+        
+        // Обновление фото
+        if (tgUserData.photo_url) {
+            profilePhoto.src = `${tgUserData.photo_url}?${Date.now()}`;
+            profilePhoto.onerror = function() {
+                profilePhoto.src = './Img/Theme_1/profile.png';
+            };
+        }
+    }
     }
 
     async loadScreen(screenName) {
