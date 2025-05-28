@@ -1,59 +1,55 @@
-#darkwall-screen {
-    padding: 0;
-    overflow: hidden;
-}
-
-#darkwall-screen .app-content {
-    padding: 0;
+#darkwall-screen .game-container {
+    width: 100%;
     height: calc(100% - 50px); /* Учитываем высоту заголовка */
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
-.darkwall-iframe-container {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-}
-
-#darkwall-screen .darkwall-iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
+#darkwall-screen .game-iframe {
     width: 100%;
     height: 100%;
-    border: none;
+    max-width: 600px; /* Максимальная ширина на больших экранах */
+    max-height: 800px; /* Максимальная высота на больших экранах */
+    border-radius: 15px;
+    overflow: hidden;
     background: #000;
+    border: 2px solid var(--theme-color);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
-/* Адаптация под разные размеры экранов */
+/* Адаптация под разные экраны */
+@media (min-width: 768px) {
+    #darkwall-screen .game-iframe {
+        width: 90%;
+        height: 90%;
+    }
+}
+
+@media (min-width: 992px) {
+    #darkwall-screen .game-iframe {
+        width: 80%;
+        height: 85%;
+        max-width: 800px;
+        max-height: 900px;
+    }
+}
+
+@media (min-width: 1200px) {
+    #darkwall-screen .game-iframe {
+        width: 70%;
+        height: 90%;
+        max-width: 1000px;
+        max-height: 1000px;
+    }
+}
+
+/* Вертикальная ориентация (мобильные) */
 @media (max-height: 700px) {
-    #darkwall-screen .app-content {
-        height: calc(100% - 40px); /* Уменьшаем высоту заголовка */
-    }
-    
-    .darkwall-iframe-container {
-        transform: scale(0.9);
-        transform-origin: top center;
-    }
-}
-
-@media (max-height: 600px) {
-    .darkwall-iframe-container {
-        transform: scale(0.8);
-    }
-    
-    #darkwall-screen .app-header {
-        padding: 8px 15px;
-    }
-    
-    #darkwall-screen .app-header h2 {
-        font-size: 16px;
-    }
-}
-
-@media (max-height: 500px) {
-    .darkwall-iframe-container {
-        transform: scale(0.7);
+    #darkwall-screen .game-iframe {
+        height: 75vh;
+        max-height: 600px;
     }
 }
