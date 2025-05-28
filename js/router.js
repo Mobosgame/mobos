@@ -27,6 +27,26 @@ class Router {
                 console.error(`Error loading ${screenName}:`, error);
                 return;
             }
+            // Для экрана darkwall добавляем обработчик resize
+if (screenName === 'darkwall') {
+    window.addEventListener('resize', handleDarkwallResize);
+    setTimeout(handleDarkwallResize, 100);
+}
+
+function handleDarkwallResize() {
+    const iframeContainer = document.querySelector('.darkwall-iframe-container');
+    if (!iframeContainer) return;
+    
+    const windowHeight = window.innerHeight;
+    const headerHeight = document.querySelector('#darkwall-screen .app-header').offsetHeight;
+    
+    if (windowHeight < 600) {
+        const scale = Math.min(0.9, (windowHeight - headerHeight) / 600);
+        iframeContainer.style.transform = `scale(${scale})`;
+    } else {
+        iframeContainer.style.transform = 'none';
+    }
+}
         }
 
         // Скрываем главный экран и другие окна
