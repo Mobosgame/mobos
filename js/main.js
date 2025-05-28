@@ -20,4 +20,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Показываем главный экран при загрузке
     document.getElementById('main-screen').classList.remove('hidden');
+    document.getElementById('darkwall-btn').addEventListener('click', () => showScreen('darkwall'));
 });
