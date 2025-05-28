@@ -1,4 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем, что мы внутри Telegram
+if (window.Telegram?.WebApp?.platform) {
+    console.log('Running in Telegram WebApp on', Telegram.WebApp.platform);
+} else {
+    console.log('Running in browser');
+    // Можно добавить тестовые данные для разработки
+    document.getElementById('username').textContent = 'Тестовый Пользователь';
+}
     // Инициализация Telegram WebApp
     function initTelegramUser() {
         if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
@@ -27,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+    
 
     // Проверяем, что WebApp инициализирован
     if (window.Telegram?.WebApp) {
