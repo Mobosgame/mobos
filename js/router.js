@@ -16,6 +16,12 @@ class Router {
                 const doc = parser.parseFromString(html, 'text/html');
                 this.screens[screenName] = doc.body.firstElementChild;
                 
+                // Добавляем обработчик закрытия для всех окон
+                const closeBtn = this.screens[screenName].querySelector('.close-btn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', goBack);
+                }
+                
                 this.screensContainer.appendChild(this.screens[screenName]);
             } catch (error) {
                 console.error(`Error loading ${screenName}:`, error);
@@ -23,7 +29,8 @@ class Router {
             }
         }
 
-        // Скрываем все экраны
+        // Скрываем главный экран и другие окна
+        document.getElementById('main-screen').classList.add('hidden');
         document.querySelectorAll('.app-screen').forEach(screen => {
             screen.classList.add('hidden');
         });
@@ -56,4 +63,5 @@ function goBack() {
     if (router.currentScreen) {
         router.currentScreen.classList.add('hidden');
     }
+    router.currentScreen = null;
 }
