@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    //
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+    body {
+        overflow: hidden;
+        touch-action: manipulation;
+    }
+    
+    .game-container {
+        max-width: 100% !important;
+        padding: 5px;
+    }
+    
+    .cell {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    @media (max-width: 400px) {
+        .cell {
+            width: 35px !important;
+            height: 35px !important;
+        }
+    }
+</style>
+    //
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Темная Стена</title>
