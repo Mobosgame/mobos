@@ -1,21 +1,24 @@
 function initSettings() {
-    // Переключение тем
-    document.querySelectorAll('.theme-option').forEach(option => {
-        option.addEventListener('click', function() {
-            const theme = this.dataset.theme;
-            document.body.className = `theme-${theme}`;
-            
-            // Обновляем активную тему
-            document.querySelectorAll('.theme-option').forEach(opt => {
-                opt.classList.remove('active');
-            });
-            this.classList.add('active');
-            
-            // Обновляем иконки
-            updateIconsForTheme(theme);
-        });
+    // Загрузка сохраненных настроек
+    const savedTheme = localStorage.getItem('appTheme') || '1';
+    const savedLang = localStorage.getItem('appLanguage') || 'ru';
+    
+    // Установка значений в селекторы
+    document.getElementById('theme-selector').value = savedTheme;
+    document.getElementById('language-selector').value = savedLang;
+    
+    // Обработчики изменений
+    document.getElementById('theme-selector').addEventListener('change', function() {
+        const theme = this.value;
+        document.body.className = `theme-${theme}`;
+        localStorage.setItem('appTheme', theme);
+        updateIconsForTheme(theme);
     });
-
+    
+    document.getElementById('language-selector').addEventListener('change', function() {
+        setLanguage(this.value);
+    });
+    
     // Кнопка закрытия
     document.querySelector('#settings-screen .close-btn').addEventListener('click', goBack);
 }
