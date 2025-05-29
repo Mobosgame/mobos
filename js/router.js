@@ -15,68 +15,47 @@ class AppRouter {
     }
 
     async loadScreen(screenName) {
-        if (!this.screens[screenName]) {
-            try {
-                const response = await fetch(`./screens/${screenName}.html`);
-                const html = await response.text();
-                
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                this.screens[screenName] = doc.body.firstElementChild;
-                
-                document.body.appendChild(this.screens[screenName]);
-                
-                // Добавляем обработчик закрытия
-                const closeBtn = this.screens[screenName].querySelector('.close-btn');
-                if (closeBtn) {
-                    closeBtn.addEventListener('click', window.goBack);
-                }
-                
-                // Инициализация экрана
-                const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
-                if (initFn) initFn();
-                
-            } catch (error) {
-                console.error(`Error loading ${screenName}:`, error);
-                return;
-            }
-            // После показа экрана
-    if (screenName === 'darkwall') {
-        // Ждем загрузки iframe
-        const iframe = this.screens[screenName].querySelector('.game-iframe');
-        iframe.onload = function() {
-            // Отправляем сообщение в игру с информацией о размере
-            const sizeData = {
-                width: iframe.offsetWidth,
-                height: iframe.offsetHeight,
-                devicePixelRatio: window.devicePixelRatio || 1
-            };
-            iframe.contentWindow.postMessage({ 
-                type: 'resize', 
-                data: sizeData 
-            }, '*');
-        };
-    }
-
+    if (!this.screens[screenName]) {
+        try {
+            const response = await fetch(`./screens/${screenName}.html`);
+            const html = await response.text();
+            
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            this.screens[screenName] = doc.body.firstElementChild;
+            
+            document.getElementById('screens-container').appendChild(this.screens[screenName]);
+            
+            // Инициализация экрана
+            const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
+            if (initFn) initFn();
+            
+        } catch (error) {
+            console.error(`Error loading ${screenName}:`, error);
+            return;
         }
-
-        // Скрываем все экраны
-        document.getElementById('main-screen').classList.add('hidden');
-        document.querySelectorAll('.app-screen').forEach(screen => {
-            screen.classList.add('hidden');
-        });
-        
-        // Показываем нужный экран
-        this.currentScreen = this.screens[screenName];
-        this.currentScreen.classList.remove('hidden');
     }
 
-    backToMain() {
+    // Скрываем все экраны
+    document.getElementById('main-screen').classList.add('hidden');
+    document.querySelectorAll('.app-screen').forEach(screen => {
+        screen.classList.add('hidden');
+    });
+    
+    // Показываем нужный экран
+    this.currentScreen = this.screens[screenName];
+    this.currentScreen.classList.remove('hidden');
+    
+    // Особый случай для Darkwall
+    if (screenName === 'darkwall') {
+        showDarkwall();
+    }
+}
+
+backToMain() {
     document.getElementById('main-screen').classList.remove('hidden');
     if (this.currentScreen) {
         this.currentScreen.classList.add('hidden');
-        
-        // Специальная обработка не нужна - все окна скрываются одинаково
     }
     this.currentScreen = null;
 }
