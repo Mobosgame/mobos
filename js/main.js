@@ -33,6 +33,10 @@ const appStorage = new AppStorage();
         window.Telegram.WebApp.enableClosingConfirmation();
         
 document.addEventListener('DOMContentLoaded', function() {
+    const savedSettings = appStorage.get('settings');
+    if (savedSettings?.theme) {
+        document.body.className = `theme-${savedSettings.theme}`;
+    }
     // Инициализация Telegram WebApp
     if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.expand();
