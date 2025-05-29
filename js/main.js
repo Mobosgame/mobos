@@ -1,13 +1,13 @@
 //import appStorage from './storage.js';
 
-document.addEventListener('DOMContentLoaded', function() {
+//document.addEventListener('DOMContentLoaded', function() {
     // Загружаем сохраненные настройки
-    const savedSettings = appStorage.get('settings');
+   // const savedSettings = appStorage.get('settings');
     
     // Применяем тему при загрузке
-    if (savedSettings?.theme) {
-        document.body.className = `theme-${savedSettings.theme}`;
-    }
+ //   if (savedSettings?.theme) {
+ //       document.body.className = `theme-${savedSettings.theme}`;
+ //   }
 
     // Инициализация Telegram WebApp
     if (window.Telegram?.WebApp) {
