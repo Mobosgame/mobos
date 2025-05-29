@@ -1,9 +1,23 @@
-
+document.addEventListener('DOMContentLoaded', function() {
+    // Загружаем сохраненные настройки
+    const savedSettings = window.appStorage.get('settings') || {
+        theme: '1',
+        language: 'ru'
+    };
+    
+    // Применяем настройки ко всему приложению
+    if (window.updateEntireInterface) {
+        window.updateEntireInterface(savedSettings);
+    } else {
+        // Fallback если функция еще не загружена
+        document.body.className = 'theme-' + savedSettings.theme;
+    }
 if (!window.appStorage) {
     class AppStorage {
         constructor() {
             this.prefix = 'phone_simulator_';
         }
+    }
 
         set(key, value) {
             try {
