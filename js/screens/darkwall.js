@@ -1,13 +1,21 @@
 // darkwall.js
 
+let gameInitialized = false;
+
 function initDarkwall() {
     // Инициализация закрытия окна
     const closeBtn = document.querySelector('#darkwall-screen .close-btn');
     closeBtn.addEventListener('click', function() {
         hideDarkwall();
-        goBack(); // Используем функцию роутера для возврата
+        goBack();
     });
-    
+
+    // Если игра уже инициализирована, просто сбрасываем состояние
+    if (gameInitialized) {
+        resetGame();
+        return;
+    }
+
     // Игровые переменные
     const gameState = {
         rows: 7,
@@ -279,11 +287,13 @@ function initDarkwall() {
 
     // Первоначальное создание поля
     createBoard();
+    gameInitialized = true;
 }
 
 function showDarkwall() {
     document.getElementById('darkwall-screen').style.display = 'block';
     initDarkwall();
+    document.getElementById('main-menu').classList.remove('hidden');
 }
 
 function hideDarkwall() {
