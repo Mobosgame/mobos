@@ -6,40 +6,18 @@
     height: 100%;
     background-color: var(--bg-color);
     z-index: 1000;
-    display: none;
+    /* Убрать display: none */
+    padding: 15px;
 }
 
-/* Размеры ячеек (фиксированные) */
-#darkwall-screen .cell {
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
-    min-height: 60px;
-    border: 2px solid var(--theme-color);
-    margin: 4px;
-    background-color: #004d00;
-    border-radius: 8px;
-}
-
-/* Анимации */
-#darkwall-screen .cell.mine {
-    background: linear-gradient(135deg, #ff4444, #cc0000);
-    transition: background 0.3s;
-}
-
-#darkwall-screen .row {
-    display: flex;
-    justify-content: center;
-    margin: 8px 0;
-}
-
-/* Кнопки */
-#darkwall-screen .game-btn {
-    padding: 12px 24px;
-    margin: 8px;
-    background-color: var(--theme-color);
-    color: white;
+/* Добавьте стили для кнопки закрытия */
+#darkwall-screen .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    background: none;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
+    color: var(--text-color);
+    cursor: pointer;
 }
