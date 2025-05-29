@@ -1,34 +1,14 @@
-let gameState = null;
-
 function initDarkwall() {
     // Инициализация закрытия окна
     const closeBtn = document.querySelector('#darkwall-screen .close-btn');
     closeBtn.addEventListener('click', function() {
-        hideDarkwall();
-        if (typeof goBack === 'function') {
-            goBack();
-        }
+        showMainMenu(); // Сбрасываем в главное меню
+        goBack(); // Закрываем окно
     });
 
-    // Инициализация состояния игры
-    resetGameState();
+    // Инициализация игры
     createBoard();
     showMainMenu();
-}
-
-function resetGameState() {
-    gameState = {
-        rows: 7,
-        cols: 4,
-        minesPerRow: 2,
-        board: [],
-        currentMode: null,
-        playerHealth: 100,
-        currentRow: 0,
-        isDefensePhase: true,
-        gameMode: null,
-        isScriptAttacking: false
-    };
 }
 
 function createBoard() {
@@ -250,54 +230,6 @@ function handleCellClick(e) {
     }
 
     function showMainMenu() {
-        document.getElementById('main-menu').classList.remove('hidden');
-        document.getElementById('solo-mode').classList.add('hidden');
-        document.getElementById('back-btn').classList.add('hidden');
-        document.getElementById('board').classList.add('hidden');
-        document.getElementById('ready-btn').classList.add('hidden');
-        document.getElementById('game-over-menu').classList.add('hidden');
-        updateStatus("");
-        resetGame();
-    }
-
-    function resetGame() {
-        gameState.playerHealth = 100;
-        gameState.currentRow = 0;
-        gameState.isDefensePhase = true;
-        gameState.currentMode = null;
-        gameState.gameMode = null;
-        gameState.isScriptAttacking = false;
-        createBoard();
-    }
-
-    function showNotification(message) {
-        const notification = document.getElementById('notification');
-        notification.textContent = message;
-        notification.classList.remove('hidden');
-        setTimeout(() => {
-            notification.classList.add('hidden');
-        }, 2000);
-    }
-
-    // Экспорт функций в глобальную область видимости
-    window.startGame = startGame;
-    window.setMode = setMode;
-    window.confirmMines = confirmMines;
-    window.showMainMenu = showMainMenu;
-
-    // Первоначальное создание поля и сброс состояния
-    createBoard();
-    showMainMenu();
-}
-
-function showDarkwall() {
-    const screen = document.getElementById('darkwall-screen');
-    screen.style.display = 'block';
-    
-    // Полная переинициализация при каждом открытии
-    initDarkwall();
-    
-    // Принудительный сброс интерфейса
     document.getElementById('main-menu').classList.remove('hidden');
     document.getElementById('solo-mode').classList.add('hidden');
     document.getElementById('board').classList.add('hidden');
@@ -307,19 +239,18 @@ function showDarkwall() {
     document.getElementById('notification').classList.add('hidden');
 }
 
-function hideDarkwall() {
-    const screen = document.getElementById('darkwall-screen');
-    screen.style.display = 'none';
-    
-    // Очистка состояния
-    gameState = null;
+function showDarkwall() {
+    document.getElementById('darkwall-screen').style.display = 'block';
+    initDarkwall();
 }
 
 // Экспорт функций
 window.initDarkwall = initDarkwall;
 window.showDarkwall = showDarkwall;
-window.hideDarkwall = hideDarkwall;
 window.startGame = startGame;
+window.setMode = setMode;
+window.confirmMines = confirmMines;
+window.showMainMenu = showMainMenu;
 window.setMode = setMode;
 window.confirmMines = confirmMines;
 window.showMainMenu = showMainMenu;
