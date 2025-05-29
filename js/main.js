@@ -13,11 +13,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Обработчики кнопок
-    document.getElementById('settings-btn').addEventListener('click', () => showScreen('settings'));
-    document.getElementById('call-btn').addEventListener('click', () => showScreen('calls'));
-    document.getElementById('sms-btn').addEventListener('click', () => showScreen('sms'));
-    document.getElementById('darkwall-btn').addEventListener('click', () => showScreen('darkwall'));
+    // Ожидаем инициализации роутера
+    const waitForRouter = setInterval(() => {
+        if (window.router && window.showScreen) {
+            clearInterval(waitForRouter);
+            setupEventListeners();
+        }
+    }, 100);
+
+    function setupEventListeners() {
+        // Обработчики кнопок с проверкой существования
+        const addSafeListener = (id, screen) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('click', () => {
+                    if (typeof showScreen === 'function') {
+                        showScreen(screen);
+                    } else {
+                        console.error('showScreen is not defined');
+                    }
+                });
+            }
+        };
+
+        // Назначаем обработчики
+        addSafeListener('settings-btn', 'settings');
+        addSafeListener('call-btn', 'calls');
+        addSafeListener('sms-btn', 'sms');
+        addSafeListener('darkwall-btn', 'darkwall');
+    }
 
     // Показываем главный экран
     document.getElementById('main-screen').classList.remove('hidden');
