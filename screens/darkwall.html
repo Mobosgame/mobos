@@ -1,33 +1,33 @@
 <div id="darkwall-screen" class="app-screen">
     <div class="app-header">
-        <h2>MobOS_DemoGame</h2>
+        <h2>Темная стена</h2>
         <button class="close-btn">✕</button>
     </div>
     <div class="app-content">
         <div class="game-container">
             <div class="menu" id="main-menu">
-                <h1>MobOS_DemoGame</h1>
-                <button onclick="startGame('solo')">Одиночная</button>
-                <button onclick="startGame('duo')">Для двух игроков</button>
+                <h1>Темная стена</h1>
+                <button class="game-btn" onclick="startGame('solo')">Одиночная</button>
+                <button class="game-btn" onclick="startGame('duo')">Для двух игроков</button>
             </div>
 
             <div class="menu hidden" id="solo-mode">
                 <h1>Выберите сторону</h1>
-                <button onclick="setMode('attack')">Атака</button>
-                <button onclick="setMode('defense')">Защита</button>
-                <button onclick="showMainMenu()">Назад</button>
+                <button class="game-btn" onclick="setMode('attack')">Атака</button>
+                <button class="game-btn" onclick="setMode('defense')">Защита</button>
+                <button class="game-btn" onclick="showMainMenu()">Назад</button>
             </div>
 
             <div id="board" class="hidden"></div>
             <div class="status" id="status"></div>
-            <button id="ready-btn" class="hidden" onclick="confirmMines()">Готово</button>
-            <button id="back-btn" class="hidden" onclick="showMainMenu()">Назад</button>
+            <button id="ready-btn" class="game-btn hidden" onclick="confirmMines()">Готово</button>
+            <button id="back-btn" class="game-btn hidden" onclick="showMainMenu()">Назад</button>
 
             <div id="notification" class="notification hidden"></div>
 
             <div id="game-over-menu" class="game-over-menu hidden">
                 <h1 id="game-over-title"></h1>
-                <button onclick="showMainMenu()">ОК</button>
+                <button class="game-btn" onclick="showMainMenu()">ОК</button>
             </div>
         </div>
     </div>
