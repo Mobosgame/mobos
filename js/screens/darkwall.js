@@ -306,3 +306,4 @@ window.startGame = startGame;
 window.setMode = setMode;
 window.confirmMines = confirmMines;
 window.showMainMenu = showMainMenu;
+window.showDarkwall = showDarkwall;
