@@ -1,5 +1,5 @@
 function initDarkwall() {
-    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', goBack);
+    //document.querySelector('#darkwall-screen .close-btn').addEventListener('click', goBack);
     
     const gameState = {
         rows: 7,
