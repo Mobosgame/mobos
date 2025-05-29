@@ -1,51 +1,26 @@
-// Объект для хранения функций обновления интерфейса
-window.appUpdater = {
-    updateTheme: function(theme) {
-        document.body.className = 'theme-' + theme;
-        document.querySelectorAll('img[src*="Theme_"]').forEach(img => {
-            img.src = img.src.replace(/Theme_\d+/, 'Theme_' + theme);
-        });
-    },
-    updateLanguage: function(lang) {
-        const langData = window.translations[lang] || window.translations.ru;
-        document.querySelectorAll('[data-lang]').forEach(el => {
-            const key = el.getAttribute('data-lang');
-            if (langData[key]) el.textContent = langData[key];
-        });
-    }
+// Текущие настройки (без сохранения)
+let currentSettings = {
+    theme: '1',
+    language: 'ru'
 };
 
 function initSettings() {
-    // Загружаем сохраненные настройки
-    const savedSettings = window.appStorage.get('settings') || {
-        theme: '1',
-        language: 'ru'
-    };
-
     // Применяем текущие настройки
-    applySettings(savedSettings);
+    applySettings(currentSettings);
 
     // Обработчики для тем
     document.querySelectorAll('.theme-option').forEach(option => {
         option.addEventListener('click', function() {
-            const newSettings = {
-                ...savedSettings,
-                theme: this.getAttribute('data-theme')
-            };
-            window.appStorage.set('settings', newSettings);
-            applySettings(newSettings);
+            currentSettings.theme = this.getAttribute('data-theme');
+            applySettings(currentSettings);
         });
     });
 
     // Обработчики для языков
     document.querySelectorAll('.lang-option').forEach(option => {
         option.addEventListener('click', function() {
-            const newSettings = {
-                ...savedSettings,
-                language: this.getAttribute('data-lang')
-            };
-            window.appStorage.set('settings', newSettings);
-            applySettings(newSettings);
+            currentSettings.language = this.getAttribute('data-lang');
+            applySettings(currentSettings);
         });
     });
 
@@ -54,14 +29,23 @@ function initSettings() {
 }
 
 function applySettings(settings) {
-    // Обновляем тему
-    window.appUpdater.updateTheme(settings.theme);
+    // Применяем тему
+    document.body.className = 'theme-' + settings.theme;
+    updateIconsForTheme(settings.theme);
     
-    // Обновляем язык
-    window.appUpdater.updateLanguage(settings.language);
+    // Применяем язык
+    applyLanguage(settings.language);
     
     // Отмечаем активные элементы
     markActiveOptions(settings);
+}
+
+function applyLanguage(lang) {
+    const langData = window.translations[lang] || window.translations.ru;
+    document.querySelectorAll('[data-lang]').forEach(el => {
+        const key = el.getAttribute('data-lang');
+        if (langData[key]) el.textContent = langData[key];
+    });
 }
 
 function markActiveOptions(settings) {
@@ -73,5 +57,11 @@ function markActiveOptions(settings) {
     // Языки
     document.querySelectorAll('.lang-option').forEach(el => {
         el.classList.toggle('active', el.getAttribute('data-lang') === settings.language);
+    });
+}
+
+function updateIconsForTheme(theme) {
+    document.querySelectorAll('img[src*="Theme_"]').forEach(img => {
+        img.src = img.src.replace(/Theme_\d+/, 'Theme_' + theme);
     });
 }
