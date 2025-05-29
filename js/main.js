@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Основные кнопки навигации
         setClickListener('settings-btn', 'settings');
-        setClickListener('call-btn', 'calls');
+        setClickListener('calls-btn', 'calls');
         setClickListener('sms-btn', 'sms');
         setClickListener('darkwall-btn', 'darkwall');
 
