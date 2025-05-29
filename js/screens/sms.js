@@ -1,6 +1,4 @@
-
-// sms.js - теперь пустой, так как вся логика в router.js
-function initSms() {
-    // Дополнительная логика для экрана сообщений (если нужна)
-    console.log('SMS screen initialized');
+function initCalls() { // или initSms/initSettings для других экранов
+    document.querySelector('#sms-screen .close-btn').addEventListener('click', goBack);
+    // остальная инициализация
 }
