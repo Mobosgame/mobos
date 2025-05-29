@@ -1,6 +1,6 @@
 // Замените содержимое файлов на:
-function initCalls() {
+function initSms() {
     document.querySelector('#sms-screen .close-btn')?.addEventListener('click', goBack);
 }
-window.initCalls = initCalls;
+window.initSms = initSms;
 
