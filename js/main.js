@@ -1,13 +1,31 @@
-//import appStorage from './storage.js';
+// Добавьте в начало main.js
+class AppStorage {
+    constructor() {
+        this.prefix = 'phone_simulator_';
+    }
 
-//document.addEventListener('DOMContentLoaded', function() {
-    // Загружаем сохраненные настройки
-   // const savedSettings = appStorage.get('settings');
-    
-    // Применяем тему при загрузке
- //   if (savedSettings?.theme) {
- //       document.body.className = `theme-${savedSettings.theme}`;
- //   }
+    set(key, value) {
+        try {
+            localStorage.setItem(this.prefix + key, JSON.stringify(value));
+            return true;
+        } catch (e) {
+            console.error('LocalStorage error:', e);
+            return false;
+        }
+    }
+
+    get(key) {
+        try {
+            const value = localStorage.getItem(this.prefix + key);
+            return value ? JSON.parse(value) : null;
+        } catch (e) {
+            console.error('LocalStorage error:', e);
+            return null;
+        }
+    }
+}
+
+const appStorage = new AppStorage();
 
     // Инициализация Telegram WebApp
     if (window.Telegram?.WebApp) {
