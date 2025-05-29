@@ -13,6 +13,8 @@ class AppRouter {
 
     async loadScreen(screenName) {
     try {
+        console.log(`Loading screen: ${screenName}`);
+        
         if (!this.screens[screenName]) {
             const response = await fetch(`./screens/${screenName}.html`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -30,34 +32,33 @@ class AppRouter {
             container.appendChild(screenElement);
             this.screens[screenName] = screenElement;
             
-            // Добавляем стиль для правильного отображения
-            screenElement.style.display = 'block';
-            screenElement.style.visibility = 'visible';
-            
+            // Инициализация экрана
             const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
-            if (initFn) initFn();
+            if (initFn) {
+                console.log(`Initializing ${screenName} screen`);
+                initFn();
+            }
         }
 
-        // Переключение видимости
-        document.getElementById('main-screen').classList.add('hidden');
-        
         // Скрываем все экраны
+        const mainScreen = document.getElementById('main-screen');
+        if (mainScreen) mainScreen.classList.add('hidden');
+        
         document.querySelectorAll('.app-screen').forEach(s => {
-            s.style.display = 'none';
             s.classList.add('hidden');
         });
         
         // Показываем текущий экран
         this.currentScreen = this.screens[screenName];
         if (this.currentScreen) {
-            this.currentScreen.style.display = 'block';
-            this.currentScreen.style.visibility = 'visible';
             this.currentScreen.classList.remove('hidden');
-        }
-
-        // Специальная обработка для darkwall
-        if (screenName === 'darkwall' && window.showDarkwall) {
-            setTimeout(() => window.showDarkwall(), 10);
+            
+            // Специальная обработка для darkwall
+            if (screenName === 'darkwall' && window.showDarkwall) {
+                setTimeout(() => {
+                    window.showDarkwall();
+                }, 10);
+            }
         }
 
     } catch (error) {
