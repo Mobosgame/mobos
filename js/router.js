@@ -72,12 +72,14 @@ class AppRouter {
     }
 
     backToMain() {
-        document.getElementById('main-screen').classList.remove('hidden');
-        if (this.currentScreen) {
-            this.currentScreen.classList.add('hidden');
-        }
-        this.currentScreen = null;
+    document.getElementById('main-screen').classList.remove('hidden');
+    if (this.currentScreen) {
+        this.currentScreen.classList.add('hidden');
+        
+        // Специальная обработка не нужна - все окна скрываются одинаково
     }
+    this.currentScreen = null;
+}
 
     initTelegramUser() {
         if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
@@ -99,19 +101,6 @@ class AppRouter {
             }
         }
     }
-    // Добавить в класс AppRouter
-backToMain() {
-    document.getElementById('main-screen').classList.remove('hidden');
-    if (this.currentScreen) {
-        this.currentScreen.classList.add('hidden');
-        
-        // Специальная обработка для Darkwall
-        if (this.currentScreen.id === 'darkwall-screen') {
-            hideDarkwall();
-        }
-    }
-    this.currentScreen = null;
-}
 }
 
 // Инициализация роутера при загрузке
