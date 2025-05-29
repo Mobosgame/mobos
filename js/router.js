@@ -13,7 +13,6 @@ class AppRouter {
 
     async loadScreen(screenName) {
     try {
-        // Загружаем экран если еще не загружен
         if (!this.screens[screenName]) {
             const response = await fetch(`./screens/${screenName}.html`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -31,29 +30,34 @@ class AppRouter {
             container.appendChild(screenElement);
             this.screens[screenName] = screenElement;
             
-            // Инициализация экрана
+            // Добавляем стиль для правильного отображения
+            screenElement.style.display = 'block';
+            screenElement.style.visibility = 'visible';
+            
             const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
             if (initFn) initFn();
         }
 
-        // Скрываем все экраны
-        const mainScreen = document.getElementById('main-screen');
-        if (mainScreen) mainScreen.classList.add('hidden');
+        // Переключение видимости
+        document.getElementById('main-screen').classList.add('hidden');
         
-        const appScreens = document.querySelectorAll('.app-screen');
-        appScreens.forEach(s => {
-            if (s.classList) s.classList.add('hidden');
+        // Скрываем все экраны
+        document.querySelectorAll('.app-screen').forEach(s => {
+            s.style.display = 'none';
+            s.classList.add('hidden');
         });
         
         // Показываем текущий экран
         this.currentScreen = this.screens[screenName];
-        if (this.currentScreen && this.currentScreen.classList) {
+        if (this.currentScreen) {
+            this.currentScreen.style.display = 'block';
+            this.currentScreen.style.visibility = 'visible';
             this.currentScreen.classList.remove('hidden');
         }
 
         // Специальная обработка для darkwall
         if (screenName === 'darkwall' && window.showDarkwall) {
-            window.showDarkwall();
+            setTimeout(() => window.showDarkwall(), 10);
         }
 
     } catch (error) {
