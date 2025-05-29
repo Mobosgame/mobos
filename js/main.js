@@ -1,4 +1,4 @@
-import appStorage from './storage.js';
+//import appStorage from './storage.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     // Загружаем сохраненные настройки
