@@ -1,51 +1,81 @@
+// darkwall.js
 function initDarkwall() {
-    // Обработчик закрытия
-    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', function() {
-        // Отправляем сообщение в игру о закрытии
-        const iframe = document.querySelector('#darkwall-screen .darkwall-iframe');
-        iframe.contentWindow.postMessage({ action: 'closeGame' }, '*');
-        goBack();
-    });
-    function initDarkwall() {
-    // Адаптация размера игры под экран
-    function resizeGame() {
-        const iframe = document.querySelector('#darkwall-screen .game-iframe');
-        if (!iframe) return;
-        
-        const headerHeight = document.querySelector('#darkwall-screen .app-header').offsetHeight;
-        const availableHeight = window.innerHeight - headerHeight - 20;
-        const availableWidth = window.innerWidth - 40;
-        
-        // Сохраняем пропорции игры (примерно 4:5)
-        const gameRatio = 4/5;
-        let gameWidth = availableWidth;
-        let gameHeight = gameWidth * gameRatio;
-        
-        if (gameHeight > availableHeight) {
-            gameHeight = availableHeight;
-            gameWidth = gameHeight / gameRatio;
-        }
-        
-        iframe.style.width = `${gameWidth}px`;
-        iframe.style.height = `${gameHeight}px`;
-    }
-    
-    // Инициализация размера
-    resizeGame();
-    
-    // Обновление при изменении размера окна
-    window.addEventListener('resize', resizeGame);
-    
-    // Очистка при закрытии
-    return () => {
-        window.removeEventListener('resize', resizeGame);
+    // Закрытие окна
+    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', goBack);
+
+    // Инициализация игры
+    const gameState = {
+        rows: 7,
+        cols: 4,
+        minesPerRow: 2,
+        board: [],
+        currentMode: null,
+        playerHealth: 100,
+        currentRow: 0,
+        isDefensePhase: true,
+        gameMode: null,
+        isScriptAttacking: false
     };
+
+    // Инициализация игрового поля
+    function createBoard() {
+        const boardElement = document.querySelector('#darkwall-screen #board');
+        boardElement.innerHTML = '';
+        gameState.board = [];
+
+        for (let i = 0; i < gameState.rows; i++) {
+            const row = document.createElement('div');
+            row.className = 'row hidden';
+            gameState.board[i] = [];
+
+            for (let j = 0; j < gameState.cols; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                cell.addEventListener('click', handleCellClick);
+                row.appendChild(cell);
+                gameState.board[i][j] = { isMine: false, revealed: false };
+            }
+            boardElement.appendChild(row);
+        }
+    }
+
+    // Остальные функции игры (аналогичные вашим, но с использованием gameState)
+    function handleCellClick(e) {
+        if (gameState.isScriptAttacking) return;
+        // ... остальная логика обработки кликов
+    }
+
+    function startGame(mode) {
+        gameState.gameMode = mode;
+        document.querySelector('#darkwall-screen #main-menu').classList.add('hidden');
+
+        if (mode === 'solo') {
+            document.querySelector('#darkwall-screen #solo-mode').classList.remove('hidden');
+        } else {
+            startDefensePhase();
+        }
+    }
+
+    // ... все остальные функции игры (аналогичные вашим)
+
+    // Экспортируем функции в глобальную область видимости
+    window.startGame = startGame;
+    window.setMode = setMode;
+    window.confirmMines = confirmMines;
+    window.showMainMenu = showMainMenu;
+
+    // Инициализация
+    createBoard();
 }
 
-    // Обработчик сообщений от игры
-    window.addEventListener('message', function(event) {
-        if (event.data === 'gameClosed') {
-            goBack();
-        }
-    });
+// Функции для управления окном
+function showDarkwall() {
+    document.getElementById('darkwall-screen').style.display = 'block';
+    initDarkwall();
+}
+
+function hideDarkwall() {
+    document.getElementById('darkwall-screen').style.display = 'none';
 }
