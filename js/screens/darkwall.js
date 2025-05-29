@@ -1,26 +1,4 @@
-function initDarkwall() {
-    console.log('Darkwall initialized'); // Для отладки
-    
-    // Инициализация закрытия
-    document.querySelector('#darkwall-screen .close-btn')?.addEventListener('click', () => {
-        showMainMenu();
-        goBack();
-    });
-    
-    // Инициализация игры
-    resetGame();
-}
-
-function showDarkwall() {
-    console.log('Showing darkwall'); // Для отладки
-    const screen = document.getElementById('darkwall-screen');
-    if (screen) {
-        screen.style.display = 'block';
-        resetGame();
-    }
-}
-
-// Объявление переменных состояния игры
+// Глобальное состояние игры
 const gameState = {
     rows: 7,
     cols: 4,
@@ -31,27 +9,40 @@ const gameState = {
     currentRow: 0,
     isDefensePhase: true,
     gameMode: null,
-    isScriptAttacking: false // Флаг для отслеживания атаки скрипта
+    isScriptAttacking: false
 };
 
 function initDarkwall() {
-    // Инициализация закрытия окна
+    console.log('Initializing Darkwall game');
+    
+    // Инициализация кнопки закрытия
     const closeBtn = document.querySelector('#darkwall-screen .close-btn');
-    closeBtn.addEventListener('click', function() {
-        showMainMenu(); // Сбрасываем в главное меню
-        goBack(); // Закрываем окно
-    });
+    if (closeBtn) {
+        closeBtn.onclick = null; // Удаляем старый обработчик
+        closeBtn.addEventListener('click', () => {
+            showMainMenu();
+            goBack();
+        });
+    }
 
-    // Инициализация игры
+    // Инициализация игрового поля
     createBoard();
     showMainMenu();
-    
-    // Показываем экран
-    document.getElementById('darkwall-screen').style.display = 'block';
+}
+
+function showDarkwall() {
+    console.log('Showing Darkwall screen');
+    const screen = document.getElementById('darkwall-screen');
+    if (screen) {
+        screen.style.display = 'block';
+        resetGame();
+    }
 }
 
 function createBoard() {
     const boardElement = document.getElementById('board');
+    if (!boardElement) return;
+    
     boardElement.innerHTML = '';
     gameState.board = [];
 
@@ -65,7 +56,7 @@ function createBoard() {
             cell.className = 'cell';
             cell.dataset.row = i;
             cell.dataset.col = j;
-            cell.addEventListener('click', handleCellClick);
+            cell.addEventListener('click', (e) => handleCellClick(e));
             row.appendChild(cell);
             gameState.board[i][j] = { isMine: false, revealed: false };
         }
@@ -75,6 +66,7 @@ function createBoard() {
 
 function handleCellClick(e) {
     if (gameState.isScriptAttacking) return;
+    
     const cell = e.target;
     const row = parseInt(cell.dataset.row);
     const col = parseInt(cell.dataset.col);
@@ -260,24 +252,33 @@ function simulateAttacker() {
 function endGame(isWin) {
     const gameOverMenu = document.getElementById('game-over-menu');
     const gameOverTitle = document.getElementById('game-over-title');
-    gameOverTitle.textContent = isWin ? 'Победа!' : 'Поражение!';
-    gameOverMenu.classList.remove('hidden');
+    if (gameOverMenu && gameOverTitle) {
+        gameOverTitle.textContent = isWin ? 'Победа!' : 'Поражение!';
+        gameOverMenu.classList.remove('hidden');
+    }
 }
 
 function updateStatus(text) {
-    document.getElementById('status').textContent = text;
+    const statusElement = document.getElementById('status');
+    if (statusElement) {
+        statusElement.textContent = text;
+    }
 }
 
 function showMainMenu() {
-    document.getElementById('main-menu').classList.remove('hidden');
-    document.getElementById('solo-mode').classList.add('hidden');
-    document.getElementById('board').classList.add('hidden');
-    document.getElementById('ready-btn').classList.add('hidden');
-    document.getElementById('back-btn').classList.add('hidden');
-    document.getElementById('game-over-menu').classList.add('hidden');
-    document.getElementById('notification').classList.add('hidden');
+    const elementsToUpdate = [
+        'main-menu', 'solo-mode', 'board',
+        'ready-btn', 'back-btn', 'game-over-menu', 'notification'
+    ];
     
-    // Сброс игры
+    elementsToUpdate.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.classList.add('hidden');
+        }
+    });
+    
+    document.getElementById('main-menu')?.classList.remove('hidden');
     resetGame();
 }
 
@@ -287,23 +288,25 @@ function resetGame() {
     gameState.isDefensePhase = true;
     gameState.currentMode = null;
     gameState.gameMode = null;
-    gameState.isScriptAttacking = false; // Сброс флага
+    gameState.isScriptAttacking = false;
     createBoard();
 }
 
 function showNotification(message) {
     const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.classList.remove('hidden');
-    setTimeout(() => {
-        notification.classList.add('hidden');
-    }, 2000);
+    if (notification) {
+        notification.textContent = message;
+        notification.classList.remove('hidden');
+        setTimeout(() => {
+            notification.classList.add('hidden');
+        }, 2000);
+    }
 }
 
-// Экспорт функций
+// Экспорт функций для глобального доступа
 window.initDarkwall = initDarkwall;
+window.showDarkwall = showDarkwall;
 window.startGame = startGame;
 window.setMode = setMode;
 window.confirmMines = confirmMines;
 window.showMainMenu = showMainMenu;
-window.showDarkwall = showDarkwall;
