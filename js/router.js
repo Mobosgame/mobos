@@ -40,10 +40,13 @@ class AppRouter {
             this.currentScreen = this.screens[screenName];
             this.currentScreen.classList.remove('hidden');
 
-            // Специальная обработка для игр
-            if (screenName === 'darkwall' && window.showDarkwall) {
-                window.showDarkwall();
-            }
+            
+if (screenName === 'darkwall') {
+    console.log('Loading darkwall screen'); // Для отладки
+    if (window.showDarkwall) {
+        window.showDarkwall();
+    }
+}
 
         } catch (error) {
             console.error(`Error loading ${screenName}:`, error);
