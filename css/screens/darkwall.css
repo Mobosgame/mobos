@@ -8,26 +8,36 @@
     align-items: center;
     padding: 10px;
     box-sizing: border-box;
+    overflow-y: auto;
 }
 
 #darkwall-screen .menu {
-    margin-top: 50px;
-    background-color: rgba(0, 0, 0, 0.9);
+    width: 90%;
+    max-width: 300px;
+    margin: 20px auto;
+    background-color: var(--card-color);
     padding: 20px;
     border-radius: 10px;
     text-align: center;
+    border: 1px solid var(--theme-color);
 }
 
-#darkwall-screen button {
-    margin: 10px;
-    padding: 10px 20px;
+#darkwall-screen .game-btn {
+    margin: 10px 0;
+    padding: 12px 20px;
     font-size: 16px;
     cursor: pointer;
-    background-color: #004d00;
+    background-color: var(--theme-color);
     color: white;
-    border: 2px solid white;
-    border-radius: 5px;
-    width: 200px;
+    border: none;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 250px;
+    transition: transform 0.2s;
+}
+
+#darkwall-screen .game-btn:active {
+    transform: scale(0.98);
 }
 
 #darkwall-screen .row {
@@ -41,7 +51,7 @@
 #darkwall-screen .cell {
     width: 50px;
     height: 50px;
-    border: 2px solid white;
+    border: 2px solid var(--theme-color);
     margin: 2px;
     display: flex;
     align-items: center;
@@ -68,30 +78,32 @@
 }
 
 #darkwall-screen .row.active {
-    background-color: #008000;
+    background-color: rgba(0, 128, 0, 0.2);
     border-radius: 10px;
     padding: 5px;
 }
 
 #darkwall-screen .hidden {
-    display: none;
+    display: none !important;
 }
 
 #darkwall-screen .status {
-    margin: 20px 0;
-    font-size: 18px;
+    margin: 15px 0;
+    font-size: 16px;
+    text-align: center;
+    color: var(--theme-color);
 }
 
 #darkwall-screen .notification {
     position: fixed;
-    top: 20px;
+    top: 60px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.9);
     color: white;
     padding: 10px 20px;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 14px;
     z-index: 1000;
     animation: fadeOut 2s forwards;
 }
@@ -106,6 +118,7 @@
     border-radius: 10px;
     text-align: center;
     z-index: 10;
+    border: 2px solid var(--theme-color);
 }
 
 @keyframes fadeOut {
@@ -114,7 +127,7 @@
     100% { opacity: 0; display: none; }
 }
 
-/* Адаптация */
+/* Адаптация для мобильных */
 @media (max-width: 600px) {
     #darkwall-screen .cell {
         width: 40px;
@@ -126,5 +139,10 @@
     #darkwall-screen .cell {
         width: 35px;
         height: 35px;
+    }
+    
+    #darkwall-screen .game-btn {
+        padding: 10px 15px;
+        font-size: 14px;
     }
 }
