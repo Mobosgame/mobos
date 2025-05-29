@@ -50,6 +50,9 @@ class AppRouter {
             // Возвращаем на главный экран при ошибке
             this.backToMain();
         }
+        if (screenName === 'darkwall' && window.showDarkwall) {
+    window.showDarkwall();  // Эта строка критически важна
+}
     }
 
     backToMain() {
