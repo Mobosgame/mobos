@@ -22,3 +22,25 @@
     outline: none;
     box-shadow: 0 0 0 2px var(--theme-color);
 }
+.lang-selector {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.lang-option {
+    padding: 8px 15px;
+    border-radius: 5px;
+    background: var(--card-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.lang-option.active {
+    background: var(--theme-color);
+    color: white;
+}
+
+.lang-option:hover {
+    opacity: 0.9;
+}
