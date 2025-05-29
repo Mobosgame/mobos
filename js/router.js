@@ -12,47 +12,55 @@ class AppRouter {
     }
 
     async loadScreen(screenName) {
-        try {
-            // Загружаем экран если еще не загружен
-            if (!this.screens[screenName]) {
-                const response = await fetch(`./screens/${screenName}.html`);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                
-                const html = await response.text();
-                const template = document.createElement('template');
-                template.innerHTML = html.trim();
-                
-                const screenElement = template.content.firstChild;
-                if (!screenElement) throw new Error('No valid HTML content');
-                
-                document.getElementById('screens-container').appendChild(screenElement);
-                this.screens[screenName] = screenElement;
-                
-                // Инициализация экрана
-                const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
-                if (initFn) initFn();
-            }
-
-            // Переключение видимости
-            document.getElementById('main-screen').classList.add('hidden');
-            document.querySelectorAll('.app-screen').forEach(s => s.classList.add('hidden'));
+    try {
+        // Загружаем экран если еще не загружен
+        if (!this.screens[screenName]) {
+            const response = await fetch(`./screens/${screenName}.html`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             
-            this.currentScreen = this.screens[screenName];
-            if (this.currentScreen) {
-                this.currentScreen.classList.remove('hidden');
-            }
-
-            // Специальная обработка для darkwall
-            if (screenName === 'darkwall' && window.showDarkwall) {
-                window.showDarkwall();
-            }
-
-        } catch (error) {
-            console.error(`Error loading ${screenName}:`, error);
-            // Возвращаем на главный экран при ошибке
-            this.backToMain();
+            const html = await response.text();
+            const template = document.createElement('template');
+            template.innerHTML = html.trim();
+            
+            const screenElement = template.content.firstChild;
+            if (!screenElement) throw new Error('No valid HTML content');
+            
+            const container = document.getElementById('screens-container');
+            if (!container) throw new Error('Screens container not found');
+            
+            container.appendChild(screenElement);
+            this.screens[screenName] = screenElement;
+            
+            // Инициализация экрана
+            const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
+            if (initFn) initFn();
         }
+
+        // Скрываем все экраны
+        const mainScreen = document.getElementById('main-screen');
+        if (mainScreen) mainScreen.classList.add('hidden');
+        
+        const appScreens = document.querySelectorAll('.app-screen');
+        appScreens.forEach(s => {
+            if (s.classList) s.classList.add('hidden');
+        });
+        
+        // Показываем текущий экран
+        this.currentScreen = this.screens[screenName];
+        if (this.currentScreen && this.currentScreen.classList) {
+            this.currentScreen.classList.remove('hidden');
+        }
+
+        // Специальная обработка для darkwall
+        if (screenName === 'darkwall' && window.showDarkwall) {
+            window.showDarkwall();
+        }
+
+    } catch (error) {
+        console.error(`Error loading ${screenName}:`, error);
+        this.backToMain();
     }
+}
 
     backToMain() {
         document.getElementById('main-screen').classList.remove('hidden');
