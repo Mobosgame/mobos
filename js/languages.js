@@ -1,35 +1,26 @@
-const translations = {
+window.translations = {
     en: {
         settings: "Settings",
         theme: "Theme",
+        theme1: "Theme 1",
+        theme2: "Theme 2",
         language: "Language",
-        darkwall: "DarkWall",
+        russian: "Russian",
+        english: "English",
         calls: "Calls",
         messages: "Messages",
-        back: "Back"
+        darkwall: "DarkWall"
     },
     ru: {
         settings: "Настройки",
         theme: "Тема",
+        theme1: "Тема 1", 
+        theme2: "Тема 2",
         language: "Язык",
-        darkwall: "ТемнаяСтена",
+        russian: "Русский",
+        english: "English",
         calls: "Вызовы",
         messages: "Сообщения",
-        back: "Назад"
+        darkwall: "ТемнаяСтена"
     }
 };
-
-let currentLanguage = 'ru';
-
-function updateTextElements() {
-    document.querySelectorAll('[data-lang]').forEach(el => {
-        const key = el.getAttribute('data-lang');
-        el.textContent = translations[currentLanguage][key] || key;
-    });
-}
-
-function setLanguage(lang) {
-    currentLanguage = lang;
-    updateTextElements();
-    localStorage.setItem('appLanguage', lang);
-}
