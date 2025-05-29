@@ -38,29 +38,25 @@ class AppRouter {
             document.querySelectorAll('.app-screen').forEach(s => s.classList.add('hidden'));
             
             this.currentScreen = this.screens[screenName];
-            this.currentScreen.classList.remove('hidden');
+            if (this.currentScreen) {
+                this.currentScreen.classList.remove('hidden');
+            }
 
-            
-if (screenName === 'darkwall') {
-    console.log('Loading darkwall screen'); // Для отладки
-    if (window.showDarkwall) {
-        window.showDarkwall();
-    }
-}
+            // Специальная обработка для darkwall
+            if (screenName === 'darkwall' && window.showDarkwall) {
+                window.showDarkwall();
+            }
 
         } catch (error) {
             console.error(`Error loading ${screenName}:`, error);
             // Возвращаем на главный экран при ошибке
             this.backToMain();
         }
-        if (screenName === 'darkwall' && window.showDarkwall) {
-    window.showDarkwall();  // Эта строка критически важна
-}
     }
 
     backToMain() {
         document.getElementById('main-screen').classList.remove('hidden');
-        if (this.currentScreen) {
+        if (this.currentScreen && this.currentScreen.classList) {
             this.currentScreen.classList.add('hidden');
             
             // Сброс состояния для специфичных экранов
@@ -86,7 +82,7 @@ if (screenName === 'darkwall') {
             if (user.photo_url) {
                 profilePhoto.src = `${user.photo_url}?t=${Date.now()}`;
                 profilePhoto.onerror = () => {
-                    profilePhoto.src = './Img/Theme_1/profile.png';
+                    profilePhoto.src = './img/Theme_1/profile.png'; // Обратите внимание на путь (img вместо Img)
                 };
             }
         }
