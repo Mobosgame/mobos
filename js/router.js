@@ -99,6 +99,19 @@ class AppRouter {
             }
         }
     }
+    // Добавить в класс AppRouter
+backToMain() {
+    document.getElementById('main-screen').classList.remove('hidden');
+    if (this.currentScreen) {
+        this.currentScreen.classList.add('hidden');
+        
+        // Специальная обработка для Darkwall
+        if (this.currentScreen.id === 'darkwall-screen') {
+            hideDarkwall();
+        }
+    }
+    this.currentScreen = null;
+}
 }
 
 // Инициализация роутера при загрузке
