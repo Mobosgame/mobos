@@ -1,38 +1,33 @@
-<!-- darkwall.html -->
 <div id="darkwall-screen" class="app-screen">
     <div class="app-header">
-        <h2>Темная Стена</h2>
+        <h2>ТемнаяСтена</h2>
         <button class="close-btn">✕</button>
     </div>
     <div class="app-content">
         <div class="game-container">
-            <div class="game-window">
-                <div class="game-inner">
-                    <div class="menu" id="main-menu">
-                        <h1>Dark Wall</h1>
-                        <button onclick="startGame('solo')">Одиночная</button>
-                        <button onclick="startGame('duo')">Для двух игроков</button>
-                    </div>
+            <div id="board"></div>
+            <div class="status" id="status"></div>
+            <div class="menu" id="main-menu">
+                <h1>Dark Wall</h1>
+                <button onclick="startGame('solo')">Одиночная</button>
+                <button onclick="startGame('duo')">Для двух игроков</button>
+            </div>
 
-                    <div class="menu hidden" id="solo-mode">
-                        <h1>Выберите сторону</h1>
-                        <button onclick="setMode('attack')">Атака</button>
-                        <button onclick="setMode('defense')">Защита</button>
-                        <button onclick="showMainMenu()">Назад</button>
-                    </div>
+            <div class="menu hidden" id="solo-mode">
+                <h1>Выберите сторону</h1>
+                <button onclick="setMode('attack')">Атака</button>
+                <button onclick="setMode('defense')">Защита</button>
+                <button onclick="showMainMenu()">Назад</button>
+            </div>
 
-                    <div id="board" class="hidden"></div>
-                    <div class="status" id="status"></div>
-                    <button id="ready-btn" class="hidden" onclick="confirmMines()">Готово</button>
-                    <button id="back-btn" class="hidden" onclick="showMainMenu()">Назад</button>
+            <button id="ready-btn" class="hidden" onclick="confirmMines()">Готово</button>
+            <button id="back-btn" class="hidden" onclick="showMainMenu()">Назад</button>
 
-                    <div id="notification" class="notification hidden"></div>
+            <div id="notification" class="notification hidden"></div>
 
-                    <div id="game-over-menu" class="game-over-menu hidden">
-                        <h1 id="game-over-title"></h1>
-                        <button onclick="showMainMenu()">ОК</button>
-                    </div>
-                </div>
+            <div id="game-over-menu" class="game-over-menu hidden">
+                <h1 id="game-over-title"></h1>
+                <button onclick="showMainMenu()">ОК</button>
             </div>
         </div>
     </div>
