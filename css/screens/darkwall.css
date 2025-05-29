@@ -1,4 +1,9 @@
 #darkwall-screen {
+    display: block !important; /* Переопределение скрытия */
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+#darkwall-screen {
     position: fixed;
     top: 0;
     left: 0;
