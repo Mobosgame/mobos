@@ -183,7 +183,7 @@
 <body>
     <div class="game-container">
         <div class="menu" id="main-menu">
-            <h1>MobOS_DemoGame</h1>
+            <h1>Dark Wall</h1>
             <button onclick="startGame('solo')">Одиночная</button>
             <button onclick="startGame('duo')">Для двух игроков</button>
         </div>
@@ -230,7 +230,7 @@ window.addEventListener('message', function(event) {
 
 // Отправка сообщения при закрытии через меню
 function showMainMenu() {
-    // ... существующий код ...
+    
     window.parent.postMessage('gameClosed', '*');
 }
         const rows = 7;
@@ -286,7 +286,7 @@ function showMainMenu() {
 
             const minesInRow = board[row].filter(c => c.isMine).length;
             if (minesInRow >= minesPerRow) {
-                showNotification(`В этом ряду уже ${minesPerRow} мины!`);
+                showNotification(`На этом уровне уже ${minesPerRow} детектора`);
                 return;
             }
 
@@ -306,7 +306,7 @@ function showMainMenu() {
             if (board[row][col].isMine) {
                 cell.classList.add('mine');
                 playerHealth -= 25;
-                updateStatus(`Мина! Здоровье: ${playerHealth}%`);
+                updateStatus(`Обнаружение! Прочность: ${playerHealth}%`);
                 if (playerHealth <= 0) {
                     endGame(false);
                 }
@@ -319,7 +319,7 @@ function showMainMenu() {
                 if (currentRow < rows) {
                     document.querySelectorAll('.row')[currentRow].classList.remove('hidden');
                     document.querySelectorAll('.row')[currentRow].classList.add('active');
-                    updateStatus(`Прогресс: ряд ${currentRow + 1}`);
+                    updateStatus(`Прогресс: уровень ${currentRow + 1}`);
                 } else {
                     endGame(true);
                 }
@@ -374,13 +374,13 @@ function showMainMenu() {
                 row.classList.remove('hidden');
                 row.style.pointerEvents = 'auto';
             });
-            updateStatus("Расставьте мины (по 2 в каждом ряду)");
+            updateStatus("Установите детекторы");
         }
 
         function confirmMines() {
             for (let i = 0; i < rows; i++) {
                 if (board[i].filter(c => c.isMine).length !== minesPerRow) {
-                    showNotification(`Ряд ${i + 1} не полностью заполнен!`);
+                    showNotification(`Уровень ${i + 1} не полностью заполнен!`);
                     return;
                 }
             }
@@ -409,7 +409,7 @@ function showMainMenu() {
             });
 
             if (gameMode === 'duo' || currentMode === 'attack') {
-                updateStatus("Начните с первого ряда!");
+                updateStatus("Начните с первого уровня!");
                 document.getElementById('back-btn').classList.remove('hidden');
             } else if (currentMode === 'defense') {
                 updateStatus("Скрипт начинает атаку...");
@@ -434,7 +434,7 @@ function showMainMenu() {
                     if (board[currentRow][col].isMine) {
                         cell.classList.add('mine', 'revealed');
                         playerHealth -= 25;
-                        updateStatus(`Скрипт наступил на мину! Здоровье: ${playerHealth}%`);
+                        updateStatus(`Скрипт обнаружен! Прочность: ${playerHealth}%`);
                     } else {
                         cell.classList.add('revealed');
                         document.querySelectorAll('.row')[currentRow].classList.remove('active');
@@ -444,7 +444,7 @@ function showMainMenu() {
                         if (currentRow < rows) {
                             document.querySelectorAll('.row')[currentRow].classList.remove('hidden');
                             document.querySelectorAll('.row')[currentRow].classList.add('active');
-                            updateStatus(`Скрипт переходит к ряду ${currentRow + 1}`);
+                            updateStatus(`Скрипт переходит к уровню ${currentRow + 1}`);
                         }
                     }
                     board[currentRow][col].revealed = true;
