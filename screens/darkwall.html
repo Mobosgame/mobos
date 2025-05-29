@@ -1,34 +1,99 @@
-<div id="darkwall-screen" class="app-screen">
-    <div class="app-header">
-        <h2>Темная стена</h2>
-        <button class="close-btn">✕</button>
-    </div>
-    <div class="app-content">
-        <div class="game-container">
-            <div class="menu" id="main-menu">
-                <h1>Темная стена</h1>
-                <button class="game-btn" onclick="startGame('solo')">Одиночная</button>
-                <button class="game-btn" onclick="startGame('duo')">Для двух игроков</button>
-            </div>
+// Глобальное состояние игры
+let gameState = null;
 
-            <div class="menu hidden" id="solo-mode">
-                <h1>Выберите сторону</h1>
-                <button class="game-btn" onclick="setMode('attack')">Атака</button>
-                <button class="game-btn" onclick="setMode('defense')">Защита</button>
-                <button class="game-btn" onclick="showMainMenu()">Назад</button>
-            </div>
+function initDarkwall() {
+    // Инициализация только при первом открытии
+    if (!gameState) {
+        setupGame();
+    } else {
+        resetGame();
+    }
+}
 
-            <div id="board" class="hidden"></div>
-            <div class="status" id="status"></div>
-            <button id="ready-btn" class="game-btn hidden" onclick="confirmMines()">Готово</button>
-            <button id="back-btn" class="game-btn hidden" onclick="showMainMenu()">Назад</button>
+function setupGame() {
+    // Инициализация состояния
+    gameState = {
+        rows: 7,
+        cols: 4,
+        minesPerRow: 2,
+        board: [],
+        currentMode: null,
+        playerHealth: 100,
+        currentRow: 0,
+        isDefensePhase: true,
+        gameMode: null,
+        isScriptAttacking: false
+    };
 
-            <div id="notification" class="notification hidden"></div>
+    // Настройка кнопки закрытия
+    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
+        showMainMenu();
+        goBack();
+    });
 
-            <div id="game-over-menu" class="game-over-menu hidden">
-                <h1 id="game-over-title"></h1>
-                <button class="game-btn" onclick="showMainMenu()">ОК</button>
-            </div>
-        </div>
-    </div>
-</div>
+    // Создание поля
+    createBoard();
+    showMainMenu();
+}
+
+function createBoard() {
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+    gameState.board = [];
+
+    for (let i = 0; i < gameState.rows; i++) {
+        const row = document.createElement('div');
+        row.className = 'row hidden';
+        gameState.board[i] = [];
+
+        for (let j = 0; j < gameState.cols; j++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+            cell.addEventListener('click', () => handleCellClick(i, j, cell));
+            row.appendChild(cell);
+            gameState.board[i][j] = { isMine: false, revealed: false };
+        }
+        board.appendChild(row);
+    }
+}
+
+function resetGame() {
+    gameState.playerHealth = 100;
+    gameState.currentRow = 0;
+    gameState.isDefensePhase = true;
+    gameState.currentMode = null;
+    gameState.gameMode = null;
+    gameState.isScriptAttacking = false;
+    
+    createBoard();
+    showMainMenu();
+}
+
+function showMainMenu() {
+    // Сбрасываем все элементы в начальное состояние
+    document.getElementById('main-menu').classList.remove('hidden');
+    document.getElementById('solo-mode').classList.add('hidden');
+    document.getElementById('board').classList.add('hidden');
+    document.getElementById('ready-btn').classList.add('hidden');
+    document.getElementById('back-btn').classList.add('hidden');
+    document.getElementById('game-over-menu').classList.add('hidden');
+    document.getElementById('notification').classList.add('hidden');
+}
+
+function showDarkwall() {
+    const screen = document.getElementById('darkwall-screen');
+    screen.style.display = 'block';
+    initDarkwall();
+}
+
+// Остальные игровые функции (startGame, setMode и т.д.) остаются без изменений
+
+// Экспорт
+window.initDarkwall = initDarkwall;
+window.showDarkwall = showDarkwall;
+window.startGame = startGame;
+window.setMode = setMode;
+window.confirmMines = confirmMines;
+window.showMainMenu = showMainMenu;
