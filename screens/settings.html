@@ -1,23 +1,33 @@
 <div id="settings-screen" class="app-screen">
     <div class="app-header">
-        <h2 data-lang="settings">Настройки</h2>
+        <h2>Настройки</h2>
         <button class="close-btn">✕</button>
     </div>
     <div class="app-content">
         <div class="settings-section">
-            <h3 data-lang="theme">Тема</h3>
-            <select id="theme-selector" class="settings-select">
-                <option value="1">Тема 1 (Зеленая)</option>
-                <option value="2">Тема 2 (Синяя)</option>
-            </select>
+            <h3>Тема оформления</h3>
+            <div class="theme-selector">
+                <div class="theme-option" data-theme="1">
+                    <img src="./Img/Theme_1/theme_preview.png" alt="Тема 1">
+                    <span>Тема 1</span>
+                </div>
+                <div class="theme-option" data-theme="2">
+                    <img src="./Img/Theme_2/theme_preview.png" alt="Тема 2">
+                    <span>Тема 2</span>
+                </div>
+            </div>
         </div>
         
         <div class="settings-section">
-            <h3 data-lang="language">Язык</h3>
-            <select id="language-selector" class="settings-select">
-                <option value="ru">Русский</option>
-                <option value="en">English</option>
-            </select>
+            <h3>Язык</h3>
+            <div class="lang-selector">
+                <div class="lang-option" data-lang="ru">
+                    <span>Русский</span>
+                </div>
+                <div class="lang-option" data-lang="en">
+                    <span>English</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
