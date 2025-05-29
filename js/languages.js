@@ -1,5 +1,6 @@
 window.translations = {
     en: {
+        //Настройки
         settings: "Settings",
         theme: "Theme",
         theme1: "Theme 1",
@@ -7,10 +8,35 @@ window.translations = {
         language: "Language",
         russian: "Russian",
         english: "English",
+        //Вызовы
         calls: "Calls",
+        //Сообщения
         messages: "Messages",
-        darkwall: "DarkWall"
-        
+        //Браузер
+        browser: "Browser",
+        //Чат
+        chat: "Chat",
+        //Темная стена
+        darkwall: "Dark Wall",
+        solo_mode: "Одиночная",
+        duo_mode: "Для двух игроков",
+        choose_side: "Выберите сторону",
+        attack: "Атака",
+        defense: "Защита",
+        back: "Назад",
+        ready: "Готово",
+        ok: "ОК",
+        place_mines: "Расставьте детекторы (по {count} в каждом уровне)",
+        max_mines_reached: "В этом уровне уже {count} детектора!",
+        mine_hit: "Обнаружение! Прочность: {health}%",
+        progress_row: "Прогресс: уровень {row}",
+        row_not_complete: "Уровень {row} не полностью заполнен!",
+        start_first_row: "Начните с первого уровня!",
+        script_attacking: "Скрипт начинает атаку...",
+        script_mine_hit: "Скрипт обнаружен! Прочность: {health}%",
+        script_next_row: "Скрипт переходит к уровню {row}",
+        victory: "Победа!",
+        defeat: "Поражение!"
     },
     ru: {
         //Настройки
