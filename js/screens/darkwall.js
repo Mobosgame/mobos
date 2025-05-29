@@ -1,7 +1,25 @@
-function initCalls() { // или initSms/initSettings для других экранов
-    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', goBack);
-    // остальная инициализация
+function initDarkwall() {
+    console.log('Darkwall initialized'); // Для отладки
+    
+    // Инициализация закрытия
+    document.querySelector('#darkwall-screen .close-btn')?.addEventListener('click', () => {
+        showMainMenu();
+        goBack();
+    });
+    
+    // Инициализация игры
+    resetGame();
 }
+
+function showDarkwall() {
+    console.log('Showing darkwall'); // Для отладки
+    const screen = document.getElementById('darkwall-screen');
+    if (screen) {
+        screen.style.display = 'block';
+        resetGame();
+    }
+}
+
 // Объявление переменных состояния игры
 const gameState = {
     rows: 7,
