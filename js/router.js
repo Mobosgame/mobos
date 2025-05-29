@@ -6,55 +6,49 @@ class AppRouter {
     }
 
     initRouter() {
-        // Делаем функции глобально доступными
         window.showScreen = (screenName) => this.loadScreen(screenName);
         window.goBack = () => this.backToMain();
-        
-        // Инициализация данных пользователя Telegram
         this.initTelegramUser();
     }
 
     async loadScreen(screenName) {
-        // Если экран еще не загружен
-        if (!this.screens[screenName]) {
-            try {
-                // Загружаем HTML
+        try {
+            // Загружаем экран если еще не загружен
+            if (!this.screens[screenName]) {
                 const response = await fetch(`./screens/${screenName}.html`);
-                if (!response.ok) throw new Error(`Failed to load ${screenName}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
                 const html = await response.text();
+                const template = document.createElement('template');
+                template.innerHTML = html.trim();
                 
-                // Парсим HTML
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const screenElement = doc.body.firstElementChild;
+                const screenElement = template.content.firstChild;
+                if (!screenElement) throw new Error('No valid HTML content');
                 
-                // Добавляем в DOM
                 document.getElementById('screens-container').appendChild(screenElement);
                 this.screens[screenName] = screenElement;
                 
-                // Инициализируем экран
+                // Инициализация экрана
                 const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
                 if (initFn) initFn();
-                
-            } catch (error) {
-                console.error(`Error loading ${screenName}:`, error);
-                return;
             }
-        }
 
-        // Скрываем все экраны
-        document.getElementById('main-screen').classList.add('hidden');
-        document.querySelectorAll('.app-screen').forEach(screen => {
-            screen.classList.add('hidden');
-        });
-        
-        // Показываем нужный экран
-        this.currentScreen = this.screens[screenName];
-        this.currentScreen.classList.remove('hidden');
-        
-        // Специальная обработка для Darkwall
-        if (screenName === 'darkwall') {
-            window.showDarkwall();
+            // Переключение видимости
+            document.getElementById('main-screen').classList.add('hidden');
+            document.querySelectorAll('.app-screen').forEach(s => s.classList.add('hidden'));
+            
+            this.currentScreen = this.screens[screenName];
+            this.currentScreen.classList.remove('hidden');
+
+            // Специальная обработка для игр
+            if (screenName === 'darkwall' && window.showDarkwall) {
+                window.showDarkwall();
+            }
+
+        } catch (error) {
+            console.error(`Error loading ${screenName}:`, error);
+            // Возвращаем на главный экран при ошибке
+            this.backToMain();
         }
     }
 
@@ -63,8 +57,8 @@ class AppRouter {
         if (this.currentScreen) {
             this.currentScreen.classList.add('hidden');
             
-            // Специальная обработка для Darkwall
-            if (this.currentScreen.id === 'darkwall-screen') {
+            // Сброс состояния для специфичных экранов
+            if (this.currentScreen.id === 'darkwall-screen' && window.showMainMenu) {
                 window.showMainMenu();
             }
         }
@@ -93,7 +87,7 @@ class AppRouter {
     }
 }
 
-// Инициализация роутера при загрузке страницы
+// Инициализация после полной загрузки DOM
 document.addEventListener('DOMContentLoaded', () => {
     window.router = new AppRouter();
 });
