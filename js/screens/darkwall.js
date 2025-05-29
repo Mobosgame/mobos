@@ -13,84 +13,66 @@ const gameState = {
 };
 
 function initDarkwall() {
-    // Инициализация кнопки закрытия
-    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
-        resetGame();
-        goBack();
-    });
-
-    // Инициализация кнопок меню
-    document.querySelectorAll('#main-menu button').forEach((btn, index) => {
-        btn.onclick = () => startGame(index === 0 ? 'solo' : 'duo');
-    });
-
-    // Инициализация кнопок режима
-    document.querySelectorAll('#solo-mode button').forEach((btn, index) => {
-        if (index < 2) {
-            btn.onclick = () => setMode(index === 0 ? 'attack' : 'defense');
-        } else {
-            btn.onclick = showMainMenu;
+    console.log('Initializing Darkwall game');
+    
+    // Отложенная инициализация после полной загрузки DOM
+    const init = () => {
+        const closeBtn = document.querySelector('#darkwall-screen .close-btn');
+        if (!closeBtn) {
+            console.error('Close button not found, retrying...');
+            setTimeout(init, 100);
+            return;
         }
-    });
 
-    // Инициализация игровых кнопок
-    document.getElementById('ready-btn').onclick = confirmMines;
-    document.getElementById('back-btn').onclick = showMainMenu;
-    document.querySelector('#game-over-menu button').onclick = showMainMenu;
+        // Инициализация кнопки закрытия
+        closeBtn.onclick = null;
+        closeBtn.addEventListener('click', () => {
+            console.log('Closing Darkwall game');
+            resetGame();
+            goBack();
+        });
 
-    // Создаем игровое поле
-    createBoard();
-    showMainMenu();
+        // Инициализация игровых кнопок
+        initGameButtons();
+        createBoard();
+        showMainMenu();
+    };
+
+    setTimeout(init, 0);
+}
+
+function initGameButtons() {
+    // Инициализация всех кнопок игры с проверкой существования
+    const initButton = (selector, handler) => {
+        const btn = document.querySelector(selector);
+        if (btn) {
+            btn.onclick = null;
+            btn.addEventListener('click', handler);
+        }
+    };
+
+    initButton('#main-menu button:nth-child(1)', () => startGame('solo'));
+    initButton('#main-menu button:nth-child(2)', () => startGame('duo'));
+    initButton('#solo-mode button:nth-child(1)', () => setMode('attack'));
+    initButton('#solo-mode button:nth-child(2)', () => setMode('defense'));
+    initButton('#solo-mode button:nth-child(3)', showMainMenu);
+    initButton('#ready-btn', confirmMines);
+    initButton('#back-btn', showMainMenu);
+    initButton('#game-over-menu button', showMainMenu);
 }
 
 function showDarkwall() {
-    document.getElementById('darkwall-screen').classList.remove('hidden');
-    resetGame();
-}
-
-function createBoard() {
-    const boardElement = document.getElementById('board');
-    boardElement.innerHTML = '';
-    gameState.board = [];
-
-    for (let i = 0; i < gameState.rows; i++) {
-        const row = document.createElement('div');
-        row.className = 'row hidden';
-        gameState.board[i] = [];
-
-        for (let j = 0; j < gameState.cols; j++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.dataset.row = i;
-            cell.dataset.col = j;
-            cell.addEventListener('click', handleCellClick);
-            row.appendChild(cell);
-            gameState.board[i][j] = { isMine: false, revealed: false };
-        }
-        boardElement.appendChild(row);
+    console.log('Showing Darkwall screen');
+    const screen = document.getElementById('darkwall-screen');
+    if (screen) {
+        screen.style.display = 'block';
+        resetGame();
+    } else {
+        console.error('Darkwall screen element not found');
     }
 }
 
-// ... (все остальные игровые функции из оригинального game.html) ...
-
-function resetGame() {
-    gameState.playerHealth = 100;
-    gameState.currentRow = 0;
-    gameState.isDefensePhase = true;
-    gameState.currentMode = null;
-    gameState.gameMode = null;
-    gameState.isScriptAttacking = false;
-    
-    document.getElementById('main-menu').classList.remove('hidden');
-    document.getElementById('solo-mode').classList.add('hidden');
-    document.getElementById('board').classList.add('hidden');
-    document.getElementById('ready-btn').classList.add('hidden');
-    document.getElementById('back-btn').classList.add('hidden');
-    document.getElementById('game-over-menu').classList.add('hidden');
-    document.getElementById('notification').classList.add('hidden');
-    
-    createBoard();
-}
+// ... (остальные игровые функции остаются без изменений) ...
 
 // Экспорт функций
 window.initDarkwall = initDarkwall;
