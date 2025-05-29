@@ -1,15 +1,29 @@
-class AppRouter {
-    constructor() {
-        this.screens = {};
-        this.currentScreen = null;
-        this.initRouter();
+async loadScreen(screenName) {
+    if (!this.screens[screenName]) {
+        // Загрузка HTML
+        const response = await fetch(`./screens/${screenName}.html`);
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        this.screens[screenName] = doc.body.firstElementChild;
+        
+        // Добавляем в DOM
+        document.getElementById('screens-container').appendChild(this.screens[screenName]);
+        
+        // Инициализация
+        const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
+        if (initFn) initFn();
     }
 
-    initRouter() {
-        // Делаем функции глобально доступными
-        window.showScreen = (screenName) => this.loadScreen(screenName);
-        window.goBack = () => this.backToMain();
-        
+    // Показ экрана
+    document.getElementById('main-screen').classList.add('hidden');
+    this.currentScreen = this.screens[screenName];
+    this.currentScreen.classList.remove('hidden');
+    
+    // Специальная обработка для игры
+    if (screenName === 'darkwall') {
+        window.showDarkwall();
+    }
+
         // Инициализация данных пользователя Telegram
         this.initTelegramUser();
     }
