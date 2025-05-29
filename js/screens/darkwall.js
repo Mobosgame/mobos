@@ -55,7 +55,7 @@ function initDarkwall() {
 
         const minesInRow = gameState.board[row].filter(c => c.isMine).length;
         if (minesInRow >= gameState.minesPerRow) {
-            showNotification(`На этом уровне уже ${gameState.minesPerRow} детектора`);
+            showNotification(`В этом ряду уже ${gameState.minesPerRow} мины!`);
             return;
         }
 
@@ -75,7 +75,7 @@ function initDarkwall() {
         if (gameState.board[row][col].isMine) {
             cell.classList.add('mine');
             gameState.playerHealth -= 25;
-            updateStatus(`Обнаружение! Прочность: ${gameState.playerHealth}%`);
+            updateStatus(`Мина! Здоровье: ${gameState.playerHealth}%`);
             if (gameState.playerHealth <= 0) {
                 endGame(false);
             }
@@ -88,7 +88,7 @@ function initDarkwall() {
             if (gameState.currentRow < gameState.rows) {
                 document.querySelectorAll('.row')[gameState.currentRow].classList.remove('hidden');
                 document.querySelectorAll('.row')[gameState.currentRow].classList.add('active');
-                updateStatus(`Прогресс: уровень ${gameState.currentRow + 1}`);
+                updateStatus(`Прогресс: ряд ${gameState.currentRow + 1}`);
             } else {
                 endGame(true);
             }
@@ -143,13 +143,13 @@ function initDarkwall() {
             row.classList.remove('hidden');
             row.style.pointerEvents = 'auto';
         });
-        updateStatus("Установите детекторы");
+        updateStatus("Расставьте мины (по 2 в каждом ряду)");
     }
 
     function confirmMines() {
         for (let i = 0; i < gameState.rows; i++) {
             if (gameState.board[i].filter(c => c.isMine).length !== gameState.minesPerRow) {
-                showNotification(`Уровень ${i + 1} не полностью заполнен!`);
+                showNotification(`Ряд ${i + 1} не полностью заполнен!`);
                 return;
             }
         }
@@ -174,12 +174,11 @@ function initDarkwall() {
                 row.classList.add('active');
             } else {
                 row.classList.add('hidden');
-                row.classList.remove('completed');
             }
         });
 
         if (gameState.gameMode === 'duo' || gameState.currentMode === 'attack') {
-            updateStatus("Начните с первого уровня!");
+            updateStatus("Начните с первого ряда!");
             document.getElementById('back-btn').classList.remove('hidden');
         } else if (gameState.currentMode === 'defense') {
             updateStatus("Скрипт начинает атаку...");
@@ -204,7 +203,7 @@ function initDarkwall() {
                 if (gameState.board[gameState.currentRow][col].isMine) {
                     cell.classList.add('mine', 'revealed');
                     gameState.playerHealth -= 25;
-                    updateStatus(`Скрипт обнаружен! Прочность: ${gameState.playerHealth}%`);
+                    updateStatus(`Скрипт наступил на мину! Здоровье: ${gameState.playerHealth}%`);
                 } else {
                     cell.classList.add('revealed');
                     document.querySelectorAll('.row')[gameState.currentRow].classList.remove('active');
@@ -214,7 +213,7 @@ function initDarkwall() {
                     if (gameState.currentRow < gameState.rows) {
                         document.querySelectorAll('.row')[gameState.currentRow].classList.remove('hidden');
                         document.querySelectorAll('.row')[gameState.currentRow].classList.add('active');
-                        updateStatus(`Скрипт переходит к уровню ${gameState.currentRow + 1}`);
+                        updateStatus(`Скрипт переходит к ряду ${gameState.currentRow + 1}`);
                     }
                 }
                 gameState.board[gameState.currentRow][col].revealed = true;
