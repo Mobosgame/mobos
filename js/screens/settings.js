@@ -1,4 +1,4 @@
-import appStorage from '../storage.js';
+//import appStorage from '../storage.js';
 
 function initSettings() {
     // Загружаем сохраненные настройки
