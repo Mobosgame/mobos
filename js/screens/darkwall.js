@@ -1,3 +1,7 @@
+function initCalls() { // или initSms/initSettings для других экранов
+    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', goBack);
+    // остальная инициализация
+}
 // Объявление переменных состояния игры
 const gameState = {
     rows: 7,
