@@ -1,78 +1,75 @@
-async loadScreen(screenName) {
-    if (!this.screens[screenName]) {
-        // Загрузка HTML
-        const response = await fetch(`./screens/${screenName}.html`);
-        const html = await response.text();
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        this.screens[screenName] = doc.body.firstElementChild;
-        
-        // Добавляем в DOM
-        document.getElementById('screens-container').appendChild(this.screens[screenName]);
-        
-        // Инициализация
-        const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
-        if (initFn) initFn();
+class AppRouter {
+    constructor() {
+        this.screens = {};
+        this.currentScreen = null;
+        this.initRouter();
     }
 
-    // Показ экрана
-    document.getElementById('main-screen').classList.add('hidden');
-    this.currentScreen = this.screens[screenName];
-    this.currentScreen.classList.remove('hidden');
-    
-    // Специальная обработка для игры
-    if (screenName === 'darkwall') {
-        window.showDarkwall();
-    }
-
+    initRouter() {
+        // Делаем функции глобально доступными
+        window.showScreen = (screenName) => this.loadScreen(screenName);
+        window.goBack = () => this.backToMain();
+        
         // Инициализация данных пользователя Telegram
         this.initTelegramUser();
     }
 
     async loadScreen(screenName) {
-    if (!this.screens[screenName]) {
-        try {
-            const response = await fetch(`./screens/${screenName}.html`);
-            const html = await response.text();
-            
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            this.screens[screenName] = doc.body.firstElementChild;
-            
-            document.getElementById('screens-container').appendChild(this.screens[screenName]);
-            
-            // Инициализация экрана
-            const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
-            if (initFn) initFn();
-            
-        } catch (error) {
-            console.error(`Error loading ${screenName}:`, error);
-            return;
+        // Если экран еще не загружен
+        if (!this.screens[screenName]) {
+            try {
+                // Загружаем HTML
+                const response = await fetch(`./screens/${screenName}.html`);
+                if (!response.ok) throw new Error(`Failed to load ${screenName}`);
+                const html = await response.text();
+                
+                // Парсим HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const screenElement = doc.body.firstElementChild;
+                
+                // Добавляем в DOM
+                document.getElementById('screens-container').appendChild(screenElement);
+                this.screens[screenName] = screenElement;
+                
+                // Инициализируем экран
+                const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
+                if (initFn) initFn();
+                
+            } catch (error) {
+                console.error(`Error loading ${screenName}:`, error);
+                return;
+            }
+        }
+
+        // Скрываем все экраны
+        document.getElementById('main-screen').classList.add('hidden');
+        document.querySelectorAll('.app-screen').forEach(screen => {
+            screen.classList.add('hidden');
+        });
+        
+        // Показываем нужный экран
+        this.currentScreen = this.screens[screenName];
+        this.currentScreen.classList.remove('hidden');
+        
+        // Специальная обработка для Darkwall
+        if (screenName === 'darkwall') {
+            window.showDarkwall();
         }
     }
 
-    // Скрываем все экраны
-    document.getElementById('main-screen').classList.add('hidden');
-    document.querySelectorAll('.app-screen').forEach(screen => {
-        screen.classList.add('hidden');
-    });
-    
-    // Показываем нужный экран
-    this.currentScreen = this.screens[screenName];
-    this.currentScreen.classList.remove('hidden');
-    
-    // Особый случай для Darkwall
-    if (screenName === 'darkwall') {
-        showDarkwall();
+    backToMain() {
+        document.getElementById('main-screen').classList.remove('hidden');
+        if (this.currentScreen) {
+            this.currentScreen.classList.add('hidden');
+            
+            // Специальная обработка для Darkwall
+            if (this.currentScreen.id === 'darkwall-screen') {
+                window.showMainMenu();
+            }
+        }
+        this.currentScreen = null;
     }
-}
-
-backToMain() {
-    document.getElementById('main-screen').classList.remove('hidden');
-    if (this.currentScreen) {
-        this.currentScreen.classList.add('hidden');
-    }
-    this.currentScreen = null;
-}
 
     initTelegramUser() {
         if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
@@ -96,7 +93,7 @@ backToMain() {
     }
 }
 
-// Инициализация роутера при загрузке
+// Инициализация роутера при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
     window.router = new AppRouter();
 });
