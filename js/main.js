@@ -1,4 +1,3 @@
-// Добавьте в начало main.js
 class AppStorage {
     constructor() {
         this.prefix = 'phone_simulator_';
@@ -27,28 +26,63 @@ class AppStorage {
 
 const appStorage = new AppStorage();
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Применяем сохраненную тему при загрузке
+    const savedSettings = appStorage.get('settings');
+    if (savedSettings?.theme) {
+        document.body.className = `theme-${savedSettings.theme}`;
+    }
+
     // Инициализация Telegram WebApp
     if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.expand();
         window.Telegram.WebApp.enableClosingConfirmation();
         
-document.addEventListener('DOMContentLoaded', function() {
-    const savedSettings = appStorage.get('settings');
-    if (savedSettings?.theme) {
-        document.body.className = `theme-${savedSettings.theme}`;
-    }
-    // Инициализация Telegram WebApp
-    if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.expand();
-        window.Telegram.WebApp.enableClosingConfirmation();
+        const user = window.Telegram.WebApp.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('username').textContent = user.first_name || 'TG User';
+            if (user.photo_url) {
+                document.getElementById('profile-photo').src = `${user.photo_url}?${Date.now()}`;
+            }
+        }
     }
 
-    // Обработчики кнопок главного экрана
-    document.getElementById('settings-btn')?.addEventListener('click', () => showScreen('settings'));
-    document.getElementById('call-btn')?.addEventListener('click', () => showScreen('calls'));
-    document.getElementById('sms-btn')?.addEventListener('click', () => showScreen('sms'));
-    document.getElementById('darkwall-btn')?.addEventListener('click', () => showScreen('darkwall'));
+    // Обработчики кнопок
+    document.getElementById('settings-btn').addEventListener('click', function() {
+        showScreen('settings');
+    });
+
+    document.getElementById('call-btn').addEventListener('click', function() {
+        showScreen('calls');
+    });
+
+    document.getElementById('sms-btn').addEventListener('click', function() {
+        showScreen('sms');
+    });
+
+    document.getElementById('darkwall-btn').addEventListener('click', function() {
+        showScreen('darkwall');
+    });
 
     // Показываем главный экран
     document.getElementById('main-screen').classList.remove('hidden');
 });
+
+// Глобальные функции навигации
+function showScreen(screenName) {
+    // Реализация из router.js
+    const screen = document.getElementById(`${screenName}-screen`);
+    if (screen) {
+        document.querySelectorAll('.app-screen').forEach(s => {
+            s.classList.add('hidden');
+        });
+        screen.classList.remove('hidden');
+    }
+}
+
+function goBack() {
+    document.getElementById('main-screen').classList.remove('hidden');
+    document.querySelectorAll('.app-screen').forEach(screen => {
+        screen.classList.add('hidden');
+    });
+}
