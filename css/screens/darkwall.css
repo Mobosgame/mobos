@@ -1,6 +1,7 @@
+/* darkwall.css */
 #darkwall-screen .game-container {
     width: 100%;
-    height: calc(100% - 50px); /* Учитываем высоту заголовка */
+    height: calc(100% - 50px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -8,48 +9,136 @@
     box-sizing: border-box;
 }
 
-#darkwall-screen .game-iframe {
+#darkwall-screen .game-window {
     width: 100%;
     height: 100%;
-    max-width: 600px; /* Максимальная ширина на больших экранах */
-    max-height: 800px; /* Максимальная высота на больших экранах */
-    border-radius: 15px;
-    overflow: hidden;
-    background: #000;
+    max-width: 500px;
+    max-height: 700px;
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    overflow: auto;
     border: 2px solid var(--theme-color);
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
-/* Адаптация под разные экраны */
-@media (min-width: 768px) {
-    #darkwall-screen .game-iframe {
-        width: 90%;
-        height: 90%;
+#darkwall-screen .game-inner {
+    padding: 20px;
+    color: white;
+    text-align: center;
+}
+
+/* Стили игры */
+#darkwall-screen .row {
+    display: flex;
+    justify-content: center;
+    margin: 5px 0;
+    opacity: 1;
+    transition: all 0.3s;
+}
+
+#darkwall-screen .cell {
+    width: 50px;
+    height: 50px;
+    border: 2px solid white;
+    margin: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: #004d00;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+#darkwall-screen .cell.revealed {
+    background: white;
+    border: 2px solid #00ff00;
+}
+
+#darkwall-screen .cell.mine {
+    background: linear-gradient(45deg, #ff4444, #cc0000);
+}
+
+#darkwall-screen .row.completed {
+    opacity: 0.6;
+    filter: brightness(0.7);
+    pointer-events: none;
+}
+
+#darkwall-screen .row.active {
+    background-color: #008000;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+#darkwall-screen .hidden {
+    display: none;
+}
+
+#darkwall-screen .menu {
+    margin-top: 50px;
+}
+
+#darkwall-screen button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #004d00;
+    color: white;
+    border: 2px solid white;
+    border-radius: 5px;
+    width: 200px;
+}
+
+#darkwall-screen .status {
+    margin: 20px 0;
+    font-size: 18px;
+}
+
+#darkwall-screen .notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    z-index: 1000;
+    animation: fadeOut 2s forwards;
+}
+
+#darkwall-screen .game-over-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 10;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; display: none; }
+}
+
+/* Адаптация */
+@media (max-width: 600px) {
+    #darkwall-screen .cell {
+        width: 40px;
+        height: 40px;
     }
 }
 
-@media (min-width: 992px) {
-    #darkwall-screen .game-iframe {
-        width: 80%;
-        height: 85%;
-        max-width: 800px;
-        max-height: 900px;
-    }
-}
-
-@media (min-width: 1200px) {
-    #darkwall-screen .game-iframe {
-        width: 70%;
-        height: 90%;
-        max-width: 1000px;
-        max-height: 1000px;
-    }
-}
-
-/* Вертикальная ориентация (мобильные) */
-@media (max-height: 700px) {
-    #darkwall-screen .game-iframe {
-        height: 75vh;
-        max-height: 600px;
+@media (max-width: 400px) {
+    #darkwall-screen .cell {
+        width: 35px;
+        height: 35px;
     }
 }
