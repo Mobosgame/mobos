@@ -6,43 +6,60 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const user = window.Telegram.WebApp.initDataUnsafe?.user;
         if (user) {
-            document.getElementById('username').textContent = user.first_name || 'TG User';
-            if (user.photo_url) {
-                document.getElementById('profile-photo').src = `${user.photo_url}?${Date.now()}`;
-            }
+            updateUserProfile(user);
         }
     }
 
-    // Ожидаем инициализации роутера
-    const waitForRouter = setInterval(() => {
-        if (window.router && window.showScreen) {
-            clearInterval(waitForRouter);
-            setupEventListeners();
+    // Назначаем обработчики после инициализации роутера
+    const initInterval = setInterval(() => {
+        if (window.router) {
+            clearInterval(initInterval);
+            setupNavigation();
         }
     }, 100);
 
-    function setupEventListeners() {
-        // Обработчики кнопок с проверкой существования
-        const addSafeListener = (id, screen) => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('click', () => {
+    function updateUserProfile(user) {
+        const username = document.getElementById('username');
+        const profilePhoto = document.getElementById('profile-photo');
+        
+        if (username) {
+            username.textContent = user.first_name || 'TG User';
+            if (user.last_name) username.textContent += ` ${user.last_name}`;
+            else if (user.username) username.textContent += ` (@${user.username})`;
+        }
+        
+        if (profilePhoto && user.photo_url) {
+            profilePhoto.src = `${user.photo_url}?${Date.now()}`;
+            profilePhoto.onerror = () => {
+                profilePhoto.src = './Img/Theme_1/profile.png';
+            };
+        }
+    }
+
+    function setupNavigation() {
+        // Безопасное назначение обработчиков
+        const setClickListener = (id, screen) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('click', () => {
                     if (typeof showScreen === 'function') {
                         showScreen(screen);
                     } else {
-                        console.error('showScreen is not defined');
+                        console.error('Router not initialized');
+                        window.location.reload();
                     }
                 });
             }
         };
 
-        // Назначаем обработчики
-        addSafeListener('settings-btn', 'settings');
-        addSafeListener('call-btn', 'calls');
-        addSafeListener('sms-btn', 'sms');
-        addSafeListener('darkwall-btn', 'darkwall');
-    }
+        // Основные кнопки навигации
+        setClickListener('settings-btn', 'settings');
+        setClickListener('call-btn', 'calls');
+        setClickListener('sms-btn', 'sms');
+        setClickListener('darkwall-btn', 'darkwall');
 
-    // Показываем главный экран
-    document.getElementById('main-screen').classList.remove('hidden');
+        // Показываем главный экран
+        const mainScreen = document.getElementById('main-screen');
+        if (mainScreen) mainScreen.classList.remove('hidden');
+    }
 });
