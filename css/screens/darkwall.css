@@ -4,31 +4,32 @@
     width: 100%;
     height: calc(100% - 50px);
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     padding: 10px;
     box-sizing: border-box;
 }
 
-#darkwall-screen .game-window {
-    width: 100%;
-    height: 100%;
-    max-width: 500px;
-    max-height: 700px;
-    background-color: #1a1a1a;
-    border-radius: 10px;
-    overflow: auto;
-    border: 2px solid var(--theme-color);
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-}
-
-#darkwall-screen .game-inner {
+#darkwall-screen .menu {
+    margin-top: 50px;
+    background-color: rgba(0, 0, 0, 0.9);
     padding: 20px;
-    color: white;
+    border-radius: 10px;
     text-align: center;
 }
 
-/* Стили игры */
+#darkwall-screen button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #004d00;
+    color: white;
+    border: 2px solid white;
+    border-radius: 5px;
+    width: 200px;
+}
+
 #darkwall-screen .row {
     display: flex;
     justify-content: center;
@@ -74,22 +75,6 @@
 
 #darkwall-screen .hidden {
     display: none;
-}
-
-#darkwall-screen .menu {
-    margin-top: 50px;
-}
-
-#darkwall-screen button {
-    margin: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #004d00;
-    color: white;
-    border: 2px solid white;
-    border-radius: 5px;
-    width: 200px;
 }
 
 #darkwall-screen .status {
