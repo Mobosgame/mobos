@@ -26,7 +26,7 @@
         }
     }
 </style>
-    //
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Темная Стена</title>
@@ -213,6 +213,18 @@
 window.addEventListener('message', function(event) {
     if (event.data.action === 'closeGame') {
         showMainMenu();
+    }
+});
+        window.addEventListener('message', function(event) {
+    if (event.data.type === 'resize') {
+        // Масштабируем игру под полученные размеры
+        const gameCanvas = document.getElementById('game-canvas'); // предположим, что canvas имеет этот id
+        if (gameCanvas) {
+            gameCanvas.width = event.data.data.width * (event.data.data.devicePixelRatio || 1);
+            gameCanvas.height = event.data.data.height * (event.data.data.devicePixelRatio || 1);
+            // Здесь должна быть ваша функция перерисовки игры
+            resizeGameElements();
+        }
     }
 });
 
