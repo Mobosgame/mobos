@@ -1,23 +1,19 @@
 // darkwall.js
 
-let gameInitialized = false;
+let gameState = null;
 
 function initDarkwall() {
     // Инициализация закрытия окна
     const closeBtn = document.querySelector('#darkwall-screen .close-btn');
     closeBtn.addEventListener('click', function() {
         hideDarkwall();
-        goBack();
+        if (typeof goBack === 'function') {
+            goBack();
+        }
     });
 
-    // Если игра уже инициализирована, просто сбрасываем состояние
-    if (gameInitialized) {
-        resetGame();
-        return;
-    }
-
-    // Игровые переменные
-    const gameState = {
+    // Создаем новое состояние игры при каждом открытии
+    gameState = {
         rows: 7,
         cols: 4,
         minesPerRow: 2,
@@ -53,7 +49,6 @@ function initDarkwall() {
             boardElement.appendChild(row);
         }
     }
-
     function handleCellClick(e) {
         if (gameState.isScriptAttacking) return;
         const cell = e.target;
@@ -285,22 +280,36 @@ function initDarkwall() {
     window.confirmMines = confirmMines;
     window.showMainMenu = showMainMenu;
 
-    // Первоначальное создание поля
+    // Первоначальное создание поля и сброс состояния
     createBoard();
-    gameInitialized = true;
+    showMainMenu();
 }
 
 function showDarkwall() {
-    document.getElementById('darkwall-screen').style.display = 'block';
+    const screen = document.getElementById('darkwall-screen');
+    screen.style.display = 'block';
+    
+    // Полностью переинициализируем игру
     initDarkwall();
+    
+    // Принудительно показываем главное меню
     document.getElementById('main-menu').classList.remove('hidden');
+    document.getElementById('solo-mode').classList.add('hidden');
+    document.getElementById('board').classList.add('hidden');
+    document.getElementById('ready-btn').classList.add('hidden');
+    document.getElementById('back-btn').classList.add('hidden');
+    document.getElementById('game-over-menu').classList.add('hidden');
 }
 
 function hideDarkwall() {
-    document.getElementById('darkwall-screen').style.display = 'none';
+    const screen = document.getElementById('darkwall-screen');
+    screen.style.display = 'none';
+    
+    // Очищаем состояние игры
+    gameState = null;
 }
 
-// Добавляем в глобальную область видимости
+// Экспорт функций
 window.initDarkwall = initDarkwall;
 window.showDarkwall = showDarkwall;
 window.hideDarkwall = hideDarkwall;
