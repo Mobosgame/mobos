@@ -1,26 +1,70 @@
+import appStorage from '../storage.js';
+
 function initSettings() {
-    // Загрузка сохраненных настроек
-    const savedTheme = localStorage.getItem('appTheme') || '1';
-    const savedLang = localStorage.getItem('appLanguage') || 'ru';
-    
-    // Установка значений в селекторы
-    document.getElementById('theme-selector').value = savedTheme;
-    document.getElementById('language-selector').value = savedLang;
-    
-    // Обработчики изменений
-    document.getElementById('theme-selector').addEventListener('change', function() {
-        const theme = this.value;
-        document.body.className = `theme-${theme}`;
-        localStorage.setItem('appTheme', theme);
-        updateIconsForTheme(theme);
+    // Загружаем сохраненные настройки
+    const savedSettings = appStorage.get('settings') || {
+        theme: '1',
+        language: 'ru'
+    };
+
+    // Устанавливаем текущие настройки
+    let currentSettings = { ...savedSettings };
+
+    // Применяем сохраненные настройки
+    applyTheme(currentSettings.theme);
+    applyLanguage(currentSettings.language);
+
+    // Переключение тем
+    document.querySelectorAll('.theme-option').forEach(option => {
+        if (option.dataset.theme === currentSettings.theme) {
+            option.classList.add('active');
+        }
+
+        option.addEventListener('click', function() {
+            const theme = this.dataset.theme;
+            currentSettings.theme = theme;
+            appStorage.set('settings', currentSettings);
+            applyTheme(theme);
+            
+            document.querySelectorAll('.theme-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            this.classList.add('active');
+        });
     });
-    
-    document.getElementById('language-selector').addEventListener('change', function() {
-        setLanguage(this.value);
+
+    // Переключение языков
+    document.querySelectorAll('.lang-option').forEach(option => {
+        if (option.dataset.lang === currentSettings.language) {
+            option.classList.add('active');
+        }
+
+        option.addEventListener('click', function() {
+            const lang = this.dataset.lang;
+            currentSettings.language = lang;
+            appStorage.set('settings', currentSettings);
+            applyLanguage(lang);
+            
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            this.classList.add('active');
+        });
     });
-    
+
     // Кнопка закрытия
     document.querySelector('#settings-screen .close-btn').addEventListener('click', goBack);
+}
+
+function applyTheme(theme) {
+    document.body.className = `theme-${theme}`;
+    updateIconsForTheme(theme);
+}
+
+function applyLanguage(lang) {
+    // Здесь реализуйте смену языка
+    console.log('Language changed to:', lang);
+    // Пример: document.querySelectorAll('[data-lang]').forEach(el => { ... });
 }
 
 function updateIconsForTheme(theme) {
