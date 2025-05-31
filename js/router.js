@@ -6,77 +6,88 @@ class AppRouter {
     }
 
     initRouter() {
+        // Регистрируем глобальные функции навигации
         window.showScreen = (screenName) => this.loadScreen(screenName);
         window.goBack = () => this.backToMain();
+        
+        // Инициализация данных пользователя Telegram
         this.initTelegramUser();
     }
 
     async loadScreen(screenName) {
-    try {
-        console.log(`Loading screen: ${screenName}`);
-        
-        if (!this.screens[screenName]) {
-            const response = await fetch(`./screens/${screenName}.html`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            
-            const html = await response.text();
-            const template = document.createElement('template');
-            template.innerHTML = html.trim();
-            
-            const screenElement = template.content.firstChild;
-            if (!screenElement) throw new Error('No valid HTML content');
-            
-            const container = document.getElementById('screens-container');
-            if (!container) throw new Error('Screens container not found');
-            
-            container.appendChild(screenElement);
-            this.screens[screenName] = screenElement;
-            
-            // Инициализация экрана
-            const initFn = window[`init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`];
-            if (initFn) {
-                console.log(`Initializing ${screenName} screen`);
-                initFn();
+        try {
+            // Загрузка экрана если он еще не загружен
+            if (!this.screens[screenName]) {
+                // Загружаем HTML-файл экрана
+                const response = await fetch(`./screens/${screenName}.html`);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                
+                const html = await response.text();
+                
+                // Создаем временный контейнер для парсинга
+                const tempContainer = document.createElement('div');
+                tempContainer.innerHTML = html;
+                
+                // Получаем корневой элемент экрана
+                const screenElement = tempContainer.firstElementChild;
+                if (!screenElement) throw new Error('Screen HTML is empty');
+                
+                // Добавляем в DOM
+                document.getElementById('screens-container').appendChild(screenElement);
+                this.screens[screenName] = screenElement;
+                
+                // Инициализация экрана
+                const initFnName = `init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`;
+                if (window[initFnName]) {
+                    window[initFnName]();
+                } else {
+                    console.warn(`Initialization function ${initFnName} not found`);
+                }
             }
+            
+            // Переключение видимости экранов
+            this.switchToScreen(screenName);
+            
+            // Специальная обработка для игровых экранов
+            if (screenName === 'darkwall' && window.showDarkwall) {
+                window.showDarkwall();
+            }
+            
+        } catch (error) {
+            console.error(`Error loading screen ${screenName}:`, error);
+            // Возвращаем на главный экран при ошибке
+            this.backToMain();
         }
+    }
 
-        // Скрываем все экраны
-        const mainScreen = document.getElementById('main-screen');
-        if (mainScreen) mainScreen.classList.add('hidden');
+    switchToScreen(screenName) {
+        // Скрываем главный экран
+        document.getElementById('main-screen').classList.add('hidden');
         
-        document.querySelectorAll('.app-screen').forEach(s => {
-            s.classList.add('hidden');
+        // Скрываем все остальные экраны
+        document.querySelectorAll('.app-screen').forEach(screen => {
+            screen.classList.add('hidden');
         });
         
-        // Показываем текущий экран
+        // Показываем запрошенный экран
         this.currentScreen = this.screens[screenName];
-        if (this.currentScreen) {
-            this.currentScreen.classList.remove('hidden');
-            
-            // Специальная обработка для darkwall
-            if (screenName === 'darkwall' && window.showDarkwall) {
-                setTimeout(() => {
-                    window.showDarkwall();
-                }, 10);
-            }
-        }
-
-    } catch (error) {
-        console.error(`Error loading ${screenName}:`, error);
-        this.backToMain();
+        this.currentScreen.classList.remove('hidden');
     }
-}
 
     backToMain() {
+        // Показываем главный экран
         document.getElementById('main-screen').classList.remove('hidden');
-        if (this.currentScreen && this.currentScreen.classList) {
+        
+        // Скрываем текущий экран
+        if (this.currentScreen) {
             this.currentScreen.classList.add('hidden');
             
-            // Сброс состояния для специфичных экранов
+            // Специальный сброс для игровых экранов
             if (this.currentScreen.id === 'darkwall-screen' && window.showMainMenu) {
                 window.showMainMenu();
             }
         }
+        
         this.currentScreen = null;
     }
 
@@ -95,14 +106,14 @@ class AppRouter {
             if (user.photo_url) {
                 profilePhoto.src = `${user.photo_url}?t=${Date.now()}`;
                 profilePhoto.onerror = () => {
-                    profilePhoto.src = './img/Theme_1/profile.png'; // Обратите внимание на путь (img вместо Img)
+                    profilePhoto.src = './Img/Theme_1/profile.png';
                 };
             }
         }
     }
 }
 
-// Инициализация после полной загрузки DOM
+// Инициализация после загрузки DOM
 document.addEventListener('DOMContentLoaded', () => {
     window.router = new AppRouter();
 });
