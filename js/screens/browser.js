@@ -1,4 +1,5 @@
-function initCalls() {
+function initBrowser() {
     // 1. Обработчик закрытия
-    document.querySelector('#calls-screen .close-btn').addEventListener('click', goBack);
+    document.querySelector('#browser-screen .close-btn').addEventListener('click', goBack);
 }
+window.initBrowser = initBrowsers;
