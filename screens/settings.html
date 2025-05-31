@@ -3,23 +3,15 @@
         <h2 data-lang="settings">Настройки</h2>
         <button class="close-btn">✕</button>
     </div>
+   
     <div class="app-content">
         <div class="settings-section">
             <h3 data-lang="theme">Тема оформления</h3>
-            <div class="theme-selector">
-                <div class="theme-option" data-theme="1">
-                    <img src="./Img/Theme_1/theme_preview.png" alt="Тема 1">
-                    <span data-lang="theme1">Тема 1</span>
-                </div>
-                <div class="theme-option" data-theme="2">
-                    <img src="./Img/Theme_2/theme_preview.png" alt="Тема 2">
-                    <span data-lang="theme2">Тема 2</span>
-                </div>
-                <div class="theme-option" data-theme="3">
-                    <img src="./Img/Theme_3/theme_preview.png" alt="Тема 2">
-                    <span data-lang="theme3">Тема 3</span>
-                </div>
-            </div>
+            <select id="theme-selector" class="theme-selector">
+                <option value="1" data-lang="theme1">Тема 1</option>
+                <option value="2" data-lang="theme2">Тема 2</option>
+                <option value="3" data-lang="theme3">Тема 3</option>
+            </select>
         </div>
         
         <div class="settings-section">
