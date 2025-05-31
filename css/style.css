@@ -1,67 +1,40 @@
-/* Профиль пользователя */
-.profile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: 70%;
-}
-
-.profile-photo {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--theme-color);
-}
-
-#username {
-    font-weight: bold;
-    color: var(--theme-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-/* Базовые стили */
+/* ===== ГЛОБАЛЬНЫЕ СТИЛИ ===== */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #121212;
-    color: white;
-    height: 100vh;
-    overflow: hidden;
-}
-
-/* Темы оформления */
 :root {
     --theme-color: #4CAF50;
     --bg-color: #121212;
     --card-color: #252525;
     --text-color: white;
+    --nav-bg: #1a1a1a;
+    --border-color: #333;
+    --accent-color: #FFC107;
 }
 
-.theme-1 {
-    --theme-color: #4CAF50;
-    --bg-color: #121212;
-    --card-color: #252525;
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    height: 100vh;
+    overflow: hidden;
 }
 
-.theme-2 {
+.theme-1 { --theme-color: #4CAF50; }
+.theme-2 { 
     --theme-color: #2196F3;
     --bg-color: #0d0d1a;
     --card-color: #1a1a2e;
 }
 
-body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
+.hidden {
+    display: none !important;
 }
 
-/* Главное меню */
+/* ===== ОСНОВНЫЕ КОНТЕЙНЕРЫ ===== */
 .screen {
     position: fixed;
     top: 0;
@@ -71,23 +44,21 @@ body {
     display: flex;
     flex-direction: column;
     padding: 15px;
+    box-sizing: border-box;
 }
 
-.hidden {
-    display: none !important;
-}
-
+/* ===== ШАПКА И ПРОФИЛЬ ===== */
 .header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
 }
 
-/* Профиль в шапке */
 .profile {
     display: flex;
     align-items: center;
     gap: 10px;
+    max-width: 70%;
 }
 
 .profile-photo {
@@ -95,34 +66,68 @@ body {
     height: 30px;
     border-radius: 50%;
     object-fit: cover;
+    border: 2px solid var(--theme-color);
 }
 
-#user-nickname, #username {
+#user-nickname, 
+#username {
     font-weight: bold;
     color: var(--theme-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #user-points {
-    color: #FFC107;
+    color: var(--accent-color);
     background: #333;
     padding: 2px 10px;
     border-radius: 10px;
     font-size: 14px;
 }
 
+/* ===== ЛОГОТИП И КОНТЕНТ ===== */
+.logo-container {
+    flex: 0 0 auto;
+    margin: 10px 0 20px;
+    text-align: center;
+}
+
 .main-logo {
     width: 180px;
     height: 180px;
     object-fit: contain;
-    margin: 20px auto;
+    margin: 0 auto;
 }
 
-/* Сетка приложений */
+.full-width-logo {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 20px 0;
+    object-fit: contain;
+    display: block;
+}
+
+.content-container {
+    flex: 1 1 auto;
+    min-height: 20px;
+    overflow-y: auto;
+}
+
+/* ===== СЕТКА ПРИЛОЖЕНИЙ ===== */
+.app-grid-container {
+    flex: 0 0 auto;
+    margin-bottom: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
 .dummy-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
-    margin: 20px 15px;
+    margin: 0 15px;
 }
 
 .app-cell {
@@ -169,13 +174,13 @@ body {
     text-align: center;
 }
 
-/* Нижняя панель */
+/* ===== НИЖНЯЯ ПАНЕЛЬ ===== */
 .bottom-nav {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
     margin-top: auto;
-    background: #1a1a1a;
+    background: var(--nav-bg);
     padding: 10px 15px;
     border-radius: 15px;
 }
@@ -220,7 +225,7 @@ body {
     text-align: center;
 }
 
-/* Окна приложений */
+/* ===== ОКНА ПРИЛОЖЕНИЙ ===== */
 .app-screen {
     position: fixed;
     top: 0;
@@ -238,8 +243,8 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 15px;
-    background: #1a1a1a;
-    border-bottom: 1px solid #333;
+    background: var(--nav-bg);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .app-header h2 {
@@ -262,15 +267,17 @@ body {
     overflow-y: auto;
 }
 
-/* Элементы списков */
-.call-item, .message-item {
+/* ===== ЭЛЕМЕНТЫ СПИСКОВ ===== */
+.call-item, 
+.message-item {
     padding: 12px 0;
     border-bottom: 1px solid var(--card-color);
     display: flex;
     justify-content: space-between;
 }
 
-.caller-name, .sender-name {
+.caller-name, 
+.sender-name {
     font-weight: bold;
 }
 
@@ -295,7 +302,7 @@ body {
     font-size: 12px;
 }
 
-/* Окно настроек */
+/* ===== НАСТРОЙКИ ===== */
 .settings-section {
     margin-bottom: 20px;
 }
@@ -334,20 +341,21 @@ body {
     margin-top: 5px;
     font-size: 12px;
 }
-.full-width-logo {
-    width: 100%;
-    max-width: 100% !important;
-    height: auto;
-    margin: 20px 0;
-    object-fit: contain;
-    display: block;
-}
 
-/* Адаптация для разных экранов */
+/* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 480px) {
     .full-width-logo {
         margin: 10px 0;
         max-height: 120px;
+    }
+    
+    .dummy-grid {
+        gap: 8px;
+        margin: 0 10px;
+    }
+    
+    .app-cell {
+        margin-bottom: 5px;
     }
 }
 
@@ -360,5 +368,24 @@ body {
 @media (min-width: 769px) {
     .full-width-logo {
         max-height: 180px;
+    }
+}
+
+@media (max-height: 600px) {
+    .logo-container {
+        margin: 5px 0 10px;
+    }
+    
+    .app-grid-container {
+        margin-bottom: 10px;
+    }
+}
+
+@media (min-height: 800px) {
+    .content-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 40vh;
     }
 }
