@@ -28,12 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (user.username) username.textContent += ` (@${user.username})`;
         }
         
-        if (profilePhoto && user.photo_url) {
-            profilePhoto.src = `${user.photo_url}?${Date.now()}`;
-            profilePhoto.onerror = () => {
-                profilePhoto.src = './Img/Theme_1/profile.png';
-            };
-        }
+        
     }
 
     function setupNavigation() {
@@ -60,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Настройка обработчиков для кнопок
         setupButton('settings-btn', 'settings');
-        setupButton('call-btn', 'calls');
+        setupButton('calls-btn', 'calls');
         setupButton('browser-btn', 'browser');
         setupButton('sms-btn', 'sms');
         setupButton('darkwall-btn', 'darkwall');
