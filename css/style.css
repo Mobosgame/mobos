@@ -334,3 +334,31 @@ body {
     margin-top: 5px;
     font-size: 12px;
 }
+.full-width-logo {
+    width: 100%;
+    max-width: 100% !important;
+    height: auto;
+    margin: 20px 0;
+    object-fit: contain;
+    display: block;
+}
+
+/* Адаптация для разных экранов */
+@media (max-width: 480px) {
+    .full-width-logo {
+        margin: 10px 0;
+        max-height: 120px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .full-width-logo {
+        max-height: 150px;
+    }
+}
+
+@media (min-width: 769px) {
+    .full-width-logo {
+        max-height: 180px;
+    }
+}
