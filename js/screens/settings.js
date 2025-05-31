@@ -8,12 +8,10 @@ function initSettings() {
     // Применяем текущие настройки
     applySettings(currentSettings);
 
-    // Обработчики для тем
-    document.querySelectorAll('.theme-option').forEach(option => {
-        option.addEventListener('click', function() {
-            currentSettings.theme = this.getAttribute('data-theme');
-            applySettings(currentSettings);
-        });
+    // Обработчик для выбора темы
+    document.getElementById('theme-selector').addEventListener('change', function() {
+        currentSettings.theme = this.value;
+        applySettings(currentSettings);
     });
 
     // Обработчики для языков
@@ -31,7 +29,6 @@ function initSettings() {
 function applySettings(settings) {
     // Применяем тему
     document.body.className = 'theme-' + settings.theme;
-    updateIconsForTheme(settings.theme);
     
     // Применяем язык
     applyLanguage(settings.language);
@@ -49,19 +46,11 @@ function applyLanguage(lang) {
 }
 
 function markActiveOptions(settings) {
-    // Темы
-    document.querySelectorAll('.theme-option').forEach(el => {
-        el.classList.toggle('active', el.getAttribute('data-theme') === settings.theme);
-    });
+    // Устанавливаем выбранную тему в select
+    document.getElementById('theme-selector').value = settings.theme;
     
     // Языки
     document.querySelectorAll('.lang-option').forEach(el => {
         el.classList.toggle('active', el.getAttribute('data-lang') === settings.language);
-    });
-}
-
-function updateIconsForTheme(theme) {
-    document.querySelectorAll('img[src*="Theme_"]').forEach(img => {
-        img.src = img.src.replace(/Theme_\d+/, 'Theme_' + theme);
     });
 }
