@@ -8,6 +8,10 @@ window.translations = {
         language: "Language",
         russian: "Russian",
         english: "English",
+        //Кошелек
+        wallet: "Crypto wallet",
+        //Майнер
+        miner: "Miner",
         //Вызовы
         calls: "Calls",
         //Сообщения
@@ -47,6 +51,10 @@ window.translations = {
         language: "Язык",
         russian: "Русский",
         english: "English",
+         //Кошелек
+        wallet: "Крипто кошелек",
+        //Майнер
+        miner: "Майнер",
         //Вызовы
         calls: "Вызовы",
         //Сообщения
