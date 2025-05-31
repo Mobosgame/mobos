@@ -52,18 +52,6 @@ class AppRouter {
             if (screenName === 'darkwall' && window.showDarkwall) {
                 window.showDarkwall();
             }
-             if (screenName === 'wallet' && window.showWallet) {
-                window.showWallet();
-            }
-             if (screenName === 'chat' && window.showChat) {
-                window.showChat();
-            }
-             if (screenName === 'browser' && window.showBrowser) {
-                window.showBrowser();
-            }
-             if (screenName === 'miner' && window.showMiner) {
-                window.showMiner();
-            }
             
         } catch (error) {
             console.error(`Error loading screen ${screenName}:`, error);
@@ -96,18 +84,6 @@ class AppRouter {
             
             // Специальный сброс для игровых экранов
             if (this.currentScreen.id === 'darkwall-screen' && window.showMainMenu) {
-                window.showMainMenu();
-            }
-            if (this.currentScreen.id === 'wallet-screen' && window.showMainMenu) {
-                window.showMainMenu();
-            }
-            if (this.currentScreen.id === 'miner-screen' && window.showMainMenu) {
-                window.showMainMenu();
-            }
-            if (this.currentScreen.id === 'chat-screen' && window.showMainMenu) {
-                window.showMainMenu();
-            }
-            if (this.currentScreen.id === 'browser-screen' && window.showMainMenu) {
                 window.showMainMenu();
             }
         }
