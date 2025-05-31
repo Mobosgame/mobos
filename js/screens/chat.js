@@ -1,9 +1,5 @@
-<div id="chat-screen" class="app-screen">
-    <div class="app-header">
-        <h2>Чат</h2>
-        <button class="close-btn">✕</button>
-    </div>
-    <div class="app-content">
-        <!-- Контент кошелька -->
-    </div>
-</div>
+function initChat() {
+    // 1. Обработчик закрытия
+    document.querySelector('#chat-screen .close-btn').addEventListener('click', goBack);
+}
+window.initChat = initChat;
