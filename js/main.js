@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Настройка обработчиков для кнопок
         setupButton('settings-btn', 'settings');
         setupButton('call-btn', 'calls');
+        setupButton('browser-btn', 'browser');
         setupButton('sms-btn', 'sms');
         setupButton('darkwall-btn', 'darkwall');
         setupButton('wallet-btn', 'wallet');
