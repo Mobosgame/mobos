@@ -10,20 +10,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Назначаем обработчики после инициализации роутера
-    const initInterval = setInterval(() => {
+    // Ожидаем инициализации роутера
+    const routerCheckInterval = setInterval(() => {
         if (window.router) {
-            clearInterval(initInterval);
+            clearInterval(routerCheckInterval);
             setupNavigation();
         }
-    }, 100);
+    }, 50);
 
     function updateUserProfile(user) {
         const username = document.getElementById('username');
         const profilePhoto = document.getElementById('profile-photo');
         
         if (username) {
-            username.textContent = user.first_name || 'TG User';
+            username.textContent = user.first_name || 'Error login';
             if (user.last_name) username.textContent += ` ${user.last_name}`;
             else if (user.username) username.textContent += ` (@${user.username})`;
         }
@@ -37,26 +37,35 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setupNavigation() {
-        // Безопасное назначение обработчиков
-        const setClickListener = (id, screen) => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('click', () => {
+        // Функция для безопасного назначения обработчиков
+        const setupButton = (buttonId, screenName) => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.addEventListener('click', () => {
                     if (typeof showScreen === 'function') {
-                        showScreen(screen);
+                        showScreen(screenName);
                     } else {
                         console.error('Router not initialized');
-                        window.location.reload();
+                        // Попытка восстановления
+                        if (window.router) {
+                            window.router.initRouter();
+                            showScreen(screenName);
+                        } else {
+                            location.reload();
+                        }
                     }
                 });
             }
         };
 
-        // Основные кнопки навигации
-        setClickListener('settings-btn', 'settings');
-        setClickListener('calls-btn', 'calls');
-        setClickListener('sms-btn', 'sms');
-        setClickListener('darkwall-btn', 'darkwall');
+        // Настройка обработчиков для кнопок
+        setupButton('settings-btn', 'settings');
+        setupButton('call-btn', 'calls');
+        setupButton('sms-btn', 'sms');
+        setupButton('darkwall-btn', 'darkwall');
+        setupButton('wallet-btn', 'wallet');
+        setupButton('miner-btn', 'miner');
+        setupButton('chat-btn', 'chat');
 
         // Показываем главный экран
         const mainScreen = document.getElementById('main-screen');
