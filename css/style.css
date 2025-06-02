@@ -1,331 +1,90 @@
-/* Базовые стили */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+/* Добавьте эти стили в ваш style.css */
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #121212;
-    color: white;
+/* Основные исправления */
+.screen {
+    display: flex;
+    flex-direction: column;
     height: 100vh;
+    padding: 15px;
     overflow: hidden;
 }
 
-/* Темы оформления */
-:root {
-    --theme-color: #4CAF50;
-    --bg-color: #121212;
-    --card-color: #252525;
-    --text-color: white;
-    --nav-bg: #1a1a1a;
-    --nav-border: #333;
+.header {
+    flex-shrink: 0;
+    margin-bottom: 15px;
 }
 
-.theme-1 {
-    --theme-color: #4CAF50;
-    --bg-color: #121212;
-    --card-color: #252525;
-    --nav-bg: #1a1a1a;
+/* Логотип */
+.logo-container {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    height: 120px; /* Фиксированная высота для лого */
 }
 
-.theme-2 {
-    --theme-color: #2196F3;
-    --bg-color: #0d0d1a;
-    --card-color: #1a1a2e;
-    --nav-bg: #15152b;
+.full-width-logo {
+    max-width: 80%;
+    max-height: 100%;
+    object-fit: contain;
 }
 
-body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
+/* Контейнер контента */
+.content-container {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
 }
 
-.hidden {
-    display: none !important;
-}
-
-/* Главное меню */
-.screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+/* Сетка приложений */
+.app-grid-container {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 15px;
+    justify-content: center;
+    margin-bottom: 10px;
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 0 5px;
+.dummy-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 0 10px;
 }
 
-/* Профиль в шапке */
+/* Нижняя панель */
+.bottom-nav {
+    flex-shrink: 0;
+    background: var(--nav-bg);
+    border-radius: 20px;
+    padding: 10px 15px;
+    margin-top: auto;
+}
+
+/* Профиль пользователя */
 .profile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: 60%;
+    max-width: 70%;
 }
 
 .profile-photo {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--theme-color);
 }
 
-#username {
-    font-weight: bold;
-    color: var(--theme-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 14px;
-}
-
-#user-points {
-    color: #FFC107;
-    background: var(--card-color);
-    padding: 5px 12px;
-    border-radius: 15px;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.main-logo {
-    width: 160px;
-    height: 160px;
-    object-fit: contain;
-    margin: 10px auto 20px;
-}
-
-/* Сетка приложений */
-.dummy-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    margin: 0 15px 20px;
-}
-
-.app-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.dummy-btn {
-    width: 65px;
-    height: 65px;
-    border-radius: 15px;
-    background: var(--card-color);
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-}
-
-.dummy-btn.transparent {
-    background: transparent;
-    cursor: default;
-}
-
-.dummy-btn:active {
-    transform: scale(0.95);
-    background: color-mix(in srgb, var(--card-color) 80%, var(--theme-color));
-}
-
-.app-icon {
-    width: 60%;
-    height: 60%;
-    object-fit: contain;
-}
-
-.app-label {
-    margin-top: 8px;
-    font-size: 11px;
-    color: #aaa;
-    text-align: center;
-    line-height: 1.2;
-}
-
-/* Нижняя панель */
-.bottom-nav {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-    margin-top: auto;
-    background: var(--nav-bg);
-    padding: 12px 15px;
-    border-radius: 20px;
-    border: 1px solid var(--nav-border);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
-}
-
-.nav-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.app-btn {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    background: var(--card-color);
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-}
-
-.app-btn:active {
-    transform: scale(0.95);
-    background: color-mix(in srgb, var(--card-color) 80%, var(--theme-color));
-}
-
-.nav-icon {
-    width: 55%;
-    height: 55%;
-    object-fit: contain;
-}
-
-.nav-label {
-    margin-top: 6px;
-    font-size: 10px;
-    color: #aaa;
-    text-align: center;
-    line-height: 1.2;
-}
-
-/* Окна приложений */
-.app-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--bg-color);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-}
-
-.app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    background: var(--nav-bg);
-    border-bottom: 1px solid var(--nav-border);
-}
-
-.app-header h2 {
-    font-size: 18px;
-    margin: 0;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.app-content {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-}
-
-/* Элементы списков */
-.call-item, .message-item {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--card-color);
-    display: flex;
-    justify-content: space-between;
-}
-
-.caller-name, .sender-name {
-    font-weight: bold;
-}
-
-.call-type {
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-}
-
-.incoming {
-    background-color: rgba(76, 175, 80, 0.2);
-    color: #4CAF50;
-}
-
-.outgoing {
-    background-color: rgba(33, 150, 243, 0.2);
-    color: #2196F3;
-}
-
-.message-preview {
-    color: #aaa;
-    font-size: 12px;
-}
-
-/* Окно настроек */
-.settings-section {
-    margin-bottom: 20px;
-}
-
-.settings-section h3 {
-    margin-bottom: 10px;
-    font-size: 16px;
-}
-
-.theme-selector {
-    display: flex;
-    gap: 15px;
-    margin-top: 10px;
-}
-
-.theme-option {
-    cursor: pointer;
-    text-align: center;
-}
-
-.theme-option img {
-    width: 80px;
-    height: 80px;
-    border-radius: 8px;
-    border: 2px solid transparent;
-    transition: all 0.2s;
-}
-
-.theme-option.active img {
-    border-color: var(--theme-color);
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
-}
-
-.theme-option span {
-    display: block;
-    margin-top: 5px;
-    font-size: 12px;
+/* Адаптация для маленьких экранов */
+@media (max-height: 700px) {
+    .logo-container {
+        height: 80px;
+        margin: 5px 0;
+    }
+    
+    .dummy-grid {
+        gap: 10px;
+    }
+    
+    .dummy-btn {
+        width: 55px;
+        height: 55px;
+    }
 }
