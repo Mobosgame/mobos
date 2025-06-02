@@ -24,62 +24,35 @@
     <script src="./js/languages.js"></script>
 </head>
    
-<body class="theme-1">
-    <script src="./js/storage.js"></script>
-    <!-- Главный экран -->
-    <div id="main-screen" class="screen">
-        <div class="header">
-            <div class="container">
-        <div class="profile" id="profile">
-            <img id="avatar" class="avatar" alt="Profile Photo">
-            <div class="name" id="name"></div>
-        </div>
-        
-        <div class="warning" id="warning">
-            <h2>Требуется Mini App</h2>
-            <p>Для просмотра профиля необходимо открыть приложение через Telegram Mini App.</p>
-            <p>Найдите это приложение в меню бота и запустите его.</p>
-        </div>
-    </div>
-
+<body class="theme-1 hidden">
     <script>
-        // Проверка запуска через Telegram Mini App
+        function redirectToWarning() {
+            window.location.href = 'warning.html';
+        }
+
         if (window.Telegram && Telegram.WebApp.initData) {
-            // Получаем данные пользователя
             const user = Telegram.WebApp.initDataUnsafe.user;
-            
             if (user) {
-                // Отображаем профиль
-                document.getElementById('profile').style.display = 'block';
-                
-                // Устанавливаем аватар (если есть)
-                if (user.photo_url) {
-                    document.getElementById('avatar').src = user.photo_url;
-                } else {
-                    // Заглушка если нет фото
-                    document.getElementById('avatar').src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="%230088cc"/><path d="M20 19v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6z" fill="%230088cc"/></svg>';
-                }
-                
-                // Устанавливаем имя
-                document.getElementById('name').textContent = 
-                    user.first_name + (user.last_name ? ' ' + user.last_name : '');
-                
-                // Устанавливаем username (если есть)
-                if (user.username) {
-                    document.getElementById('username').textContent = '@' + user.username;
-                } else {
-                    document.getElementById('username').style.display = 'none';
-                }
-                
-                // Инициализируем WebApp
+                sessionStorage.setItem('telegramUser', JSON.stringify(user));
+                document.body.classList.remove('hidden');
                 Telegram.WebApp.ready();
                 Telegram.WebApp.expand();
+            } else {
+                redirectToWarning();
             }
         } else {
-            // Показываем предупреждение если запущено не через Mini App
-            document.getElementById('warning').style.display = 'block';
+            redirectToWarning();
         }
     </script>
+
+    <script src="./js/storage.js"></script>
+    
+    <div id="main-screen" class="screen">
+        <div class="header">
+            <div class="profile">
+                <img id="profile-photo" src="./Img/Theme_1/profile.png" alt="Profile" class="profile-photo">
+                <span id="username">TG User</span>
+            </div>
             <span id="user-points">0 points</span>
         </div>
         
@@ -172,5 +145,30 @@
 <script src="./js/screens/chat.js"></script>
 <script src="./js/screens/browser.js"></script>
 <script src="./js/screens/miner.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = sessionStorage.getItem('telegramUser');
+            if (userData) {
+                const user = JSON.parse(userData);
+                const profilePhoto = document.getElementById('profile-photo');
+                const usernameSpan = document.getElementById('username');
+
+                if (user.first_name) {
+                    let fullName = user.first_name;
+                    if (user.last_name) fullName += ' ' + user.last_name;
+                    usernameSpan.textContent = fullName;
+                } else if (user.username) {
+                    usernameSpan.textContent = '@' + user.username;
+                }
+
+                if (user.photo_url) {
+                    profilePhoto.src = user.photo_url;
+                } else {
+                    profilePhoto.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="%230088cc"/><path d="M20 19v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6z" fill="%230088cc"/></svg>';
+                }
+            }
+        });
+    </script>
 </body>
 </html>
