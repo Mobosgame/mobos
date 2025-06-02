@@ -7,50 +7,43 @@
     <link rel="stylesheet" href="../css/screens/darkwall.css">
 </head>
 <body>
-    <div id="darkwall-screen">
-        <!-- Шапка приложения -->
-        <div class="app-header">
-            <div class="header-title">Темная стена</div>
+    <div id="darkwall-screen" class="app-screen">
+        <div class="screen-header">
+            <h2>Темная Стена</h2>
             <button class="close-btn">✕</button>
         </div>
-        
-        <!-- Основное содержимое -->
-        <div class="game-content">
-            <div class="menu active" id="main-menu">
-                <h1>Темная стена</h1>
-                <button id="solo-btn">
-                    <img src="../Img/Theme_1/icon_solo.png" alt="Одиночная" class="menu-icon">
-                    <span>Одиночная</span>
-                </button>
-                <button id="duo-btn">
-                    <img src="../Img/Theme_1/icon_duo.png" alt="Для двух игроков" class="menu-icon">
-                    <span>Для двух игроков</span>
-                </button>
+
+        <div class="screen-content">
+            <div class="game-container">
+                <!-- Главное меню (активно по умолчанию) -->
+                <div class="menu active" id="main-menu">
+                    <h1>MobOS_DemoGame</h1>
+                    <button id="solo-btn" data-lang="solo_mode">Одиночная</button>
+                    <button id="duo-btn" data-lang="duo_mode">Для двух игроков</button>
+                </div>
+
+                <!-- Меню выбора режима -->
+                <div class="menu hidden" id="solo-mode">
+                    <h1 data-lang="choose_side">Выберите сторону</h1>
+                    <button id="attack-btn" data-lang="attack">Атака</button>
+                    <button id="defense-btn" data-lang="defense">Защита</button>
+                    <button id="back-to-main" data-lang="back">Назад</button>
+                </div>
+
+                <!-- Игровое поле -->
+                <div id="board" class="hidden"></div>
+                <div class="status" id="status"></div>
+                <button id="ready-btn" class="hidden" data-lang="ready">Готово</button>
+                <button id="back-btn" class="hidden" data-lang="back">Назад</button>
             </div>
 
-            <div class="menu" id="solo-mode">
-                <h1>Выберите сторону</h1>
-                <button id="attack-btn">
-                    <img src="../Img/Theme_1/icon_attack.png" alt="Атака" class="menu-icon">
-                    <span>Атака</span>
-                </button>
-                <button id="defense-btn">
-                    <img src="../Img/Theme_1/icon_defense.png" alt="Защита" class="menu-icon">
-                    <span>Защита</span>
-                </button>
-                <button id="back-to-main">Назад</button>
-            </div>
-
-            <div id="board" class="hidden"></div>
-            <div class="status" id="status">Готов к игре</div>
-            <button id="ready-btn" class="hidden">Готово</button>
-            <button id="back-btn" class="hidden">Назад</button>
-
+            <!-- Уведомления -->
             <div id="notification" class="notification hidden"></div>
 
+            <!-- Меню окончания игры -->
             <div id="game-over-menu" class="game-over-menu hidden">
                 <h1 id="game-over-title"></h1>
-                <button id="ok-btn">ОК</button>
+                <button id="ok-btn" data-lang="ok">ОК</button>
             </div>
         </div>
     </div>
