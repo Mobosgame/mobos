@@ -3,7 +3,7 @@ function initDarkwall() {
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
         goBack();
     });
-// darkwall.js
+}
 document.addEventListener('DOMContentLoaded', function() {
     // Конфигурация игры
     const config = {
