@@ -68,8 +68,8 @@ body {
             margin-top: 0;
         }
 .avatar {
-            width: 120px;
-            height: 120px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             object-fit: cover;
             margin: 0 auto 20px;
@@ -83,11 +83,6 @@ body {
             margin-bottom: 10px;
         }
         
-        .username {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 25px;
-        }
 
 #user-points {
     color: var(--accent-color);
