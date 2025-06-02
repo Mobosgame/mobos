@@ -5,32 +5,41 @@
         <button class="close-btn">✕</button>
     </div>
 
-    <div class="screen-content">
+    <body>
+    <div id="darkwall-screen" class="app-screen">
+        <div class="app-header">
+            <h2 data-lang="darkwall">Темная стена</h2>
+            <button class="close-btn">✕</button>
+        </div>
+        
         <div class="game-container">
             <div class="menu" id="main-menu">
-                <h1>MobOS_DemoGame</h1>
-                <button data-lang="solo_mode">Одиночная</button>
-                <button data-lang="duo_mode">Для двух игроков</button>
+                <h1>Темная стена</h1>
+                <button id="solo-btn">Одиночная</button>
+                <button id="duo-btn">Для двух игроков</button>
             </div>
 
             <div class="menu hidden" id="solo-mode">
-                <h1 data-lang="choose_side">Выберите сторону</h1>
-                <button data-lang="attack">Атака</button>
-                <button data-lang="defense">Защита</button>
-                <button data-lang="back">Назад</button>
+                <h1>Выберите сторону</h1>
+                <button id="attack-btn">Атака</button>
+                <button id="defense-btn">Защита</button>
+                <button id="back-to-main">Назад</button>
             </div>
 
             <div id="board" class="hidden"></div>
             <div class="status" id="status"></div>
-            <button id="ready-btn" class="hidden" data-lang="ready">Готово</button>
-            <button id="back-btn" class="hidden" data-lang="back">Назад</button>
+            <button id="ready-btn" class="hidden">Готово</button>
+            <button id="back-btn" class="hidden">Назад</button>
         </div>
 
         <div id="notification" class="notification hidden"></div>
 
         <div id="game-over-menu" class="game-over-menu hidden">
             <h1 id="game-over-title"></h1>
-            <button data-lang="ok">ОК</button>
+            <button id="ok-btn">ОК</button>
         </div>
     </div>
-</div>
+
+    <script src="../js/screens/darkwall.js"></script>
+</body>
+</html>
