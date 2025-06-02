@@ -1,40 +1,52 @@
-/* ===== ГЛОБАЛЬНЫЕ СТИЛИ ===== */
+/* Базовые стили */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212;
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Темы оформления */
 :root {
     --theme-color: #4CAF50;
     --bg-color: #121212;
     --card-color: #252525;
     --text-color: white;
     --nav-bg: #1a1a1a;
-    --border-color: #333;
-    --accent-color: #FFC107;
+    --nav-border: #333;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    height: 100vh;
-    overflow: hidden;
+.theme-1 {
+    --theme-color: #4CAF50;
+    --bg-color: #121212;
+    --card-color: #252525;
+    --nav-bg: #1a1a1a;
 }
 
-.theme-1 { --theme-color: #4CAF50; }
-.theme-2 { 
+.theme-2 {
     --theme-color: #2196F3;
     --bg-color: #0d0d1a;
     --card-color: #1a1a2e;
+    --nav-bg: #15152b;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 .hidden {
     display: none !important;
 }
 
-/* ===== ОСНОВНЫЕ КОНТЕЙНЕРЫ ===== */
+/* Главное меню */
 .screen {
     position: fixed;
     top: 0;
@@ -44,112 +56,63 @@ body {
     display: flex;
     flex-direction: column;
     padding: 15px;
-    box-sizing: border-box;
 }
 
-/* ===== ШАПКА И ПРОФИЛЬ ===== */
 .header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
+    padding: 0 5px;
 }
 
-.warning {
-            display: none;
-            padding: 20px;
-            background: #fff3cd;
-            border-radius: 12px;
-            border-left: 5px solid #ffc107;
-            text-align: left;
-        }
-        
-        .warning h2 {
-            color: #856404;
-            margin-top: 0;
-        }
-.avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 0 auto 20px;
-            border: 4px solid #0088cc;
-        }
-        
-        .name {
-            font-size: 24px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
+/* Профиль в шапке */
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 60%;
+}
 
-#user-points {
-    color: var(--accent-color);
-    background: #333;
-    padding: 2px 10px;
-    border-radius: 10px;
+.profile-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--theme-color);
+}
+
+#username {
+    font-weight: bold;
+    color: var(--theme-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 14px;
 }
-.btn {
-            background: #0088cc;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn:hover {
-            background: #006699;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
 
-/* ===== ЛОГОТИП И КОНТЕНТ ===== */
-.logo-container {
-    flex: 0 0 auto;
-    margin: 10px 0 20px;
-    text-align: center;
+#user-points {
+    color: #FFC107;
+    background: var(--card-color);
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .main-logo {
-    width: 180px;
-    height: 180px;
+    width: 160px;
+    height: 160px;
     object-fit: contain;
-    margin: 0 auto;
+    margin: 10px auto 20px;
 }
 
-.full-width-logo {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    margin: 20px 0;
-    object-fit: contain;
-    display: block;
-}
-
-.content-container {
-    flex: 1 1 auto;
-    min-height: 20px;
-    overflow-y: auto;
-}
-
-/* ===== СЕТКА ПРИЛОЖЕНИЙ ===== */
-.app-grid-container {
-    flex: 0 0 auto;
-    margin-bottom: 20px;
-    max-height: 60vh;
-    overflow-y: auto;
-}
-
+/* Сетка приложений */
 .dummy-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin: 0 15px;
+    gap: 15px;
+    margin: 0 15px 20px;
 }
 
 .app-cell {
@@ -159,16 +122,16 @@ body {
 }
 
 .dummy-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
+    width: 65px;
+    height: 65px;
+    border-radius: 15px;
     background: var(--card-color);
     border: none;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, background 0.2s;
     padding: 0;
     margin: 0;
     overflow: hidden;
@@ -176,35 +139,39 @@ body {
 
 .dummy-btn.transparent {
     background: transparent;
+    cursor: default;
 }
 
 .dummy-btn:active {
     transform: scale(0.95);
+    background: color-mix(in srgb, var(--card-color) 80%, var(--theme-color));
 }
 
 .app-icon {
-    width: 100%;
-    height: 100%;
+    width: 60%;
+    height: 60%;
     object-fit: contain;
-    padding: 5%;
 }
 
 .app-label {
-    margin-top: 5px;
-    font-size: 10px;
+    margin-top: 8px;
+    font-size: 11px;
     color: #aaa;
     text-align: center;
+    line-height: 1.2;
 }
 
-/* ===== НИЖНЯЯ ПАНЕЛЬ ===== */
+/* Нижняя панель */
 .bottom-nav {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
     margin-top: auto;
     background: var(--nav-bg);
-    padding: 10px 15px;
-    border-radius: 15px;
+    padding: 12px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--nav-border);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .nav-cell {
@@ -216,14 +183,14 @@ body {
 .app-btn {
     width: 50px;
     height: 50px;
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--card-color);
     border: none;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, background 0.2s;
     padding: 0;
     margin: 0;
     overflow: hidden;
@@ -231,23 +198,24 @@ body {
 
 .app-btn:active {
     transform: scale(0.95);
+    background: color-mix(in srgb, var(--card-color) 80%, var(--theme-color));
 }
 
 .nav-icon {
-    width: 100%;
-    height: 100%;
+    width: 55%;
+    height: 55%;
     object-fit: contain;
-    padding: 5%;
 }
 
 .nav-label {
-    margin-top: 5px;
+    margin-top: 6px;
     font-size: 10px;
     color: #aaa;
     text-align: center;
+    line-height: 1.2;
 }
 
-/* ===== ОКНА ПРИЛОЖЕНИЙ ===== */
+/* Окна приложений */
 .app-screen {
     position: fixed;
     top: 0;
@@ -266,7 +234,7 @@ body {
     align-items: center;
     padding: 15px;
     background: var(--nav-bg);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--nav-border);
 }
 
 .app-header h2 {
@@ -289,17 +257,15 @@ body {
     overflow-y: auto;
 }
 
-/* ===== ЭЛЕМЕНТЫ СПИСКОВ ===== */
-.call-item, 
-.message-item {
+/* Элементы списков */
+.call-item, .message-item {
     padding: 12px 0;
     border-bottom: 1px solid var(--card-color);
     display: flex;
     justify-content: space-between;
 }
 
-.caller-name, 
-.sender-name {
+.caller-name, .sender-name {
     font-weight: bold;
 }
 
@@ -324,7 +290,7 @@ body {
     font-size: 12px;
 }
 
-/* ===== НАСТРОЙКИ ===== */
+/* Окно настроек */
 .settings-section {
     margin-bottom: 20px;
 }
@@ -362,52 +328,4 @@ body {
     display: block;
     margin-top: 5px;
     font-size: 12px;
-}
-
-/* ===== АДАПТИВНОСТЬ ===== */
-@media (max-width: 480px) {
-    .full-width-logo {
-        margin: 10px 0;
-        max-height: 120px;
-    }
-    
-    .dummy-grid {
-        gap: 8px;
-        margin: 0 10px;
-    }
-    
-    .app-cell {
-        margin-bottom: 5px;
-    }
-}
-
-@media (min-width: 481px) and (max-width: 768px) {
-    .full-width-logo {
-        max-height: 150px;
-    }
-}
-
-@media (min-width: 769px) {
-    .full-width-logo {
-        max-height: 180px;
-    }
-}
-
-@media (max-height: 600px) {
-    .logo-container {
-        margin: 5px 0 10px;
-    }
-    
-    .app-grid-container {
-        margin-bottom: 10px;
-    }
-}
-
-@media (min-height: 800px) {
-    .content-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        min-height: 40vh;
-    }
 }
