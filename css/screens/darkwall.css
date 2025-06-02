@@ -1,4 +1,4 @@
-/* Основные стили экрана */
+/* Основные стили */
 #darkwall-screen {
     position: fixed;
     top: 0;
@@ -7,7 +7,6 @@
     height: 100%;
     background-color: #1a1a1a;
     color: white;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
 }
@@ -17,14 +16,18 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
+    padding: 12px 15px;
     background: #252525;
     border-bottom: 1px solid #333;
+    position: relative;
 }
 
-.app-header h2 {
+.header-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     font-size: 18px;
-    margin: 0;
+    font-weight: bold;
     color: var(--theme-color);
 }
 
@@ -32,112 +35,96 @@
     background: none;
     border: none;
     color: white;
-    font-size: 20px;
+    font-size: 16px;
     cursor: pointer;
     padding: 5px;
+    margin-left: auto;
 }
 
-/* Контейнер игры */
-.game-container {
+/* Основное содержимое */
+.game-content {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    max-width: 400px;
-    margin: 0 auto;
-    width: 100%;
+    overflow-y: auto;
+    padding: 15px;
 }
 
 /* Меню игры */
 .menu {
-    background-color: rgba(0, 0, 0, 0.9);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
     padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    width: 100%;
-    max-width: 350px;
+}
+
+.menu.active {
+    display: flex;
 }
 
 .menu h1 {
-    margin-bottom: 20px;
     color: var(--theme-color);
+    margin-bottom: 30px;
+    font-size: 24px;
 }
 
-/* Кнопки */
-button {
-    margin: 10px;
-    padding: 10px 20px;
+.menu button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px 0;
+    padding: 15px 25px;
+    width: 80%;
+    max-width: 250px;
+    background-color: #252525;
+    border: 2px solid var(--theme-color);
+    border-radius: 10px;
+    color: white;
     font-size: 16px;
     cursor: pointer;
-    background-color: #004d00;
-    color: white;
-    border: 2px solid white;
-    border-radius: 5px;
-    width: 200px;
-    max-width: 100%;
+    transition: all 0.2s;
 }
 
-button:hover {
-    background-color: #006600;
+.menu button:hover {
+    background-color: #333;
 }
 
-/* Игровое поле */
+.menu-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+/* Игровое поле и клетки */
 #board {
     width: 100%;
+    margin-top: 20px;
 }
 
 .row {
     display: flex;
     justify-content: center;
-    margin: 5px 0;
-    opacity: 1;
-    transition: all 0.3s;
+    margin: 8px 0;
 }
 
 .cell {
     width: 50px;
     height: 50px;
-    border: 2px solid white;
-    margin: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 2px solid var(--theme-color);
+    margin: 0 5px;
     cursor: pointer;
-    background-color: #004d00;
-    border-radius: 10px;
-    transition: all 0.3s;
+    background-color: #252525;
+    border-radius: 8px;
+    transition: all 0.2s;
 }
 
-.cell.revealed {
-    background: white;
-    border: 2px solid #00ff00;
-}
-
-.cell.mine {
-    background: linear-gradient(45deg, #ff4444, #cc0000);
-}
-
-.row.completed {
-    opacity: 0.6;
-    filter: brightness(0.7);
-    pointer-events: none;
-}
-
-.row.active {
-    background-color: #008000;
-    border-radius: 10px;
-    padding: 5px;
-}
-
-/* Статус игры */
+/* Остальные стили (статус, уведомления, завершение игры) */
 .status {
-    margin: 15px 0;
-    font-size: 18px;
     text-align: center;
+    margin: 15px 0;
+    font-size: 16px;
 }
-
 /* Уведомления */
 .notification {
     position: fixed;
