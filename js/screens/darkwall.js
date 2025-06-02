@@ -7,19 +7,26 @@ function initDarkwall() {
     });
 }
 document.addEventListener('DOMContentLoaded', function() {
-    // Константы игры
-    const rows = 7;
-    const cols = 4;
-    const minesPerRow = 2;
-    
+    // Конфигурация игры
+    const config = {
+        rows: 7,
+        cols: 4,
+        minesPerRow: 2,
+        initialHealth: 100,
+        damagePerMine: 25
+    };
+
     // Состояние игры
-    let board = [];
-    let currentMode = null;
-    let playerHealth = 100;
-    let currentRow = 0;
-    let isDefensePhase = true;
-    let gameMode = null;
-    let isScriptAttacking = false;
+    const state = {
+        board: [],
+        currentMode: null,
+        playerHealth: config.initialHealth,
+        currentRow: 0,
+        isDefensePhase: true,
+        gameMode: null,
+        isScriptAttacking: false,
+        gameInterval: null
+    };
 
     // Элементы интерфейса
     const elements = {
@@ -38,32 +45,35 @@ document.addEventListener('DOMContentLoaded', function() {
         defenseBtn: document.getElementById('defense-btn'),
         backToMain: document.getElementById('back-to-main'),
         okBtn: document.getElementById('ok-btn'),
-        closeBtn: document.querySelector('.close-btn')
+        closeBtn: document.querySelector('.close-btn'),
+        gameContent: document.querySelector('.game-content')
     };
 
     // Инициализация игры
     function init() {
         createBoard();
         setupEventListeners();
+        showMainMenu();
+        console.log("Игра инициализирована");
     }
 
     // Создание игрового поля
     function createBoard() {
         elements.board.innerHTML = '';
-        board = [];
+        state.board = [];
 
-        for (let i = 0; i < rows; i++) {
+        for (let i = 0; i < config.rows; i++) {
             const row = document.createElement('div');
             row.className = 'row hidden';
-            board[i] = [];
+            state.board[i] = [];
 
-            for (let j = 0; j < cols; j++) {
+            for (let j = 0; j < config.cols; j++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.dataset.row = i;
                 cell.dataset.col = j;
                 row.appendChild(cell);
-                board[i][j] = { isMine: false, revealed: false };
+                state.board[i][j] = { isMine: false, revealed: false };
             }
             elements.board.appendChild(row);
         }
@@ -80,10 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
         elements.readyBtn.addEventListener('click', confirmMines);
         elements.backBtn.addEventListener('click', showMainMenu);
         elements.okBtn.addEventListener('click', showMainMenu);
-        elements.closeBtn.addEventListener('click', () => {
-            // Здесь должна быть логика закрытия экрана
-            console.log('Close darkwall screen');
-        });
+        elements.closeBtn.addEventListener('click', closeGame);
 
         // Обработка кликов по клеткам
         elements.board.addEventListener('click', function(e) {
@@ -93,63 +100,87 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function closeGame() {
+        clearGameInterval();
+        console.log('Игра закрыта');
+        // Дополнительная логика закрытия экрана
+    }
+
+    function clearGameInterval() {
+        if (state.gameInterval) {
+            clearInterval(state.gameInterval);
+            state.gameInterval = null;
+        }
+    }
+
     // Обработка клика по клетке
     function handleCellClick(e) {
-        if (isScriptAttacking) return;
+        if (state.isScriptAttacking) return;
 
         const cell = e.target;
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
 
-        if (isDefensePhase) {
+        if (state.isDefensePhase) {
             handleDefenseClick(row, col, cell);
         } else {
             handleAttackClick(row, col, cell);
         }
     }
 
-    // Обработка клика в режиме защиты
+    // Режим защиты: расстановка мин
     function handleDefenseClick(row, col, cell) {
-        if (board[row][col].isMine) return;
-
-        const minesInRow = board[row].filter(c => c.isMine).length;
-        if (minesInRow >= minesPerRow) {
-            showNotification(`В этом ряду уже ${minesPerRow} мины!`);
+        if (state.board[row][col].isMine) {
+            // Удаление мины при повторном клике
+            state.board[row][col].isMine = false;
+            cell.classList.remove('mine');
+            document.querySelectorAll('.row')[row].classList.remove('completed');
             return;
         }
 
-        board[row][col].isMine = true;
+        const minesInRow = state.board[row].filter(c => c.isMine).length;
+        if (minesInRow >= config.minesPerRow) {
+            showNotification(`В этом ряду уже ${config.minesPerRow} мины!`);
+            return;
+        }
+
+        state.board[row][col].isMine = true;
         cell.classList.add('mine');
 
-        if (minesInRow + 1 === minesPerRow) {
+        if (minesInRow + 1 === config.minesPerRow) {
             document.querySelectorAll('.row')[row].classList.add('completed');
         }
     }
 
-    // Обработка клика в режиме атаки
+    // Режим атаки: открытие клеток
     function handleAttackClick(row, col, cell) {
-        if (row !== currentRow || board[row][col].revealed) return;
+        if (row !== state.currentRow || state.board[row][col].revealed) return;
 
-        board[row][col].revealed = true;
+        state.board[row][col].revealed = true;
 
-        if (board[row][col].isMine) {
+        if (state.board[row][col].isMine) {
+            // Наступили на мину
             cell.classList.add('mine');
-            playerHealth -= 25;
-            updateStatus(`Мина! Здоровье: ${playerHealth}%`);
-            if (playerHealth <= 0) {
+            state.playerHealth -= config.damagePerMine;
+            updateStatus(`Мина! Здоровье: ${state.playerHealth}%`);
+            
+            if (state.playerHealth <= 0) {
                 endGame(false);
             }
         } else {
+            // Безопасная клетка
             cell.classList.add('revealed');
-            document.querySelectorAll('.row')[currentRow].classList.remove('active');
-            document.querySelectorAll('.row')[currentRow].classList.add('completed');
-            currentRow++;
+            document.querySelectorAll('.row')[state.currentRow].classList.remove('active');
+            document.querySelectorAll('.row')[state.currentRow].classList.add('completed');
+            state.currentRow++;
 
-            if (currentRow < rows) {
-                document.querySelectorAll('.row')[currentRow].classList.remove('hidden');
-                document.querySelectorAll('.row')[currentRow].classList.add('active');
-                updateStatus(`Прогресс: ряд ${currentRow + 1}`);
+            if (state.currentRow < config.rows) {
+                // Переход к следующему ряду
+                document.querySelectorAll('.row')[state.currentRow].classList.remove('hidden');
+                document.querySelectorAll('.row')[state.currentRow].classList.add('active');
+                updateStatus(`Прогресс: ряд ${state.currentRow + 1}`);
             } else {
+                // Все ряды пройдены
                 endGame(true);
             }
         }
@@ -157,7 +188,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Начало игры
     function startGame(mode) {
-        gameMode = mode;
+        resetGame();
+        state.gameMode = mode;
         elements.mainMenu.classList.add('hidden');
 
         if (mode === 'solo') {
@@ -169,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Установка режима игры
     function setMode(mode) {
-        currentMode = mode;
+        state.currentMode = mode;
         elements.soloMode.classList.add('hidden');
         elements.board.classList.remove('hidden');
 
@@ -182,14 +214,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Размещение случайных мин
+    // Случайная расстановка мин (для режима атаки)
     function placeRandomMines() {
-        for (let i = 0; i < rows; i++) {
+        for (let i = 0; i < config.rows; i++) {
             let placed = 0;
-            while (placed < minesPerRow) {
-                const col = Math.floor(Math.random() * cols);
-                if (!board[i][col].isMine) {
-                    board[i][col].isMine = true;
+            while (placed < config.minesPerRow) {
+                const col = Math.floor(Math.random() * config.cols);
+                if (!state.board[i][col].isMine) {
+                    state.board[i][col].isMine = true;
                     placed++;
                 }
             }
@@ -198,26 +230,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Начало фазы защиты
     function startDefensePhase() {
-        isDefensePhase = true;
+        state.isDefensePhase = true;
         createBoard();
         elements.board.classList.remove('hidden');
         elements.readyBtn.classList.remove('hidden');
         elements.backBtn.classList.remove('hidden');
+        
         document.querySelectorAll('.row').forEach(row => {
             row.classList.remove('hidden');
             row.style.pointerEvents = 'auto';
         });
+        
         updateStatus("Расставьте мины (по 2 в каждом ряду)");
     }
 
     // Подтверждение расстановки мин
     function confirmMines() {
-        for (let i = 0; i < rows; i++) {
-            if (board[i].filter(c => c.isMine).length !== minesPerRow) {
+        for (let i = 0; i < config.rows; i++) {
+            if (state.board[i].filter(c => c.isMine).length !== config.minesPerRow) {
                 showNotification(`Ряд ${i + 1} не полностью заполнен!`);
                 return;
             }
         }
+        
         elements.backBtn.classList.add('hidden');
         hideMines();
         startAttackPhase();
@@ -232,9 +267,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Начало фазы атаки
     function startAttackPhase() {
-        isDefensePhase = false;
+        state.isDefensePhase = false;
         elements.readyBtn.classList.add('hidden');
 
+        // Настройка видимости рядов
         document.querySelectorAll('.row').forEach((row, index) => {
             if (index === 0) {
                 row.classList.remove('hidden');
@@ -244,10 +280,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        if (gameMode === 'duo' || currentMode === 'attack') {
+        if (state.gameMode === 'duo' || state.currentMode === 'attack') {
+            // Режим для двух игроков или атака в одиночном режиме
             updateStatus("Начните с первого ряда!");
             elements.backBtn.classList.remove('hidden');
-        } else if (currentMode === 'defense') {
+        } else if (state.currentMode === 'defense') {
+            // Защита в одиночном режиме (бот атакует)
             updateStatus("Скрипт начинает атаку...");
             simulateAttacker();
         }
@@ -255,71 +293,79 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Имитация атаки бота
     function simulateAttacker() {
-        isScriptAttacking = true;
-        const interval = setInterval(() => {
-            if (currentRow >= rows || playerHealth <= 0) {
-                clearInterval(interval);
-                isScriptAttacking = false;
-                endGame(currentRow < rows);
+        state.isScriptAttacking = true;
+        
+        state.gameInterval = setInterval(() => {
+            if (state.currentRow >= config.rows || state.playerHealth <= 0) {
+                // Игра завершена
+                clearGameInterval();
+                state.isScriptAttacking = false;
+                endGame(state.currentRow >= config.rows);
                 return;
             }
 
-            const col = Math.floor(Math.random() * cols);
-            const cell = document.querySelector(`.cell[data-row='${currentRow}'][data-col='${col}']`);
+            const col = Math.floor(Math.random() * config.cols);
+            const cell = document.querySelector(`.cell[data-row='${state.currentRow}'][data-col='${col}']`);
 
-            if (!board[currentRow][col].revealed) {
-                if (board[currentRow][col].isMine) {
+            if (!state.board[state.currentRow][col].revealed) {
+                state.board[state.currentRow][col].revealed = true;
+                
+                if (state.board[state.currentRow][col].isMine) {
+                    // Бот наступил на мину
                     cell.classList.add('mine', 'revealed');
-                    playerHealth -= 25;
-                    updateStatus(`Скрипт наступил на мину! Здоровье: ${playerHealth}%`);
+                    state.playerHealth -= config.damagePerMine;
+                    updateStatus(`Скрипт наступил на мину! Здоровье: ${state.playerHealth}%`);
                 } else {
+                    // Бот выбрал безопасную клетку
                     cell.classList.add('revealed');
-                    document.querySelectorAll('.row')[currentRow].classList.remove('active');
-                    document.querySelectorAll('.row')[currentRow].classList.add('completed');
-                    currentRow++;
+                    document.querySelectorAll('.row')[state.currentRow].classList.remove('active');
+                    document.querySelectorAll('.row')[state.currentRow].classList.add('completed');
+                    state.currentRow++;
 
-                    if (currentRow < rows) {
-                        document.querySelectorAll('.row')[currentRow].classList.remove('hidden');
-                        document.querySelectorAll('.row')[currentRow].classList.add('active');
-                        updateStatus(`Скрипт переходит к ряду ${currentRow + 1}`);
+                    if (state.currentRow < config.rows) {
+                        // Переход к следующему ряду
+                        document.querySelectorAll('.row')[state.currentRow].classList.remove('hidden');
+                        document.querySelectorAll('.row')[state.currentRow].classList.add('active');
+                        updateStatus(`Скрипт переходит к ряду ${state.currentRow + 1}`);
                     }
                 }
-                board[currentRow][col].revealed = true;
             }
         }, 1000);
     }
 
     // Завершение игры
     function endGame(isWin) {
+        clearGameInterval();
         elements.gameOverTitle.textContent = isWin ? 'Победа!' : 'Поражение!';
         elements.gameOverMenu.classList.remove('hidden');
     }
 
-    // Обновление статуса
+    // Обновление статуса игры
     function updateStatus(text) {
         elements.status.textContent = text;
     }
 
     // Показать главное меню
     function showMainMenu() {
+        clearGameInterval();
         elements.mainMenu.classList.remove('hidden');
         elements.soloMode.classList.add('hidden');
         elements.backBtn.classList.add('hidden');
         elements.board.classList.add('hidden');
         elements.readyBtn.classList.add('hidden');
         elements.gameOverMenu.classList.add('hidden');
-        updateStatus("");
+        updateStatus("Готов к игре");
         resetGame();
     }
 
-    // Сброс игры
+    // Сброс состояния игры
     function resetGame() {
-        playerHealth = 100;
-        currentRow = 0;
-        isDefensePhase = true;
-        currentMode = null;
-        gameMode = null;
-        isScriptAttacking = false;
+        state.playerHealth = config.initialHealth;
+        state.currentRow = 0;
+        state.isDefensePhase = true;
+        state.currentMode = null;
+        state.gameMode = null;
+        state.isScriptAttacking = false;
         createBoard();
     }
 
@@ -332,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
     }
 
-    // Инициализация игры
+    // Запуск игры
     init();
 });
 //window.initDarkwall = initDarkwall;
