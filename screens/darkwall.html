@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<div id="darkwall-screen" class="app-screen hidden">
-    <div class="screen-header">
-        <h2>Темная Стена</h2>
-        <button class="close-btn">✕</button>
-    </div>
-
-    <body>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darkwall Game</title>
+    <link rel="stylesheet" href="../css/screens/darkwall.css">
+</head>
+<body>
     <div id="darkwall-screen" class="app-screen">
         <div class="app-header">
-            <h2 data-lang="darkwall">Темная стена</h2>
+            <h2>Темная стена</h2>
             <button class="close-btn">✕</button>
         </div>
         
-        <div class="game-container">
+        <div class="game-content">
             <div class="menu" id="main-menu">
                 <h1>Темная стена</h1>
                 <button id="solo-btn">Одиночная</button>
@@ -27,16 +28,16 @@
             </div>
 
             <div id="board" class="hidden"></div>
-            <div class="status" id="status"></div>
+            <div class="status" id="status">Готов к игре</div>
             <button id="ready-btn" class="hidden">Готово</button>
             <button id="back-btn" class="hidden">Назад</button>
-        </div>
 
-        <div id="notification" class="notification hidden"></div>
+            <div id="notification" class="notification hidden"></div>
 
-        <div id="game-over-menu" class="game-over-menu hidden">
-            <h1 id="game-over-title"></h1>
-            <button id="ok-btn">ОК</button>
+            <div id="game-over-menu" class="game-over-menu hidden">
+                <h1 id="game-over-title"></h1>
+                <button id="ok-btn">ОК</button>
+            </div>
         </div>
     </div>
 
