@@ -54,29 +54,40 @@ body {
     margin-bottom: 20px;
 }
 
-.profile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: 70%;
-}
-
-.profile-photo {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--theme-color);
-}
-
-#user-nickname, 
-#username {
-    font-weight: bold;
-    color: var(--theme-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+.warning {
+            display: none;
+            padding: 20px;
+            background: #fff3cd;
+            border-radius: 12px;
+            border-left: 5px solid #ffc107;
+            text-align: left;
+        }
+        
+        .warning h2 {
+            color: #856404;
+            margin-top: 0;
+        }
+.avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            border: 4px solid #0088cc;
+        }
+        
+        .name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .username {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 25px;
+        }
 
 #user-points {
     color: var(--accent-color);
@@ -85,6 +96,22 @@ body {
     border-radius: 10px;
     font-size: 14px;
 }
+.btn {
+            background: #0088cc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #006699;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
 
 /* ===== ЛОГОТИП И КОНТЕНТ ===== */
 .logo-container {
