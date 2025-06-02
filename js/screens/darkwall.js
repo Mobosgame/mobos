@@ -1,11 +1,3 @@
-// darkwall.js
-function initDarkwall() {
-    // Обработчик закрытия
-    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
-        
-        goBack();
-    });
-}
 document.addEventListener('DOMContentLoaded', function() {
     // Конфигурация игры
     const config = {
@@ -51,14 +43,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Инициализация игры
     function init() {
+        console.log("Инициализация игры");
         createBoard();
         setupEventListeners();
         showMainMenu();
-        console.log("Игра инициализирована");
     }
 
     // Создание игрового поля
     function createBoard() {
+        console.log("Создание игрового поля");
         elements.board.innerHTML = '';
         state.board = [];
 
@@ -81,6 +74,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Настройка обработчиков событий
     function setupEventListeners() {
+        console.log("Настройка обработчиков событий");
+        
         // Кнопки меню
         elements.soloBtn.addEventListener('click', () => startGame('solo'));
         elements.duoBtn.addEventListener('click', () => startGame('duo'));
@@ -98,34 +93,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 handleCellClick(e);
             }
         });
-    }
-
-    function closeGame() {
-        clearGameInterval();
-        console.log('Игра закрыта');
-        // Дополнительная логика закрытия экрана
-    }
-
-    function clearGameInterval() {
-        if (state.gameInterval) {
-            clearInterval(state.gameInterval);
-            state.gameInterval = null;
-        }
-    }
-
-    // Обработка клика по клетке
-    function handleCellClick(e) {
-        if (state.isScriptAttacking) return;
-
-        const cell = e.target;
-        const row = parseInt(cell.dataset.row);
-        const col = parseInt(cell.dataset.col);
-
-        if (state.isDefensePhase) {
-            handleDefenseClick(row, col, cell);
-        } else {
-            handleAttackClick(row, col, cell);
-        }
     }
 
     // Режим защиты: расстановка мин
