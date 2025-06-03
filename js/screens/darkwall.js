@@ -219,3 +219,6 @@ function updateStatus(text) {
 
 // Запуск игры
 init();
+
+window.initDarkwall = initDarkwall;
+window.showDarkwall = showDarkwall;
