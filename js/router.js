@@ -40,18 +40,11 @@ class AppRouter {
                 const initFnName = `init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`;
                 if (window[initFnName]) {
                     window[initFnName]();
-                } else {
-                    console.warn(`Initialization function ${initFnName} not found`);
                 }
             }
             
             // Переключение видимости экранов
             this.switchToScreen(screenName);
-            
-            // Специальная обработка для игровых экранов
-            if (screenName === 'darkwall' && window.showDarkwall) {
-                window.showDarkwall();
-            }
             
         } catch (error) {
             console.error(`Error loading screen ${screenName}:`, error);
@@ -71,7 +64,9 @@ class AppRouter {
         
         // Показываем запрошенный экран
         this.currentScreen = this.screens[screenName];
-        this.currentScreen.classList.remove('hidden');
+        if (this.currentScreen) {
+            this.currentScreen.classList.remove('hidden');
+        }
     }
 
     backToMain() {
@@ -81,11 +76,6 @@ class AppRouter {
         // Скрываем текущий экран
         if (this.currentScreen) {
             this.currentScreen.classList.add('hidden');
-            
-            // Специальный сброс для игровых экранов
-            if (this.currentScreen.id === 'darkwall-screen' && window.showMainMenu) {
-                window.showMainMenu();
-            }
         }
         
         this.currentScreen = null;
