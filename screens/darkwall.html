@@ -3,51 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Darkwall Game</title>
-    <link rel="stylesheet" href="../css/screens/darkwall.css">
+    <title>Darkwall</title>
+    <link rel="stylesheet" href="darkwall.css">
 </head>
-<body>
-    <div id="darkwall-screen" class="app-screen">
+<body class="theme-dark">
+    <div id="darkwall-screen">
         <div class="screen-header">
             <h2>Темная Стена</h2>
             <button class="close-btn">✕</button>
         </div>
 
         <div class="screen-content">
-            <div class="game-container">
-                <!-- Главное меню (активно по умолчанию) -->
-                <div class="menu active" id="main-menu">
-                    <h1>MobOS_DemoGame</h1>
-                    <button id="solo-btn" data-lang="solo_mode">Одиночная</button>
-                    <button id="duo-btn" data-lang="duo_mode">Для двух игроков</button>
-                </div>
-
-                <!-- Меню выбора режима -->
-                <div class="menu hidden" id="solo-mode">
-                    <h1 data-lang="choose_side">Выберите сторону</h1>
-                    <button id="attack-btn" data-lang="attack">Атака</button>
-                    <button id="defense-btn" data-lang="defense">Защита</button>
-                    <button id="back-to-main" data-lang="back">Назад</button>
-                </div>
-
-                <!-- Игровое поле -->
-                <div id="board" class="hidden"></div>
-                <div class="status" id="status"></div>
-                <button id="ready-btn" class="hidden" data-lang="ready">Готово</button>
-                <button id="back-btn" class="hidden" data-lang="back">Назад</button>
+            <div class="menu active" id="main-menu">
+                <h1>MobOS_DemoGame</h1>
+                <button id="solo-btn">Одиночная</button>
+                <button id="duo-btn">Для двух игроков</button>
             </div>
 
-            <!-- Уведомления -->
-            <div id="notification" class="notification hidden"></div>
+            <div class="menu" id="solo-mode">
+                <h1>Выберите сторону</h1>
+                <button id="attack-btn">Атака</button>
+                <button id="defense-btn">Защита</button>
+                <button id="back-btn">Назад</button>
+            </div>
 
-            <!-- Меню окончания игры -->
-            <div id="game-over-menu" class="game-over-menu hidden">
-                <h1 id="game-over-title"></h1>
-                <button id="ok-btn" data-lang="ok">ОК</button>
+            <div id="board" class="hidden"></div>
+            <div class="status" id="status"></div>
+            <button id="ready-btn" class="hidden">Готово</button>
+
+            <div id="theme-toggle" class="theme-toggle">
+                <button id="light-theme">Светлая</button>
+                <button id="dark-theme">Темная</button>
             </div>
         </div>
     </div>
 
-    <script src="../js/screens/darkwall.js"></script>
+    <script src="darkwall.js"></script>
 </body>
 </html>
