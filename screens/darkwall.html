@@ -1,15 +1,35 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+    body {
+        overflow: hidden;
+        touch-action: manipulation;
+    }
+    
+    .game-container {
+        max-width: 100% !important;
+        padding: 5px;
+    }
+    
+    .cell {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    @media (max-width: 400px) {
+        .cell {
+            width: 35px !important;
+            height: 35px !important;
+        }
+    }
+</style>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MobOS_DemoGame</title>
-
-    <div id="darkwall-screen" class="app-screen hidden">
-        <div class="app-header">
-            <h2>Темная Стена</h2>
-            <button class="close-btn" id="close-btn">✕</button>
-        </div>
+    <title>Темная Стена</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -163,7 +183,7 @@
 <body>
     <div class="game-container">
         <div class="menu" id="main-menu">
-            <h1>MobOS_DemoGame</h1>
+            <h1>Dark Wall</h1>
             <button onclick="startGame('solo')">Одиночная</button>
             <button onclick="startGame('duo')">Для двух игроков</button>
         </div>
@@ -189,6 +209,30 @@
     </div>
 
     <script>
+      // Обработчик сообщений от родительского окна
+window.addEventListener('message', function(event) {
+    if (event.data.action === 'closeGame') {
+        showMainMenu();
+    }
+});
+        window.addEventListener('message', function(event) {
+    if (event.data.type === 'resize') {
+        // Масштабируем игру под полученные размеры
+        const gameCanvas = document.getElementById('game-canvas'); // предположим, что canvas имеет этот id
+        if (gameCanvas) {
+            gameCanvas.width = event.data.data.width * (event.data.data.devicePixelRatio || 1);
+            gameCanvas.height = event.data.data.height * (event.data.data.devicePixelRatio || 1);
+            // Здесь должна быть ваша функция перерисовки игры
+            resizeGameElements();
+        }
+    }
+});
+
+// Отправка сообщения при закрытии через меню
+function showMainMenu() {
+    
+    window.parent.postMessage('gameClosed', '*');
+}
         const rows = 7;
         const cols = 4;
         const minesPerRow = 2;
@@ -242,7 +286,7 @@
 
             const minesInRow = board[row].filter(c => c.isMine).length;
             if (minesInRow >= minesPerRow) {
-                showNotification(`В этом ряду уже ${minesPerRow} мины!`);
+                showNotification(`На этом уровне уже ${minesPerRow} детектора`);
                 return;
             }
 
@@ -262,7 +306,7 @@
             if (board[row][col].isMine) {
                 cell.classList.add('mine');
                 playerHealth -= 25;
-                updateStatus(`Мина! Здоровье: ${playerHealth}%`);
+                updateStatus(`Обнаружение! Прочность: ${playerHealth}%`);
                 if (playerHealth <= 0) {
                     endGame(false);
                 }
@@ -275,7 +319,7 @@
                 if (currentRow < rows) {
                     document.querySelectorAll('.row')[currentRow].classList.remove('hidden');
                     document.querySelectorAll('.row')[currentRow].classList.add('active');
-                    updateStatus(`Прогресс: ряд ${currentRow + 1}`);
+                    updateStatus(`Прогресс: уровень ${currentRow + 1}`);
                 } else {
                     endGame(true);
                 }
@@ -330,13 +374,13 @@
                 row.classList.remove('hidden');
                 row.style.pointerEvents = 'auto';
             });
-            updateStatus("Расставьте мины (по 2 в каждом ряду)");
+            updateStatus("Установите детекторы");
         }
 
         function confirmMines() {
             for (let i = 0; i < rows; i++) {
                 if (board[i].filter(c => c.isMine).length !== minesPerRow) {
-                    showNotification(`Ряд ${i + 1} не полностью заполнен!`);
+                    showNotification(`Уровень ${i + 1} не полностью заполнен!`);
                     return;
                 }
             }
@@ -365,7 +409,7 @@
             });
 
             if (gameMode === 'duo' || currentMode === 'attack') {
-                updateStatus("Начните с первого ряда!");
+                updateStatus("Начните с первого уровня!");
                 document.getElementById('back-btn').classList.remove('hidden');
             } else if (currentMode === 'defense') {
                 updateStatus("Скрипт начинает атаку...");
@@ -390,7 +434,7 @@
                     if (board[currentRow][col].isMine) {
                         cell.classList.add('mine', 'revealed');
                         playerHealth -= 25;
-                        updateStatus(`Скрипт наступил на мину! Здоровье: ${playerHealth}%`);
+                        updateStatus(`Скрипт обнаружен! Прочность: ${playerHealth}%`);
                     } else {
                         cell.classList.add('revealed');
                         document.querySelectorAll('.row')[currentRow].classList.remove('active');
@@ -400,7 +444,7 @@
                         if (currentRow < rows) {
                             document.querySelectorAll('.row')[currentRow].classList.remove('hidden');
                             document.querySelectorAll('.row')[currentRow].classList.add('active');
-                            updateStatus(`Скрипт переходит к ряду ${currentRow + 1}`);
+                            updateStatus(`Скрипт переходит к уровню ${currentRow + 1}`);
                         }
                     }
                     board[currentRow][col].revealed = true;
@@ -413,7 +457,10 @@
             const gameOverTitle = document.getElementById('game-over-title');
             gameOverTitle.textContent = isWin ? 'Победа!' : 'Поражение!';
             gameOverMenu.classList.remove('hidden');
-        }
+        setTimeout(() => {
+        //window.parent.postMessage('gameClosed', '*');
+    }, 3000);
+}
 
         function updateStatus(text) {
             document.getElementById('status').textContent = text;
@@ -452,7 +499,8 @@
         createBoard();
     </script>
 </body>
-<footer>
+
+</html>
     Creator  <a href="https://t.me/dreamfox_13" target="_blank"> DreamFox </a>
 </footer>
 </html>
