@@ -49,8 +49,8 @@ class AppRouter {
             this.switchToScreen(screenName);
             
             // Специальная обработка для игровых экранов
-            if (screenName === 'darkwall' && window.showDarkwall) {
-                window.showDarkwall();
+           // if (screenName === 'darkwall' && window.showDarkwall) {
+             //   window.showDarkwall();
             }
             
         } catch (error) {
