@@ -1,173 +1,91 @@
-/* Основные стили */
+/* Базовые стили */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Темы */
+body.theme-dark {
+    --bg-color: #1a1a1a;
+    --text-color: white;
+    --header-bg: #252525;
+    --cell-color: #333;
+    --mine-color: #ff4444;
+}
+
+body.theme-light {
+    --bg-color: #f0f0f0;
+    --text-color: black;
+    --header-bg: #ddd;
+    --cell-color: #fff;
+    --mine-color: #ff0000;
+}
+
+/* Основной экран */
 #darkwall-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #1a1a1a;
-    color: white;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-/* Шапка приложения */
-.app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 15px;
-    background: #252525;
-    border-bottom: 1px solid #333;
-    position: relative;
-}
-
-.header-title {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--theme-color);
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 5px;
-    margin-left: auto;
-}
-
-/* Основное содержимое */
-.game-content {
-    flex: 1;
-    overflow-y: auto;
+.screen-header {
+    background: var(--header-bg);
     padding: 15px;
+    text-align: center;
 }
 
-/* Меню игры */
+.screen-content {
+    flex: 1;
+    padding: 20px;
+}
+
+/* Меню */
 .menu {
     display: none;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 20px;
 }
 
 .menu.active {
     display: flex;
 }
 
-.menu h1 {
-    color: var(--theme-color);
-    margin-bottom: 30px;
-    font-size: 24px;
-}
-
-.menu button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 10px 0;
-    padding: 15px 25px;
-    width: 80%;
-    max-width: 250px;
-    background-color: #252525;
-    border: 2px solid var(--theme-color);
-    border-radius: 10px;
-    color: white;
-    font-size: 16px;
+button {
+    margin: 10px;
+    padding: 10px 20px;
+    background: var(--cell-color);
+    color: var(--text-color);
+    border: none;
     cursor: pointer;
-    transition: all 0.2s;
 }
 
-.menu button:hover {
-    background-color: #333;
-}
-
-.menu-icon {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-    margin-bottom: 8px;
-}
-
-/* Игровое поле и клетки */
+/* Игровое поле */
 #board {
-    width: 100%;
-    margin-top: 20px;
+    display: none;
 }
 
 .row {
     display: flex;
     justify-content: center;
-    margin: 8px 0;
 }
 
 .cell {
     width: 50px;
     height: 50px;
-    border: 2px solid var(--theme-color);
-    margin: 0 5px;
+    background: var(--cell-color);
+    margin: 5px;
     cursor: pointer;
-    background-color: #252525;
-    border-radius: 8px;
-    transition: all 0.2s;
 }
 
-/* Остальные стили (статус, уведомления, завершение игры) */
-.status {
-    text-align: center;
-    margin: 15px 0;
-    font-size: 16px;
+.cell.mine {
+    background: var(--mine-color);
 }
-/* Уведомления */
-.notification {
+
+/* Переключатель темы */
+.theme-toggle {
     position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    z-index: 1000;
-    animation: fadeOut 2s forwards;
-}
-
-@keyframes fadeOut {
-    0% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { opacity: 0; display: none; }
-}
-
-/* Меню окончания игры */
-.game-over-menu {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.9);
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    z-index: 1000;
-}
-
-/* Адаптация для мобильных */
-@media (max-width: 480px) {
-    .cell {
-        width: 40px;
-        height: 40px;
-    }
-    
-    button {
-        width: 160px;
-        padding: 8px 16px;
-    }
+    bottom: 20px;
+    right: 20px;
 }
