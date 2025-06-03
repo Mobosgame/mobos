@@ -4,12 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Darkwall</title>
-    <link rel="stylesheet" href="../style.css">
     <style>
+        /* Основные стили экрана */
+        .app-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #121212;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            position: relative;
+        }
+        
+        .app-header h2 {
+            font-size: 18px;
+            margin: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: auto;
+        }
+        
+        .app-content {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
         /* Стили игры */
         .game-container {
             margin: 20px auto;
             max-width: 400px;
+            position: relative;
+            min-height: 300px;
         }
         
         .row {
@@ -63,9 +111,11 @@
             background-color: rgba(0, 0, 0, 0.9);
             padding: 20px;
             border-radius: 10px;
+            width: 80%;
+            max-width: 300px;
         }
         
-        button {
+        .menu button {
             margin: 10px;
             padding: 10px 20px;
             font-size: 16px;
@@ -74,11 +124,13 @@
             color: white;
             border: 2px solid white;
             border-radius: 5px;
+            width: 100%;
         }
         
         .status {
             margin: 10px 0;
             font-size: 18px;
+            text-align: center;
         }
         
         .notification {
@@ -110,6 +162,12 @@
             padding: 20px;
             border-radius: 10px;
             text-align: center;
+            width: 80%;
+            max-width: 300px;
+        }
+        
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -117,35 +175,35 @@
     <div id="darkwall-screen" class="app-screen hidden">
         <div class="app-header">
             <h2>Темная Стена</h2>
-            <button class="close-btn" onclick="window.goBack()">✕</button>
+            <button class="close-btn" onclick="window.goBack ? window.goBack() : console.log('goBack not defined')">✕</button>
         </div>
         
         <div class="app-content">
             <div class="game-container">
                 <div class="menu" id="main-menu">
                     <h1>MobOS_DemoGame</h1>
-                    <button onclick="startGame('solo')">Одиночная</button>
-                    <button onclick="startGame('duo')">Для двух игроков</button>
+                    <button id="solo-btn">Одиночная</button>
+                    <button id="duo-btn">Для двух игроков</button>
                 </div>
 
                 <div class="menu hidden" id="solo-mode">
                     <h1>Выберите сторону</h1>
-                    <button onclick="setMode('attack')">Атака</button>
-                    <button onclick="setMode('defense')">Защита</button>
-                    <button onclick="showMainMenu()">Назад</button>
+                    <button id="attack-btn">Атака</button>
+                    <button id="defense-btn">Защита</button>
+                    <button id="back-to-menu-btn">Назад</button>
                 </div>
 
                 <div id="board" class="hidden"></div>
                 <div class="status" id="status"></div>
-                <button id="ready-btn" class="hidden" onclick="confirmMines()">Готово</button>
-                <button id="back-btn" class="hidden" onclick="showMainMenu()">Назад</button>
+                <button id="ready-btn" class="hidden">Готово</button>
+                <button id="back-btn" class="hidden">Назад</button>
             </div>
 
             <div id="notification" class="notification hidden"></div>
 
             <div id="game-over-menu" class="game-over-menu hidden">
                 <h1 id="game-over-title"></h1>
-                <button onclick="showMainMenu()">ОК</button>
+                <button id="ok-btn">ОК</button>
             </div>
         </div>
     </div>
@@ -163,17 +221,25 @@
         let gameMode = null;
         let isScriptAttacking = false;
 
-        // Инициализация игры при загрузке экрана
+        // Инициализация игры
         function initDarkwall() {
             createBoard();
             
-            // Назначение обработчиков для кнопок меню
-            document.getElementById('solo-btn')?.addEventListener('click', () => startGame('solo'));
-            document.getElementById('duo-btn')?.addEventListener('click', () => startGame('duo'));
-            // ... другие обработчики при необходимости
+            // Назначение обработчиков для кнопок
+            document.getElementById('solo-btn').addEventListener('click', () => startGame('solo'));
+            document.getElementById('duo-btn').addEventListener('click', () => startGame('duo'));
+            document.getElementById('attack-btn').addEventListener('click', () => setMode('attack'));
+            document.getElementById('defense-btn').addEventListener('click', () => setMode('defense'));
+            document.getElementById('back-to-menu-btn').addEventListener('click', showMainMenu);
+            document.getElementById('ok-btn').addEventListener('click', showMainMenu);
+            document.getElementById('back-btn').addEventListener('click', showMainMenu);
+            document.getElementById('ready-btn').addEventListener('click', confirmMines);
+            
+            // Показываем главное меню
+            showMainMenu();
         }
 
-        // Остальной игровой код...
+        // Остальные функции игры...
         function createBoard() {
             const boardElement = document.getElementById('board');
             boardElement.innerHTML = '';
@@ -373,8 +439,16 @@
 
         createBoard();
     </script>
+
+// Объявляем функции глобально
+        window.startGame = startGame;
+        window.setMode = setMode;
+        window.showMainMenu = showMainMenu;
+        window.confirmMines = confirmMines;
+        window.initDarkwall = initDarkwall;
+        
+        // Инициализируем игру при загрузке
+        document.addEventListener('DOMContentLoaded', initDarkwall);
+    </script>
 </body>
-<footer>
-   
-</footer>
 </html>
