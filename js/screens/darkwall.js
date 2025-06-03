@@ -5,7 +5,7 @@ function initDarkwall() {
     });
 }
 
-// Константы
+// Константы игры
 const ROWS = 7;
 const COLS = 4;
 const MINES_PER_ROW = 2;
@@ -19,37 +19,27 @@ let currentRow = 0;
 let isDefensePhase = true;
 let gameMode = null;
 
-// Элементы
-const elements = {
-    mainMenu: document.getElementById('main-menu'),
-    soloMode: document.getElementById('solo-mode'),
-    board: document.getElementById('board'),
-    status: document.getElementById('status'),
-    readyBtn: document.getElementById('ready-btn'),
-    backBtn: document.getElementById('back-btn'),
-    attackBtn: document.getElementById('attack-btn'),
-    defenseBtn: document.getElementById('defense-btn'),
-    soloBtn: document.getElementById('solo-btn'),
-    duoBtn: document.getElementById('duo-btn')
-};
-
-// Инициализация
+// Инициализация игры
 function init() {
     createBoard();
     setupEventListeners();
     
-    // Переключатели темы
+    // Переключение тем
     document.getElementById('light-theme').addEventListener('click', () => {
         document.body.className = 'theme-light';
     });
     document.getElementById('dark-theme').addEventListener('click', () => {
         document.body.className = 'theme-dark';
     });
+    
+    // Активируем основной экран
+    document.getElementById('darkwall-screen').classList.add('active');
 }
 
-// Создание поля
+// Создание игрового поля
 function createBoard() {
-    elements.board.innerHTML = '';
+    const boardElement = document.getElementById('board');
+    boardElement.innerHTML = '';
     board = [];
     
     for (let i = 0; i < ROWS; i++) {
@@ -65,39 +55,42 @@ function createBoard() {
             row.appendChild(cell);
             board[i][j] = { isMine: false, revealed: false };
         }
-        elements.board.appendChild(row);
+        boardElement.appendChild(row);
     }
 }
 
-// Обработчики событий
+// Настройка обработчиков событий
 function setupEventListeners() {
     // Кнопки меню
-    elements.soloBtn.addEventListener('click', () => startGame('solo'));
-    elements.duoBtn.addEventListener('click', () => startGame('duo'));
-    elements.attackBtn.addEventListener('click', () => setMode('attack'));
-    elements.defenseBtn.addEventListener('click', () => setMode('defense'));
-    elements.backBtn.addEventListener('click', showMainMenu);
-    elements.readyBtn.addEventListener('click', confirmMines);
+    document.getElementById('solo-btn').addEventListener('click', () => startGame('solo'));
+    document.getElementById('duo-btn').addEventListener('click', () => startGame('duo'));
+    document.getElementById('attack-btn').addEventListener('click', () => setMode('attack'));
+    document.getElementById('defense-btn').addEventListener('click', () => setMode('defense'));
+    document.getElementById('back-btn').addEventListener('click', showMainMenu);
+    document.getElementById('ready-btn').addEventListener('click', confirmMines);
     
     // Клики по клеткам
-    elements.board.addEventListener('click', (e) => {
+    document.getElementById('board').addEventListener('click', (e) => {
         if (!e.target.classList.contains('cell')) return;
         
         const row = parseInt(e.target.dataset.row);
         const col = parseInt(e.target.dataset.col);
         
-        if (isDefensePhase) handleDefenseClick(row, col, e.target);
-        else handleAttackClick(row, col, e.target);
+        if (isDefensePhase) {
+            handleDefenseClick(row, col, e.target);
+        } else {
+            handleAttackClick(row, col, e.target);
+        }
     });
 }
 
-// Логика игры
+// Основные функции игры
 function startGame(mode) {
     gameMode = mode;
-    elements.mainMenu.classList.remove('active');
+    document.getElementById('main-menu').classList.remove('active');
     
     if (mode === 'solo') {
-        elements.soloMode.classList.add('active');
+        document.getElementById('solo-mode').classList.add('active');
     } else {
         startDefensePhase();
     }
@@ -105,7 +98,7 @@ function startGame(mode) {
 
 function setMode(mode) {
     currentMode = mode;
-    elements.soloMode.classList.remove('active');
+    document.getElementById('solo-mode').classList.remove('active');
     
     if (mode === 'attack') {
         placeRandomMines();
@@ -148,6 +141,7 @@ function handleAttackClick(row, col, cell) {
         if (currentRow < ROWS) {
             document.querySelectorAll('.row')[currentRow].classList.remove('hidden');
             document.querySelectorAll('.row')[currentRow].classList.add('active');
+            updateStatus(`Ряд ${currentRow + 1}/${ROWS}`);
         } else {
             endGame(true);
         }
@@ -170,26 +164,30 @@ function placeRandomMines() {
 
 function startDefensePhase() {
     isDefensePhase = true;
-    elements.board.classList.remove('hidden');
-    elements.readyBtn.classList.remove('hidden');
+    document.getElementById('board').classList.remove('hidden');
+    document.getElementById('ready-btn').classList.remove('hidden');
     
     document.querySelectorAll('.row').forEach(row => {
         row.classList.remove('hidden');
     });
+    
+    updateStatus("Расставьте мины (по 2 в ряд)");
 }
 
 function startAttackPhase() {
     isDefensePhase = false;
-    elements.readyBtn.classList.add('hidden');
+    document.getElementById('ready-btn').classList.add('hidden');
     
     document.querySelectorAll('.row').forEach((row, i) => {
         row.classList.toggle('hidden', i !== 0);
         row.classList.toggle('active', i === 0);
     });
+    
+    updateStatus("Начните с первого ряда");
 }
 
 function confirmMines() {
-    elements.readyBtn.classList.add('hidden');
+    document.getElementById('ready-btn').classList.add('hidden');
     document.querySelectorAll('.mine').forEach(c => c.classList.remove('mine'));
     startAttackPhase();
 }
@@ -200,9 +198,9 @@ function endGame(isWin) {
 }
 
 function showMainMenu() {
-    elements.mainMenu.classList.add('active');
-    elements.soloMode.classList.remove('active');
-    elements.board.classList.add('hidden');
+    document.getElementById('main-menu').classList.add('active');
+    document.getElementById('solo-mode').classList.remove('active');
+    document.getElementById('board').classList.add('hidden');
     resetGame();
 }
 
@@ -214,11 +212,11 @@ function resetGame() {
 }
 
 function updateStatus(text) {
-    elements.status.textContent = text;
+    document.getElementById('status').textContent = text;
 }
 
-// Запуск игры
-init();
+// Запуск игры при загрузке
+window.onload = init;
 
 window.initDarkwall = initDarkwall;
 window.showDarkwall = showDarkwall;
