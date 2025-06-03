@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
     <div id="darkwall-screen" class="app-screen hidden">
-    <div class="screen-header">
+    <div class="app-header">
         <h2>Темная Стена</h2>
         <button class="close-btn">✕</button>
     </div>
@@ -10,12 +10,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Darkwall</title>
-    <link rel="stylesheet" href="../css/screens/darkwall.css">
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MobOS_DemoGame</title>
+    <link rel="stylesheet" href="../style.css">
     <style>
+        /* Ваши стили игры остаются без изменений */
         body {
             font-family: Arial, sans-serif;
             text-align: center;
@@ -24,7 +21,6 @@
             margin: 0;
             overflow: hidden;
         }
-
         footer {
             position: fixed;
             bottom: 0;
@@ -166,34 +162,60 @@
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="menu" id="main-menu">
-            <h1>MobOS_DemoGame</h1>
-            <button onclick="startGame('solo')">Одиночная</button>
-            <button onclick="startGame('duo')">Для двух игроков</button>
+    <div id="darkwall-screen" class="app-screen hidden">
+        <div class="app-header">
+            <h2>Темная Стена</h2>
+            <button class="close-btn" onclick="window.goBack()">✕</button>
         </div>
+        
+        <div class="app-content">
+            <div class="game-container">
+                <div class="menu" id="main-menu">
+                    <h1>MobOS_DemoGame</h1>
+                    <button id="solo-btn">Одиночная</button>
+                    <button id="duo-btn">Для двух игроков</button>
+                </div>
 
-        <div class="menu hidden" id="solo-mode">
-            <h1>Выберите сторону</h1>
-            <button onclick="setMode('attack')">Атака</button>
-            <button onclick="setMode('defense')">Защита</button>
-            <button onclick="showMainMenu()">Назад</button>
+                <div class="menu hidden" id="solo-mode">
+                    <h1>Выберите сторону</h1>
+                    <button id="attack-btn">Атака</button>
+                    <button id="defense-btn">Защита</button>
+                    <button id="back-to-menu-btn">Назад</button>
+                </div>
+
+                <div id="board" class="hidden"></div>
+                <div class="status" id="status"></div>
+                <button id="ready-btn" class="hidden">Готово</button>
+                <button id="back-btn" class="hidden">Назад</button>
+            </div>
+
+            <div id="notification" class="notification hidden"></div>
+
+            <div id="game-over-menu" class="game-over-menu hidden">
+                <h1 id="game-over-title"></h1>
+                <button id="ok-btn">ОК</button>
+            </div>
         </div>
-
-        <div id="board" class="hidden"></div>
-        <div class="status" id="status"></div>
-        <button id="ready-btn" class="hidden" onclick="confirmMines()">Готово</button>
-        <button id="back-btn" class="hidden" onclick="showMainMenu()">Назад</button>
-    </div>
-
-    <div id="notification" class="notification hidden"></div>
-
-    <div id="game-over-menu" class="game-over-menu hidden">
-        <h1 id="game-over-title"></h1>
-        <button onclick="showMainMenu()">ОК</button>
     </div>
 
     <script>
+        // Инициализация игры после загрузки DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            // Назначение обработчиков кнопок
+            document.getElementById('solo-btn').addEventListener('click', () => startGame('solo'));
+            document.getElementById('duo-btn').addEventListener('click', () => startGame('duo'));
+            document.getElementById('attack-btn').addEventListener('click', () => setMode('attack'));
+            document.getElementById('defense-btn').addEventListener('click', () => setMode('defense'));
+            document.getElementById('back-to-menu-btn').addEventListener('click', showMainMenu);
+            document.getElementById('ok-btn').addEventListener('click', showMainMenu);
+            document.getElementById('back-btn').addEventListener('click', showMainMenu);
+            document.getElementById('ready-btn').addEventListener('click', confirmMines);
+
+            // Инициализация игры
+            initDarkwall();
+        });
+
+        // Ваш игровой код остается без изменений
         const rows = 7;
         const cols = 4;
         const minesPerRow = 2;
@@ -203,7 +225,11 @@
         let currentRow = 0;
         let isDefensePhase = true;
         let gameMode = null;
-        let isScriptAttacking = false; // Флаг для отслеживания атаки скрипта
+        let isScriptAttacking = false;
+
+        function initDarkwall() {
+            createBoard();
+        }
 
         function createBoard() {
             const boardElement = document.getElementById('board');
