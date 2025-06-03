@@ -218,5 +218,5 @@ function updateStatus(text) {
 // Запуск игры при загрузке
 window.onload = init;
 
-window.initDarkwall = initDarkwall;
-window.showDarkwall = showDarkwall;
+//window.initDarkwall = initDarkwall;
+//window.showDarkwall = showDarkwall;
