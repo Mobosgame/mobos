@@ -163,6 +163,7 @@ body {
     width: 60%;
     height: 60%;
     object-fit: contain;
+    padding: 5%;
 }
 
 .app-label {
@@ -217,6 +218,7 @@ body {
     width: 55%;
     height: 55%;
     object-fit: contain;
+    padding: 5%;
 }
 
 .nav-label {
