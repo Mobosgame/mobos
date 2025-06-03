@@ -49,8 +49,8 @@ class AppRouter {
             this.switchToScreen(screenName);
             
             // Специальная обработка для игровых экранов
-           // if (screenName === 'darkwall' && window.showDarkwall) {
-             //   window.showDarkwall();
+            if (screenName === 'darkwall' && window.showDarkwall) {
+                window.showDarkwall();
             }
             
         } catch (error) {
@@ -83,8 +83,8 @@ class AppRouter {
             this.currentScreen.classList.add('hidden');
             
             // Специальный сброс для игровых экранов
-           // if (this.currentScreen.id === 'darkwall-screen' && window.showMainMenu) {
-             //   window.showMainMenu();
+            if (this.currentScreen.id === 'darkwall-screen' && window.showMainMenu) {
+                window.showMainMenu();
             }
         }
         
