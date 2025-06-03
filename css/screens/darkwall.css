@@ -2,6 +2,8 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 /* Темы */
@@ -11,6 +13,7 @@ body.theme-dark {
     --header-bg: #252525;
     --cell-color: #333;
     --mine-color: #ff4444;
+    --theme-color: #4CAF50;
 }
 
 body.theme-light {
@@ -19,26 +22,48 @@ body.theme-light {
     --header-bg: #ddd;
     --cell-color: #fff;
     --mine-color: #ff0000;
+    --theme-color: #2196F3;
 }
 
 /* Основной экран */
 #darkwall-screen {
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    display: none;
     height: 100vh;
-    display: flex;
     flex-direction: column;
+}
+
+#darkwall-screen.active {
+    display: flex;
 }
 
 .screen-header {
     background: var(--header-bg);
     padding: 15px;
     text-align: center;
+    position: relative;
+}
+
+.screen-header h2 {
+    color: var(--theme-color);
+    margin: 0;
+}
+
+.close-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 20px;
+    cursor: pointer;
 }
 
 .screen-content {
     flex: 1;
     padding: 20px;
+    position: relative;
 }
 
 /* Меню */
@@ -46,46 +71,93 @@ body.theme-light {
     display: none;
     flex-direction: column;
     align-items: center;
+    height: 100%;
+    justify-content: center;
 }
 
 .menu.active {
     display: flex;
 }
 
-button {
+.menu h1 {
+    color: var(--theme-color);
+    margin-bottom: 30px;
+}
+
+.menu button {
     margin: 10px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     background: var(--cell-color);
     color: var(--text-color);
     border: none;
+    border-radius: 5px;
     cursor: pointer;
+    font-size: 16px;
+    min-width: 200px;
 }
 
 /* Игровое поле */
 #board {
+    display: none;
+    width: 100%;
+    margin-top: 20px;
+}
+
+#board.hidden {
     display: none;
 }
 
 .row {
     display: flex;
     justify-content: center;
+    margin: 8px 0;
 }
 
 .cell {
     width: 50px;
     height: 50px;
     background: var(--cell-color);
-    margin: 5px;
+    margin: 0 5px;
     cursor: pointer;
+    border-radius: 5px;
+    border: 1px solid var(--theme-color);
 }
 
 .cell.mine {
     background: var(--mine-color);
 }
 
+.cell.revealed {
+    background: var(--bg-color);
+    border-color: var(--theme-color);
+}
+
+/* Статус и кнопки */
+.status {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 18px;
+}
+
+#ready-btn, #back-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+}
+
 /* Переключатель темы */
 .theme-toggle {
-    position: fixed;
+    position: absolute;
     bottom: 20px;
     right: 20px;
+}
+
+.theme-toggle button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    background: var(--theme-color);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
 }
