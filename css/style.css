@@ -264,11 +264,15 @@ body {
     padding: 15px;
     background: var(--nav-bg);
     border-bottom: 1px solid var(--nav-border);
+    position: relative;
 }
 
 .app-header h2 {
     font-size: 18px;
     margin: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .close-btn {
@@ -278,6 +282,12 @@ body {
     font-size: 20px;
     cursor: pointer;
     padding: 5px;
+    margin-left: auto;
+}
+
+.close-btn img {
+    width: 24px;
+    height: 24px;
 }
 
 .app-content {
@@ -355,7 +365,4 @@ body {
     display: block;
     margin-top: 5px;
     font-size: 12px;
-}
-
-    }
 }
