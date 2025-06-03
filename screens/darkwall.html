@@ -3,63 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Darkwall</title>
+    <title>MobOS_DemoGame</title>
+
+    <div id="darkwall-screen" class="app-screen hidden">
+        <div class="app-header">
+            <h2>Темная Стена</h2>
+            <button class="close-btn" id="close-btn">✕</button>
+        </div>
     <style>
-        /* Основные стили экрана */
-        .app-screen {
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1a1a1a;
+            color: white;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        footer {
             position: fixed;
-            top: 0;
+            bottom: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: #121212;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: #1a1a1a;
-            border-bottom: 1px solid #333;
-            position: relative;
-        }
-        
-        .app-header h2 {
-            font-size: 18px;
-            margin: 0;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
             color: white;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 5px;
-            margin-left: auto;
+            font-size: 14px;
         }
-        
-        .app-content {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-        }
-        
-        /* Стили игры */
+
+            footer a {
+                color: #00ff00;
+                text-decoration: none;
+            }
+
+                footer a:hover {
+                    text-decoration: underline;
+                }
+
         .game-container {
             margin: 20px auto;
             max-width: 400px;
-            position: relative;
-            min-height: 300px;
         }
-        
+
         .row {
             display: flex;
             justify-content: center;
@@ -67,7 +53,7 @@
             opacity: 1;
             transition: all 0.3s;
         }
-        
+
         .cell {
             width: 50px;
             height: 50px;
@@ -81,28 +67,32 @@
             border-radius: 10px;
             transition: all 0.3s;
         }
-        
-        .cell.revealed {
-            background: white;
-            border: 2px solid #00ff00;
-        }
-        
-        .cell.mine {
-            background: linear-gradient(45deg, #ff4444, #cc0000);
-        }
-        
+
+            .cell.revealed {
+                background: white;
+                border: 2px solid #00ff00;
+            }
+
+            .cell.mine {
+                background: linear-gradient(45deg, #ff4444, #cc0000);
+            }
+
         .row.completed {
             opacity: 0.6;
             filter: brightness(0.7);
             pointer-events: none;
         }
-        
+
         .row.active {
             background-color: #008000;
             border-radius: 10px;
             padding: 5px;
         }
-        
+
+        .hidden {
+            display: none;
+        }
+
         .menu {
             position: absolute;
             top: 50%;
@@ -111,11 +101,9 @@
             background-color: rgba(0, 0, 0, 0.9);
             padding: 20px;
             border-radius: 10px;
-            width: 80%;
-            max-width: 300px;
         }
-        
-        .menu button {
+
+        button {
             margin: 10px;
             padding: 10px 20px;
             font-size: 16px;
@@ -124,15 +112,13 @@
             color: white;
             border: 2px solid white;
             border-radius: 5px;
-            width: 100%;
         }
-        
+
         .status {
             margin: 10px 0;
             font-size: 18px;
-            text-align: center;
         }
-        
+
         .notification {
             position: fixed;
             top: 20px;
@@ -146,13 +132,22 @@
             z-index: 1000;
             animation: fadeOut 2s forwards;
         }
-        
+
         @keyframes fadeOut {
-            0% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { opacity: 0; display: none; }
+            0% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                display: none;
+            }
         }
-        
+
         .game-over-menu {
             position: absolute;
             top: 50%;
@@ -162,54 +157,38 @@
             padding: 20px;
             border-radius: 10px;
             text-align: center;
-            width: 80%;
-            max-width: 300px;
-        }
-        
-        .hidden {
-            display: none !important;
         }
     </style>
 </head>
 <body>
-    <div id="darkwall-screen" class="app-screen hidden">
-        <div class="app-header">
-            <h2>Темная Стена</h2>
-            <button class="close-btn" id="close-btn">✕</button>
+    <div class="game-container">
+        <div class="menu" id="main-menu">
+            <h1>MobOS_DemoGame</h1>
+            <button onclick="startGame('solo')">Одиночная</button>
+            <button onclick="startGame('duo')">Для двух игроков</button>
         </div>
-        
-        <div class="app-content">
-            <div class="game-container">
-                <div class="menu" id="main-menu">
-                    <h1>MobOS_DemoGame</h1>
-                    <button id="solo-btn">Одиночная</button>
-                    <button id="duo-btn">Для двух игроков</button>
-                </div>
 
-                <div class="menu hidden" id="solo-mode">
-                    <h1>Выберите сторону</h1>
-                    <button id="attack-btn">Атака</button>
-                    <button id="defense-btn">Защита</button>
-                    <button id="back-to-menu-btn">Назад</button>
-                </div>
-
-                <div id="board" class="hidden"></div>
-                <div class="status" id="status"></div>
-                <button id="ready-btn" class="hidden">Готово</button>
-                <button id="back-btn" class="hidden">Назад</button>
-            </div>
-
-            <div id="notification" class="notification hidden"></div>
-
-            <div id="game-over-menu" class="game-over-menu hidden">
-                <h1 id="game-over-title"></h1>
-                <button id="ok-btn">ОК</button>
-            </div>
+        <div class="menu hidden" id="solo-mode">
+            <h1>Выберите сторону</h1>
+            <button onclick="setMode('attack')">Атака</button>
+            <button onclick="setMode('defense')">Защита</button>
+            <button onclick="showMainMenu()">Назад</button>
         </div>
+
+        <div id="board" class="hidden"></div>
+        <div class="status" id="status"></div>
+        <button id="ready-btn" class="hidden" onclick="confirmMines()">Готово</button>
+        <button id="back-btn" class="hidden" onclick="showMainMenu()">Назад</button>
+    </div>
+
+    <div id="notification" class="notification hidden"></div>
+
+    <div id="game-over-menu" class="game-over-menu hidden">
+        <h1 id="game-over-title"></h1>
+        <button onclick="showMainMenu()">ОК</button>
     </div>
 
     <script>
-        // Игровые переменные
         const rows = 7;
         const cols = 4;
         const minesPerRow = 2;
@@ -219,35 +198,8 @@
         let currentRow = 0;
         let isDefensePhase = true;
         let gameMode = null;
-        let isScriptAttacking = false;
+        let isScriptAttacking = false; // Флаг для отслеживания атаки скрипта
 
-        // Основная функция инициализации
-        function initGame() {
-            // Инициализация игрового поля
-            createBoard();
-            
-            // Назначение обработчиков для кнопок
-            document.getElementById('solo-btn').addEventListener('click', () => startGame('solo'));
-            document.getElementById('duo-btn').addEventListener('click', () => startGame('duo'));
-            document.getElementById('attack-btn').addEventListener('click', () => setMode('attack'));
-            document.getElementById('defense-btn').addEventListener('click', () => setMode('defense'));
-            document.getElementById('back-to-menu-btn').addEventListener('click', showMainMenu);
-            document.getElementById('ok-btn').addEventListener('click', showMainMenu);
-            document.getElementById('back-btn').addEventListener('click', showMainMenu);
-            document.getElementById('ready-btn').addEventListener('click', confirmMines);
-            document.getElementById('close-btn').addEventListener('click', () => {
-                if (window.goBack) window.goBack();
-                else console.log('Функция goBack не определена');
-            });
-            
-            // Показываем главное меню
-            showMainMenu();
-            
-            // Показываем экран (убираем класс hidden)
-            document.getElementById('darkwall-screen').classList.remove('hidden');
-        }
-
-        // Остальные игровые функции...
         function createBoard() {
             const boardElement = document.getElementById('board');
             boardElement.innerHTML = '';
@@ -272,7 +224,7 @@
         }
 
         function handleCellClick(e) {
-            if (isScriptAttacking) return;
+            if (isScriptAttacking) return; // Блокировка кликов во время атаки скрипта
 
             const cell = e.target;
             const row = parseInt(cell.dataset.row);
@@ -422,11 +374,11 @@
         }
 
         function simulateAttacker() {
-            isScriptAttacking = true;
+            isScriptAttacking = true; // Блокировка кликов
             const interval = setInterval(() => {
                 if (currentRow >= rows || playerHealth <= 0) {
                     clearInterval(interval);
-                    isScriptAttacking = false;
+                    isScriptAttacking = false; // Разблокировка кликов
                     endGame(currentRow < rows);
                     return;
                 }
@@ -484,7 +436,7 @@
             isDefensePhase = true;
             currentMode = null;
             gameMode = null;
-            isScriptAttacking = false;
+            isScriptAttacking = false; // Сброс флага
             createBoard();
         }
 
@@ -497,8 +449,10 @@
             }, 2000);
         }
 
-        // Инициализация игры при загрузке страницы
-        window.addEventListener('load', initGame);
+        createBoard();
     </script>
 </body>
+<footer>
+    Creator  <a href="https://t.me/dreamfox_13" target="_blank"> DreamFox </a>
+</footer>
 </html>
