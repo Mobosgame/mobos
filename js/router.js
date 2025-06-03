@@ -83,8 +83,8 @@ class AppRouter {
             this.currentScreen.classList.add('hidden');
             
             // Специальный сброс для игровых экранов
-            if (this.currentScreen.id === 'darkwall-screen' && window.showMainMenu) {
-                window.showMainMenu();
+           // if (this.currentScreen.id === 'darkwall-screen' && window.showMainMenu) {
+             //   window.showMainMenu();
             }
         }
         
