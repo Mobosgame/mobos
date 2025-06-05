@@ -16,7 +16,7 @@ window.translations = {
         //Вызовы
         calls: "Calls",
         //Сообщения
-        messages: "Messages",
+        sms: "Messages",
         //Браузер
         browser: "Browser",
         //Чат
@@ -60,7 +60,7 @@ window.translations = {
         //Вызовы
         calls: "Вызовы",
         //Сообщения
-        messages: "Сообщения",
+        sms: "Сообщения",
         //Браузер
         browser: "Браузер",
         //Чат
