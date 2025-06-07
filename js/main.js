@@ -53,6 +53,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
 
+        // Добавляем обработчик для Darkwall Game
+      const darkwallBtn = document.getElementById('darkwall-btn');
+    if (darkwallBtn) {
+        darkwallBtn.addEventListener('click', () => {
+            showScreen('darkwall');
+        });
+    }
+
         // Настройка обработчиков для кнопок
         setupButton('settings-btn', 'settings');
         setupButton('calls-btn', 'calls');
@@ -67,11 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const mainScreen = document.getElementById('main-screen');
         if (mainScreen) mainScreen.classList.remove('hidden');
 
-        // Добавляем обработчик для Darkwall Game
-        const darkwallBtn = document.getElementById('darkwall-btn');
-    if (darkwallBtn) {
-        darkwallBtn.addEventListener('click', () => {
-            showScreen('darkwall');
+        
         });
     }
 });
