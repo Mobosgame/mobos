@@ -1,0 +1,30 @@
+<!-- screens/darkwall-game.html -->
+<div id="darkwall-game" class="game-container">
+    <div class="game-menu" id="main-menu">
+        <h2 data-lang="darkwall_game">Darkwall Game</h2>
+        <button class="game-btn" id="solo-btn" data-lang="solo_mode">Одиночная</button>
+        <button class="game-btn" id="duo-btn" data-lang="duo_mode">Для двух игроков</button>
+    </div>
+
+    <div class="game-menu hidden" id="solo-mode">
+        <h2 data-lang="choose_side">Выберите сторону</h2>
+        <button class="game-btn" id="attack-btn" data-lang="attack">Атака</button>
+        <button class="game-btn" id="defense-btn" data-lang="defense">Защита</button>
+        <button class="game-btn" id="back-btn-menu">Назад</button>
+    </div>
+
+    <div id="board"></div>
+    <div class="game-status" id="status"></div>
+    
+    <div class="game-controls">
+        <button id="ready-btn" class="game-btn hidden" data-lang="ready">Готово</button>
+        <button id="back-btn" class="game-btn hidden" data-lang="back">Назад</button>
+    </div>
+
+    <div id="notification" class="game-notification hidden"></div>
+
+    <div id="game-over-menu" class="game-over-menu hidden">
+        <h2 id="game-over-title"></h2>
+        <button class="game-btn" id="ok-btn" data-lang="ok">ОК</button>
+    </div>
+</div>
