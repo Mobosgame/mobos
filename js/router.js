@@ -101,6 +101,9 @@ class AppRouter {
             }
         }
     }
+    backToMain() {
+        this.backToMain();
+    }
 }
 
 // Инициализация после загрузки DOM
