@@ -86,5 +86,10 @@ window.translations = {
         script_next_row: "Скрипт переходит к уровню {row}",
         victory: "Победа!",
         defeat: "Поражение!"
+
+        darkwall_game: {
+        en: "Darkwall Game",
+        ru: "Игра Darkwall"
+    },
     }
 };
