@@ -1,1 +1,105 @@
 
+/* css/screens/darkwall.css */
+
+/* Игровой контейнер */
+.game-container {
+    max-width: 100%;
+    padding: 15px;
+    text-align: center;
+}
+
+/* Игровое поле */
+.game-row {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0;
+    transition: all 0.3s;
+}
+
+.game-cell {
+    width: 50px;
+    height: 50px;
+    border: 2px solid;
+    margin: 0 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+/* Состояния клеток */
+.game-cell.revealed {
+    background: var(--card-color) !important;
+    border-color: var(--theme-color) !important;
+}
+
+.game-cell.mine {
+    background: linear-gradient(45deg, #ff4444, #cc0000);
+}
+
+/* Меню и статус */
+.game-menu, .game-over-menu {
+    background: var(--card-color);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px auto;
+    max-width: 300px;
+}
+
+.game-status {
+    margin: 15px 0;
+    font-size: 16px;
+    color: var(--theme-color);
+}
+
+.game-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Кнопки */
+.game-btn {
+    background: var(--theme-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: opacity 0.2s;
+}
+
+.game-btn:hover {
+    opacity: 0.9;
+}
+
+/* Уведомления */
+.game-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    z-index: 100;
+    animation: fadeOut 2s forwards;
+}
+
+@keyframes fadeOut {
+    0%, 90% { opacity: 1; }
+    100% { opacity: 0; display: none; }
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 480px) {
+    .game-cell {
+        width: 40px;
+        height: 40px;
+    }
+}
