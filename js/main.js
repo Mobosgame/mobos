@@ -66,5 +66,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Показываем главный экран
         const mainScreen = document.getElementById('main-screen');
         if (mainScreen) mainScreen.classList.remove('hidden');
+
+        // Добавляем обработчик для Darkwall Game
+        const darkwallBtn = document.getElementById('darkwall-btn');
+    if (darkwallBtn) {
+        darkwallBtn.addEventListener('click', () => {
+            showScreen('darkwall');
+        });
     }
 });
