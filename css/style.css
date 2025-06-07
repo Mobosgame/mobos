@@ -32,6 +32,8 @@ body {
     --bg-color: #121212;
     --card-color: #252525;
     --nav-bg: #1a1a1a;
+     --theme-1-cell-bg: #004d00;
+    --theme-1-border: #4CAF50;
 }
 
 .theme-2 {
@@ -39,6 +41,17 @@ body {
     --bg-color: #0d0d1a;
     --card-color: #1a1a2e;
     --nav-bg: #15152b;
+     --theme-1-cell-bg: #004d00;
+    --theme-1-border: #4CAF50;
+}
+
+.theme-3 {
+    --theme-color: #2196F3;
+    --bg-color: #0d0d1a;
+    --card-color: #1a1a2e;
+    --nav-bg: #15152b;
+     --theme-1-cell-bg: #004d00;
+    --theme-1-border: #4CAF50;
 }
 
 /* Главный экран */
