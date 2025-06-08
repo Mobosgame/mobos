@@ -12,19 +12,30 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow-y: hidden; /* Убираем скролл */
-    gap: 10px; /* Расстояние между рядами */
-    margin: 10px 0;
+    overflow: hidden;
+    gap: 8px; /* Расстояние между рядами */
+}
+
+.rows-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
 }
 
 .game-row {
+    flex: 1;
     display: flex;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
     transition: all 0.3s;
     padding: 5px;
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.2);
+}
+
+.game-row.hidden {
+    display: none;
 }
 
 .game-row.active {
@@ -38,14 +49,9 @@
     pointer-events: none;
 }
 
-.game-row.hidden {
-    display: none;
-}
-
 .game-cell {
     flex: 1;
-    height: 70px; /* Крупные клетки */
-    min-width: 70px;
+    min-height: 60px; /* Минимальная высота */
     border: 2px solid var(--theme-color);
     border-radius: 8px;
     cursor: pointer;
@@ -56,9 +62,22 @@
     background-color: rgba(0, 0, 0, 0.2);
 }
 
+/* Увеличенные клетки для мобильных устройств */
+@media (max-height: 700px) {
+    .game-cell {
+        min-height: 50px;
+    }
+}
+
+@media (max-height: 600px) {
+    .game-cell {
+        min-height: 45px;
+    }
+}
+
 .game-cell.revealed {
     background: var(--card-color);
-    border-color: #00ff00; /* Зеленый для верных клеток */
+    border-color: #00ff00; /* Зеленый для безопасных клеток */
 }
 
 .game-cell.mine {
