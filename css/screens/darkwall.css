@@ -1,57 +1,90 @@
-
 /* css/screens/darkwall.css */
 
-/* Игровой контейнер */
 .game-container {
-    max-width: 100%;
     padding: 15px;
     text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Игровое поле */
-.game-row {
+#board {
+    flex: 1;
     display: flex;
-    justify-content: center;
-    margin: 8px 0;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.rows-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px 0;
+}
+
+.game-row {
+    background: var(--card-color);
+    border-radius: 12px;
+    padding: 10px;
     transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.game-row.active {
+    border-color: var(--theme-color);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
+.game-row.completed {
+    opacity: 0.6;
+    filter: brightness(0.7);
+    pointer-events: none;
+}
+
+.row-header {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: var(--theme-color);
+}
+
+.cells-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
 }
 
 .game-cell {
-    width: 50px;
-    height: 50px;
-    border: 2px solid;
-    margin: 0 5px;
+    flex: 1;
+    height: 60px;
+    min-width: 60px;
+    border: 2px solid var(--theme-color);
     border-radius: 8px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
-/* Состояния клеток */
 .game-cell.revealed {
-    background: var(--card-color) !important;
-    border-color: var(--theme-color) !important;
+    background: var(--card-color);
 }
 
 .game-cell.mine {
     background: linear-gradient(45deg, #ff4444, #cc0000);
 }
 
-/* Меню и статус */
-.game-menu, .game-over-menu {
-    background: var(--card-color);
-    padding: 20px;
-    border-radius: 12px;
-    margin: 20px auto;
-    max-width: 300px;
+.game-cell.mine-hit {
+    background: linear-gradient(45deg, #ff0000, #990000);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
 }
 
 .game-status {
     margin: 15px 0;
     font-size: 16px;
     color: var(--theme-color);
+    min-height: 24px;
 }
 
 .game-controls {
@@ -61,23 +94,22 @@
     margin-top: 15px;
 }
 
-/* Кнопки */
 .game-btn {
     background: var(--theme-color);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     transition: opacity 0.2s;
+    min-width: 120px;
 }
 
 .game-btn:hover {
     opacity: 0.9;
 }
 
-/* Уведомления */
 .game-notification {
     position: fixed;
     top: 20px;
@@ -85,21 +117,34 @@
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.85);
     color: white;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 8px;
     z-index: 100;
     animation: fadeOut 2s forwards;
 }
 
+.game-over-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--card-color);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    z-index: 1000;
+    border: 2px solid var(--theme-color);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    min-width: 300px;
+}
+
+.game-over-menu h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: var(--theme-color);
+}
+
 @keyframes fadeOut {
     0%, 90% { opacity: 1; }
     100% { opacity: 0; display: none; }
-}
-
-/* Адаптация для мобильных */
-@media (max-width: 480px) {
-    .game-cell {
-        width: 40px;
-        height: 40px;
-    }
 }
