@@ -7,6 +7,28 @@
     padding: 10px;
 }
 
+.board-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center; /* Центрируем ряды */
+    width: 100%;
+}
+
+@media (max-width: 400px) {
+    .game-cell {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 350px) {
+    .game-cell {
+        width: 55px;
+        height: 55px;
+    }
+}
+
 .game-container {
     flex: 1;
     display: flex;
