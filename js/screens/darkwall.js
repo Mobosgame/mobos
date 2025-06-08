@@ -8,7 +8,7 @@ function initDarkwall() {
     // Обработчик закрытия
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
         if (window.darkwallGame) {
-            window.darkwallGame.showMainMenu(); // Сбрасываем в начало
+            window.darkwallGame.showMainMenu();
             window.darkwallGame.destroy();
             delete window.darkwallGame;
         }
@@ -50,6 +50,10 @@ function initDarkwallGame() {
     `;
     
     document.getElementById('darkwall-game-container').innerHTML = gameHTML;
+    
+    // Явно показываем главное меню
+    document.getElementById('main-menu').classList.remove('hidden');
+    
     initGameLogic();
 }
 
