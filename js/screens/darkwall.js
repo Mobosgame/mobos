@@ -78,28 +78,33 @@ class DarkwallGame {
     }
 
     createBoard() {
-        const boardElement = document.getElementById('board');
-        boardElement.innerHTML = '';
-        this.board = [];
+    const boardElement = document.getElementById('board');
+    boardElement.innerHTML = '';
+    this.board = [];
 
-        for (let i = 0; i < this.rows; i++) {
-            const row = document.createElement('div');
-            row.className = 'game-row hidden';
-            row.dataset.row = i;
-            this.board[i] = [];
+    // Контейнер для центрирования
+    const boardWrapper = document.createElement('div');
+    boardWrapper.className = 'board-wrapper';
+    boardElement.appendChild(boardWrapper);
 
-            for (let j = 0; j < this.cols; j++) {
-                const cell = document.createElement('div');
-                cell.className = 'game-cell';
-                cell.dataset.row = i;
-                cell.dataset.col = j;
-                cell.addEventListener('click', (e) => this.handleCellClick(e));
-                row.appendChild(cell);
-                this.board[i][j] = { isMine: false, revealed: false };
-            }
-            boardElement.appendChild(row);
+    for (let i = 0; i < this.rows; i++) {
+        const row = document.createElement('div');
+        row.className = 'game-row hidden';
+        row.dataset.row = i;
+        this.board[i] = [];
+
+        for (let j = 0; j < this.cols; j++) {
+            const cell = document.createElement('div');
+            cell.className = 'game-cell';
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+            cell.addEventListener('click', (e) => this.handleCellClick(e));
+            row.appendChild(cell);
+            this.board[i][j] = { isMine: false, revealed: false };
         }
+        boardWrapper.appendChild(row);
     }
+}
 
     handleCellClick(e) {
         if (this.isGameOver || this.isScriptAttacking) return;
