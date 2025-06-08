@@ -1,11 +1,29 @@
 /* css/screens/darkwall.css */
 
-.game-container {
-    padding: 15px;
-    text-align: center;
+#darkwall-screen .app-content {
     height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+.game-container {
+    flex: 1;
+    padding: 15px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    background: var(--card-color); /* Добавляем фон */
+    border-radius: 12px;
+    margin: 10px;
+}
+
+.game-menu {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
 }
 
 #board {
