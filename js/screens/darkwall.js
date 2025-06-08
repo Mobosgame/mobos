@@ -1,3 +1,4 @@
+
 // js/screens/darkwall.js
 
 function initDarkwall() {
@@ -50,10 +51,7 @@ function initDarkwallGame() {
     `;
     
     document.getElementById('darkwall-game-container').innerHTML = gameHTML;
-    
-    // Явно показываем главное меню
     document.getElementById('main-menu').classList.remove('hidden');
-    
     initGameLogic();
 }
 
@@ -84,11 +82,6 @@ class DarkwallGame {
         boardElement.innerHTML = '';
         this.board = [];
 
-        // Используем CSS Grid для адаптивного размещения
-        const rowsContainer = document.createElement('div');
-        rowsContainer.className = 'rows-container';
-        boardElement.appendChild(rowsContainer);
-
         for (let i = 0; i < this.rows; i++) {
             const row = document.createElement('div');
             row.className = 'game-row hidden';
@@ -104,11 +97,156 @@ class DarkwallGame {
                 row.appendChild(cell);
                 this.board[i][j] = { isMine: false, revealed: false };
             }
-            rowsContainer.appendChild(row);
+            boardElement.appendChild(row);
         }
     }
 
-    // ... остальные методы без изменений ...
+    handleCellClick(e) {
+        if (this.isGameOver || this.isScriptAttacking) return;
+        
+        const cell = e.target;
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+
+        if (this.isDefensePhase) {
+            this.handleDefenseClick(row, col, cell);
+        } else {
+            this.handleAttackClick(row, col, cell);
+        }
+    }
+
+    handleDefenseClick(row, col, cell) {
+        if (this.board[row][col].isMine) return;
+
+        const minesInRow = this.board[row].filter(c => c.isMine).length;
+        if (minesInRow >= this.minesPerRow) {
+            this.showNotification(getTranslation('max_mines_reached', { count: this.minesPerRow }));
+            return;
+        }
+
+        this.board[row][col].isMine = true;
+        cell.classList.add('mine');
+
+        if (minesInRow + 1 === this.minesPerRow) {
+            const rowElement = cell.closest('.game-row');
+            rowElement.classList.add('completed');
+        }
+    }
+
+    handleAttackClick(row, col, cell) {
+        if (row !== this.currentRow || this.board[row][col].revealed || this.isGameOver) return;
+
+        this.board[row][col].revealed = true;
+
+        if (this.board[row][col].isMine) {
+            cell.classList.add('mine-hit');
+            this.playerHealth -= 25;
+            this.updateStatus(getTranslation('mine_hit', { health: this.playerHealth }));
+            
+            if (this.playerHealth <= 0) {
+                this.endGame(false);
+                this.isGameOver = true;
+            }
+        } else {
+            cell.classList.add('revealed');
+            const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
+            currentRowElement.classList.remove('active');
+            currentRowElement.classList.add('completed');
+            
+            this.currentRow++;
+            
+            if (this.currentRow < this.rows) {
+                const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
+                nextRowElement.classList.remove('hidden');
+                nextRowElement.classList.add('active');
+                this.updateStatus(getTranslation('progress_row', { row: this.currentRow + 1 }));
+            } else {
+                this.endGame(true);
+                this.isGameOver = true;
+            }
+        }
+    }
+
+    setupEventListeners() {
+        document.getElementById('solo-btn').addEventListener('click', () => this.startGame('solo'));
+        document.getElementById('duo-btn').addEventListener('click', () => this.startGame('duo'));
+        
+        document.getElementById('attack-btn').addEventListener('click', () => this.setMode('attack'));
+        document.getElementById('defense-btn').addEventListener('click', () => this.setMode('defense'));
+        
+        document.getElementById('ready-btn').addEventListener('click', this.confirmMines.bind(this));
+        document.getElementById('ok-btn').addEventListener('click', this.showMainMenu.bind(this));
+    }
+
+    startGame(mode) {
+        this.gameMode = mode;
+        document.getElementById('main-menu').classList.add('hidden');
+
+        if (mode === 'solo') {
+            document.getElementById('solo-mode').classList.remove('hidden');
+        } else {
+            this.startDefensePhase();
+        }
+    }
+
+    setMode(mode) {
+        this.currentMode = mode;
+        document.getElementById('solo-mode').classList.add('hidden');
+        document.getElementById('board').classList.remove('hidden');
+
+        if (mode === 'attack') {
+            this.createBoard();
+            this.placeRandomMines();
+            this.startAttackPhase();
+        } else {
+            this.startDefensePhase();
+        }
+    }
+
+    placeRandomMines() {
+        for (let i = 0; i < this.rows; i++) {
+            let placed = 0;
+            while (placed < this.minesPerRow) {
+                const col = Math.floor(Math.random() * this.cols);
+                if (!this.board[i][col].isMine) {
+                    this.board[i][col].isMine = true;
+                    placed++;
+                }
+            }
+        }
+    }
+
+    startDefensePhase() {
+        this.isDefensePhase = true;
+        this.isGameOver = false;
+        this.createBoard();
+        document.getElementById('board').classList.remove('hidden');
+        document.getElementById('ready-btn').classList.remove('hidden');
+        
+        document.querySelectorAll('.game-row').forEach(row => {
+            row.classList.remove('hidden');
+        });
+        
+        this.updateStatus(getTranslation('place_mines', { count: this.minesPerRow }));
+    }
+
+    confirmMines() {
+        for (let i = 0; i < this.rows; i++) {
+            if (this.board[i].filter(c => c.isMine).length !== this.minesPerRow) {
+                this.showNotification(getTranslation('row_not_complete', { row: i + 1 }));
+                return;
+            }
+        }
+        
+        this.hideMines();
+        this.startAttackPhase();
+    }
+
+    hideMines() {
+        document.querySelectorAll('.mine').forEach(cell => {
+            cell.classList.remove('mine');
+        });
+    }
 
     startAttackPhase() {
         this.isDefensePhase = false;
@@ -117,13 +255,11 @@ class DarkwallGame {
         this.currentRow = 0;
         document.getElementById('ready-btn').classList.add('hidden');
         
-        // Скрыть все ряды
         document.querySelectorAll('.game-row').forEach(row => {
             row.classList.remove('active', 'completed');
             row.classList.add('hidden');
         });
         
-        // Показать первый ряд как активный
         const firstRow = document.querySelector('.game-row[data-row="0"]');
         if (firstRow) {
             firstRow.classList.remove('hidden');
@@ -188,6 +324,17 @@ class DarkwallGame {
         }, 1000);
     }
 
+    endGame(isWin) {
+        const gameOverMenu = document.getElementById('game-over-menu');
+        const gameOverTitle = document.getElementById('game-over-title');
+        gameOverTitle.textContent = isWin ? getTranslation('victory') : getTranslation('defeat');
+        gameOverMenu.classList.remove('hidden');
+    }
+
+    updateStatus(text) {
+        document.getElementById('status').textContent = text;
+    }
+
     showMainMenu() {
         document.getElementById('main-menu').classList.remove('hidden');
         document.getElementById('solo-mode').classList.add('hidden');
@@ -197,14 +344,6 @@ class DarkwallGame {
         this.updateStatus("");
         this.resetGame();
     }
-
-    destroy() {
-        if (this.attackInterval) {
-            clearInterval(this.attackInterval);
-            this.attackInterval = null;
-        }
-    }
-}
 
     resetGame() {
         this.playerHealth = 100;
@@ -231,6 +370,13 @@ class DarkwallGame {
             const key = el.getAttribute('data-lang');
             el.textContent = getTranslation(key);
         });
+    }
+
+    destroy() {
+        if (this.attackInterval) {
+            clearInterval(this.attackInterval);
+            this.attackInterval = null;
+        }
     }
 }
 
