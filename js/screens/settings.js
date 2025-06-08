@@ -23,7 +23,12 @@ function initSettings() {
     });
 
     // Кнопка закрытия
-    document.querySelector('#settings-screen .close-btn').addEventListener('click', goBack);
+    const closeBtn = document.querySelector('#settings-screen .close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            if (typeof goBack === 'function') goBack();
+        });
+    }
 }
 
 function applySettings(settings) {
