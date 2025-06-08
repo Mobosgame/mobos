@@ -1,120 +1,208 @@
 /* css/screens/darkwall.css */
 
+#darkwall-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#darkwall-screen .app-header {
+  flex-shrink: 0;
+  padding: 12px 15px;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+}
+
 #darkwall-screen .app-content {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
+  flex: 1;
+  padding: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .game-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: var(--card-color);
-    border-radius: 12px;
-    padding: 15px;
-    overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-color);
+  border-radius: 12px;
+  padding: 15px;
 }
 
+/* Меню выбора режима */
 .game-menu {
-    flex: none; /* Фиксированная высота меню */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    padding: 10px 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
 }
 
+.game-menu h2 {
+  color: var(--theme-color);
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+/* Игровое поле */
 #board {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around; /* Равномерное распределение рядов */
-    gap: 8px;
-    padding: 5px 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 8px;
+  padding: 5px 0;
 }
 
 .game-row {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    flex: 1; /* Ряды занимают равное пространство */
-    min-height: 0; /* Важно для корректного flex-распределения */
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
 }
 
 .game-cell {
-    aspect-ratio: 1/1; /* Сохраняем квадратную форму */
-    width: 22%; /* Фиксированный процент от ширины */
-    max-width: 70px; /* Максимальный размер */
-    border: 2px solid var(--theme-color);
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    background-color: rgba(0, 0, 0, 0.2);
-    flex-shrink: 0;
+  aspect-ratio: 1/1;
+  width: 22%;
+  max-width: 70px;
+  border: 2px solid var(--theme-color);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background-color: rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
 }
 
-/* Адаптация для разных экранов */
-@media (max-height: 700px) {
-    .game-cell {
-        width: 20%;
-    }
-}
-
-@media (max-height: 600px) {
-    .game-cell {
-        width: 18%;
-    }
-}
-
-/* Остальные стили остаются без изменений */
-.game-row.hidden {
-    display: none;
-}
-
-.game-row.active {
-    border: 2px solid var(--theme-color);
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
-}
-
-.game-row.completed {
-    opacity: 0.6;
-    filter: brightness(0.7);
-    pointer-events: none;
-}
-
+/* Состояния клеток */
 .game-cell.revealed {
-    background: var(--card-color);
-    border-color: #00ff00;
+  background: var(--card-color);
+  border-color: #00ff00;
 }
 
 .game-cell.mine {
-    background: linear-gradient(45deg, #ff4444, #cc0000);
+  background: linear-gradient(45deg, #ff4444, #cc0000);
 }
 
 .game-cell.mine-hit {
-    background: linear-gradient(45deg, #ff0000, #990000);
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+  background: linear-gradient(45deg, #ff0000, #990000);
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
 }
 
+/* Состояния рядов */
+.game-row.hidden {
+  display: none;
+}
+
+.game-row.active {
+  outline: 2px solid var(--theme-color);
+}
+
+.game-row.completed {
+  opacity: 0.6;
+  filter: brightness(0.7);
+}
+
+/* Статус и контролы */
 .game-status {
-    flex: none;
-    margin: 10px 0;
-    font-size: 16px;
-    color: var(--theme-color);
-    text-align: center;
+  flex-shrink: 0;
+  margin: 10px 0;
+  font-size: 16px;
+  color: var(--theme-color);
+  text-align: center;
 }
 
 .game-controls {
-    flex: none;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-    padding: 10px 0;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px 0;
+}
+
+/* Кнопки */
+.game-btn {
+  background: var(--theme-color);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: opacity 0.2s;
+  min-width: 120px;
+}
+
+.game-btn:hover {
+  opacity: 0.9;
+}
+
+/* Уведомления */
+.game-notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  z-index: 100;
+  animation: fadeOut 2s forwards;
+}
+
+.game-over-menu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--card-color);
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  z-index: 1000;
+  border: 2px solid var(--theme-color);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+  min-width: 300px;
+}
+
+.game-over-menu h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: var(--theme-color);
+}
+
+/* Анимации */
+@keyframes fadeOut {
+  0%, 90% { opacity: 1; }
+  100% { opacity: 0; display: none; }
+}
+
+/* Адаптация */
+@media (max-height: 700px) {
+  .game-cell {
+    width: 20%;
+  }
+}
+
+@media (max-height: 600px) {
+  .game-cell {
+    width: 18%;
+  }
+}
+
+@media (max-width: 400px) {
+  .game-cell {
+    width: 18%;
+  }
+  .game-btn {
+    padding: 10px 15px;
+    min-width: 100px;
+  }
 }
