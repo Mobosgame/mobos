@@ -24,6 +24,7 @@ window.translations = {
         //Темная стена
         darkwall: "Dark Wall",
         darkwall_game: "Darkwall Game", 
+        level: "Level",
         solo_mode: "Одиночная",
         duo_mode: "Для двух игроков",
         choose_side: "Выберите сторону",
@@ -69,6 +70,7 @@ window.translations = {
         //Темная стена
         darkwall: "Темная Стена",
         darkwall_game: "Игра Darkwall",
+        level: "Уровень",
         solo_mode: "Одиночная",
         duo_mode: "Для двух игроков",
         choose_side: "Выберите сторону",
