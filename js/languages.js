@@ -23,6 +23,7 @@ window.translations = {
         chat: "Chat",
         //Темная стена
         darkwall: "Dark Wall",
+        darkwall_game: "Darkwall Game", 
         solo_mode: "Одиночная",
         duo_mode: "Для двух игроков",
         choose_side: "Выберите сторону",
@@ -67,6 +68,7 @@ window.translations = {
         chat: "Чат",
         //Темная стена
         darkwall: "Темная Стена",
+        darkwall_game: "Игра Darkwall",
         solo_mode: "Одиночная",
         duo_mode: "Для двух игроков",
         choose_side: "Выберите сторону",
@@ -87,9 +89,6 @@ window.translations = {
         victory: "Победа!",
         defeat: "Поражение!"
 
-        darkwall_game: {
-        en: "Darkwall Game",
-        ru: "Игра Darkwall"
-    },
+    
     }
 };
