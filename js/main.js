@@ -1,7 +1,7 @@
 // js/main.js
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация Telegram WebApp
+    // 1. Проверка и инициализация Telegram WebApp
     if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.expand();
         window.Telegram.WebApp.enableClosingConfirmation();
@@ -12,15 +12,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Инициализируем роутер сразу
+    // 2. Инициализация роутера
     window.router = new AppRouter();
     
-    // Даем роутеру время на инициализацию
-    setTimeout(() => {
-        setupNavigation();
-        showMainScreen();
-    }, 50);
+    // 3. Настройка навигации
+    setupNavigation();
     
+    // 4. Показать главный экран
+    document.getElementById('main-screen').classList.remove('hidden');
+
+    // Функция обновления профиля пользователя
     function updateUserProfile(user) {
         const username = document.getElementById('username');
         const profilePhoto = document.getElementById('profile-photo');
@@ -38,33 +39,28 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
     }
-    
-    function showMainScreen() {
-        const mainScreen = document.getElementById('main-screen');
-        if (mainScreen) mainScreen.classList.remove('hidden');
-    }
 
+    // Основная функция настройки навигации
     function setupNavigation() {
         // Функция для безопасного назначения обработчиков
         const setupButton = (buttonId, screenName) => {
             const button = document.getElementById(buttonId);
             if (button) {
                 button.addEventListener('click', () => {
-                    if (typeof showScreen === 'function') {
-                        showScreen(screenName);
+                    // Проверяем инициализацию роутера
+                    if (window.router && typeof window.router.loadScreen === 'function') {
+                        window.router.loadScreen(screenName);
                     } else {
-                        console.error('showScreen function not found');
-                        // Попытка восстановления
-                        if (window.router) {
-                            window.router.initRouter();
-                            showScreen(screenName);
-                        }
+                        console.error('Router not initialized');
+                        location.reload(); // Перезагрузка как крайняя мера
                     }
                 });
+            } else {
+                console.warn(`Button not found: ${buttonId}`);
             }
         };
 
-        // Настройка обработчиков для кнопок главного экрана
+        // Настройка обработчиков для всех кнопок
         setupButton('settings-btn', 'settings');
         setupButton('calls-btn', 'calls');
         setupButton('browser-btn', 'browser');
@@ -73,17 +69,37 @@ document.addEventListener('DOMContentLoaded', function() {
         setupButton('wallet-btn', 'wallet');
         setupButton('miner-btn', 'miner');
         setupButton('chat-btn', 'chat');
-        
-        // Обработчик для кнопки закрытия в приложениях
-        document.querySelectorAll('.close-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+
+        // Глобальные функции для совместимости
+        window.showScreen = (screenName) => window.router.loadScreen(screenName);
+        window.goBack = () => window.router.backToMain();
+
+        // Обработчик для всех кнопок закрытия
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('close-btn')) {
                 if (typeof goBack === 'function') {
                     goBack();
-                } else if (window.router) {
+                } else if (window.router && typeof window.router.backToMain === 'function') {
                     window.router.backToMain();
                 }
-            });
+            }
         });
     }
     
-    //
+    // 5. Инициализация экранов
+    initScreens();
+    
+    function initScreens() {
+        // Инициализация экрана настроек
+        if (typeof initSettings === 'function') {
+            initSettings();
+        }
+        
+        // Инициализация Darkwall
+        if (typeof initDarkwall === 'function') {
+            initDarkwall();
+        }
+        
+        // Здесь можно добавить инициализацию других экранов
+    }
+});
