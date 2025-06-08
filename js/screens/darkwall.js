@@ -1,71 +1,57 @@
 // js/screens/darkwall.js
 
-// Основная функция инициализации экрана Darkwall
 function initDarkwall() {
-    // Создаем контейнер для игрового интерфейса
     const gameContainer = document.createElement('div');
     gameContainer.id = 'darkwall-game-container';
-    gameContainer.style.padding = '20px';
-    gameContainer.style.height = '100%';
-    gameContainer.style.overflowY = 'auto';
+    document.querySelector('#darkwall-screen .app-content').appendChild(gameContainer);
     
-    // Добавляем контейнер в содержимое приложения
-    const appContent = document.querySelector('#darkwall-screen .app-content');
-    appContent.appendChild(gameContainer);
-    
-    // Инициализируем игру внутри контейнера
-    initDarkwallGame();
-    
-    // Обработчик закрытия приложения
+    // Обработчик закрытия
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
-        // Восстанавливаем главный экран
+        if (window.darkwallGame) {
+            window.darkwallGame.destroy();
+            delete window.darkwallGame;
+        }
         goBack();
     });
+    
+    initDarkwallGame();
 }
 
-// Функция инициализации игрового интерфейса
 function initDarkwallGame() {
-    // Создаем HTML-структуру игры
     const gameHTML = `
         <div class="game-container">
             <div class="game-menu" id="main-menu">
-                <h2>${getTranslation('darkwall_game')}</h2>
-                <button class="game-btn" id="solo-btn">${getTranslation('solo_mode')}</button>
-                <button class="game-btn" id="duo-btn">${getTranslation('duo_mode')}</button>
+                <h2 data-lang="darkwall_game">${getTranslation('darkwall_game')}</h2>
+                <button class="game-btn" id="solo-btn" data-lang="solo_mode">${getTranslation('solo_mode')}</button>
+                <button class="game-btn" id="duo-btn" data-lang="duo_mode">${getTranslation('duo_mode')}</button>
             </div>
 
             <div class="game-menu hidden" id="solo-mode">
-                <h2>${getTranslation('choose_side')}</h2>
-                <button class="game-btn" id="attack-btn">${getTranslation('attack')}</button>
-                <button class="game-btn" id="defense-btn">${getTranslation('defense')}</button>
-                <button class="game-btn" id="back-btn-menu">${getTranslation('back')}</button>
+                <h2 data-lang="choose_side">${getTranslation('choose_side')}</h2>
+                <button class="game-btn" id="attack-btn" data-lang="attack">${getTranslation('attack')}</button>
+                <button class="game-btn" id="defense-btn" data-lang="defense">${getTranslation('defense')}</button>
             </div>
 
             <div id="board"></div>
             <div class="game-status" id="status"></div>
             
             <div class="game-controls">
-                <button id="ready-btn" class="game-btn hidden">${getTranslation('ready')}</button>
-                <button id="back-btn" class="game-btn hidden">${getTranslation('back')}</button>
+                <button id="ready-btn" class="game-btn hidden" data-lang="ready">${getTranslation('ready')}</button>
             </div>
 
             <div id="notification" class="game-notification hidden"></div>
 
             <div id="game-over-menu" class="game-over-menu hidden">
                 <h2 id="game-over-title"></h2>
-                <button class="game-btn" id="ok-btn">${getTranslation('ok')}</button>
+                <button class="game-btn" id="ok-btn" data-lang="ok">${getTranslation('ok')}</button>
             </div>
         </div>
     `;
     
-    // Вставляем HTML в контейнер
     document.getElementById('darkwall-game-container').innerHTML = gameHTML;
-    
-    // Инициализируем игровую логику
     initGameLogic();
 }
 
-// Основной класс игры
 class DarkwallGame {
     constructor() {
         this.rows = 7;
@@ -78,24 +64,44 @@ class DarkwallGame {
         this.isDefensePhase = true;
         this.gameMode = null;
         this.isScriptAttacking = false;
+        this.isGameOver = false;
     }
 
-    // Инициализация игры
     init() {
         this.createBoard();
         this.setupEventListeners();
+        this.applyLanguage();
     }
 
-    // Создание игрового поля
     createBoard() {
         const boardElement = document.getElementById('board');
         boardElement.innerHTML = '';
         this.board = [];
 
+        // Создаем контейнер для рядов с прокруткой
+        boardElement.style.overflowY = 'auto';
+        boardElement.style.maxHeight = '70vh';
+        boardElement.style.width = '100%';
+        
+        const rowsContainer = document.createElement('div');
+        rowsContainer.className = 'rows-container';
+        boardElement.appendChild(rowsContainer);
+
         for (let i = 0; i < this.rows; i++) {
             const row = document.createElement('div');
-            row.className = 'game-row hidden';
+            row.className = 'game-row';
+            row.dataset.row = i;
             this.board[i] = [];
+
+            // Заголовок уровня
+            const rowHeader = document.createElement('div');
+            rowHeader.className = 'row-header';
+            rowHeader.textContent = `${getTranslation('level')} ${i + 1}`;
+            row.appendChild(rowHeader);
+
+            const cellsContainer = document.createElement('div');
+            cellsContainer.className = 'cells-container';
+            row.appendChild(cellsContainer);
 
             for (let j = 0; j < this.cols; j++) {
                 const cell = document.createElement('div');
@@ -103,17 +109,16 @@ class DarkwallGame {
                 cell.dataset.row = i;
                 cell.dataset.col = j;
                 cell.addEventListener('click', (e) => this.handleCellClick(e));
-                row.appendChild(cell);
+                cellsContainer.appendChild(cell);
                 this.board[i][j] = { isMine: false, revealed: false };
             }
-            boardElement.appendChild(row);
+            rowsContainer.appendChild(row);
         }
     }
 
-    // Обработка кликов по клеткам
     handleCellClick(e) {
-        if (this.isScriptAttacking) return;
-
+        if (this.isGameOver || this.isScriptAttacking) return;
+        
         const cell = e.target;
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
@@ -125,7 +130,6 @@ class DarkwallGame {
         }
     }
 
-    // Логика для фазы защиты
     handleDefenseClick(row, col, cell) {
         if (this.board[row][col].isMine) return;
 
@@ -139,60 +143,54 @@ class DarkwallGame {
         cell.classList.add('mine');
 
         if (minesInRow + 1 === this.minesPerRow) {
-            document.querySelectorAll('.game-row')[row].classList.add('completed');
+            const rowElement = cell.closest('.game-row');
+            rowElement.classList.add('completed');
         }
     }
 
-    // Логика для фазы атаки
     handleAttackClick(row, col, cell) {
-        if (row !== this.currentRow || this.board[row][col].revealed) return;
+        if (row !== this.currentRow || this.board[row][col].revealed || this.isGameOver) return;
 
         this.board[row][col].revealed = true;
 
         if (this.board[row][col].isMine) {
-            cell.classList.add('mine');
+            cell.classList.add('mine-hit');
             this.playerHealth -= 25;
             this.updateStatus(getTranslation('mine_hit', { health: this.playerHealth }));
             
             if (this.playerHealth <= 0) {
                 this.endGame(false);
+                this.isGameOver = true;
             }
         } else {
             cell.classList.add('revealed');
-            const currentRowElement = document.querySelectorAll('.game-row')[this.currentRow];
+            const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
             currentRowElement.classList.remove('active');
             currentRowElement.classList.add('completed');
             this.currentRow++;
             
             if (this.currentRow < this.rows) {
-                const nextRowElement = document.querySelectorAll('.game-row')[this.currentRow];
-                nextRowElement.classList.remove('hidden');
+                const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
                 nextRowElement.classList.add('active');
                 this.updateStatus(getTranslation('progress_row', { row: this.currentRow + 1 }));
             } else {
                 this.endGame(true);
+                this.isGameOver = true;
             }
         }
     }
 
-    // Настройка обработчиков событий
     setupEventListeners() {
-        // Кнопки режимов игры
         document.getElementById('solo-btn').addEventListener('click', () => this.startGame('solo'));
         document.getElementById('duo-btn').addEventListener('click', () => this.startGame('duo'));
         
-        // Кнопки выбора стороны
         document.getElementById('attack-btn').addEventListener('click', () => this.setMode('attack'));
         document.getElementById('defense-btn').addEventListener('click', () => this.setMode('defense'));
-        document.getElementById('back-btn-menu').addEventListener('click', this.showMainMenu.bind(this));
         
-        // Игровые кнопки
         document.getElementById('ready-btn').addEventListener('click', this.confirmMines.bind(this));
-        document.getElementById('back-btn').addEventListener('click', this.showMainMenu.bind(this));
         document.getElementById('ok-btn').addEventListener('click', this.showMainMenu.bind(this));
     }
 
-    // Начало игры
     startGame(mode) {
         this.gameMode = mode;
         document.getElementById('main-menu').classList.add('hidden');
@@ -204,11 +202,9 @@ class DarkwallGame {
         }
     }
 
-    // Выбор режима
     setMode(mode) {
         this.currentMode = mode;
         document.getElementById('solo-mode').classList.add('hidden');
-        document.getElementById('board').classList.remove('hidden');
 
         if (mode === 'attack') {
             this.createBoard();
@@ -219,7 +215,6 @@ class DarkwallGame {
         }
     }
 
-    // Расстановка мин (для ИИ)
     placeRandomMines() {
         for (let i = 0; i < this.rows; i++) {
             let placed = 0;
@@ -233,22 +228,16 @@ class DarkwallGame {
         }
     }
 
-    // Запуск фазы защиты
     startDefensePhase() {
         this.isDefensePhase = true;
+        this.isGameOver = false;
         this.createBoard();
         document.getElementById('board').classList.remove('hidden');
         document.getElementById('ready-btn').classList.remove('hidden');
-        document.getElementById('back-btn').classList.remove('hidden');
-        
-        document.querySelectorAll('.game-row').forEach(row => {
-            row.classList.remove('hidden');
-        });
         
         this.updateStatus(getTranslation('place_mines', { count: this.minesPerRow }));
     }
 
-    // Подтверждение расстановки мин
     confirmMines() {
         for (let i = 0; i < this.rows; i++) {
             if (this.board[i].filter(c => c.isMine).length !== this.minesPerRow) {
@@ -257,49 +246,54 @@ class DarkwallGame {
             }
         }
         
-        document.getElementById('back-btn').classList.add('hidden');
         this.hideMines();
         this.startAttackPhase();
     }
 
-    // Скрытие мин после расстановки
     hideMines() {
         document.querySelectorAll('.mine').forEach(cell => {
             cell.classList.remove('mine');
         });
     }
 
-    // Запуск фазы атаки
     startAttackPhase() {
         this.isDefensePhase = false;
+        this.isGameOver = false;
+        this.playerHealth = 100;
+        this.currentRow = 0;
         document.getElementById('ready-btn').classList.add('hidden');
-
-        document.querySelectorAll('.game-row').forEach((row, index) => {
-            if (index === 0) {
-                row.classList.remove('hidden');
-                row.classList.add('active');
-            } else {
-                row.classList.add('hidden');
-            }
+        
+        // Скрыть все ряды
+        document.querySelectorAll('.game-row').forEach(row => {
+            row.classList.remove('active', 'completed');
+            row.classList.add('hidden');
         });
-
+        
+        // Показать первый ряд как активный
+        const firstRow = document.querySelector('.game-row[data-row="0"]');
+        if (firstRow) {
+            firstRow.classList.remove('hidden');
+            firstRow.classList.add('active');
+        }
+        
         if (this.gameMode === 'duo' || this.currentMode === 'attack') {
             this.updateStatus(getTranslation('start_first_row'));
-            document.getElementById('back-btn').classList.remove('hidden');
         } else if (this.currentMode === 'defense') {
             this.updateStatus(getTranslation('script_attacking'));
             this.simulateAttacker();
         }
     }
 
-    // Симуляция атаки ИИ
     simulateAttacker() {
         this.isScriptAttacking = true;
         const interval = setInterval(() => {
-            if (this.currentRow >= this.rows || this.playerHealth <= 0) {
+            if (this.isGameOver || this.currentRow >= this.rows || this.playerHealth <= 0) {
                 clearInterval(interval);
                 this.isScriptAttacking = false;
-                this.endGame(this.currentRow < this.rows);
+                if (!this.isGameOver) {
+                    this.endGame(this.currentRow >= this.rows);
+                    this.isGameOver = true;
+                }
                 return;
             }
 
@@ -308,21 +302,29 @@ class DarkwallGame {
 
             if (!this.board[this.currentRow][col].revealed) {
                 if (this.board[this.currentRow][col].isMine) {
-                    cell.classList.add('mine', 'revealed');
+                    cell.classList.add('mine-hit');
                     this.playerHealth -= 25;
                     this.updateStatus(getTranslation('script_mine_hit', { health: this.playerHealth }));
+                    
+                    if (this.playerHealth <= 0) {
+                        this.endGame(false);
+                        this.isGameOver = true;
+                    }
                 } else {
                     cell.classList.add('revealed');
-                    const currentRowElement = document.querySelectorAll('.game-row')[this.currentRow];
+                    const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
                     currentRowElement.classList.remove('active');
                     currentRowElement.classList.add('completed');
                     this.currentRow++;
 
                     if (this.currentRow < this.rows) {
-                        const nextRowElement = document.querySelectorAll('.game-row')[this.currentRow];
+                        const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
                         nextRowElement.classList.remove('hidden');
                         nextRowElement.classList.add('active');
                         this.updateStatus(getTranslation('script_next_row', { row: this.currentRow + 1 }));
+                    } else {
+                        this.endGame(true);
+                        this.isGameOver = true;
                     }
                 }
                 this.board[this.currentRow][col].revealed = true;
@@ -330,7 +332,6 @@ class DarkwallGame {
         }, 1000);
     }
 
-    // Завершение игры
     endGame(isWin) {
         const gameOverMenu = document.getElementById('game-over-menu');
         const gameOverTitle = document.getElementById('game-over-title');
@@ -338,16 +339,13 @@ class DarkwallGame {
         gameOverMenu.classList.remove('hidden');
     }
 
-    // Обновление статуса
     updateStatus(text) {
         document.getElementById('status').textContent = text;
     }
 
-    // Показ главного меню
     showMainMenu() {
         document.getElementById('main-menu').classList.remove('hidden');
         document.getElementById('solo-mode').classList.add('hidden');
-        document.getElementById('back-btn').classList.add('hidden');
         document.getElementById('board').classList.add('hidden');
         document.getElementById('ready-btn').classList.add('hidden');
         document.getElementById('game-over-menu').classList.add('hidden');
@@ -355,7 +353,6 @@ class DarkwallGame {
         this.resetGame();
     }
 
-    // Сброс игры
     resetGame() {
         this.playerHealth = 100;
         this.currentRow = 0;
@@ -363,10 +360,10 @@ class DarkwallGame {
         this.currentMode = null;
         this.gameMode = null;
         this.isScriptAttacking = false;
+        this.isGameOver = false;
         this.createBoard();
     }
 
-    // Показать уведомление
     showNotification(message) {
         const notification = document.getElementById('notification');
         notification.textContent = message;
@@ -375,15 +372,20 @@ class DarkwallGame {
             notification.classList.add('hidden');
         }, 2000);
     }
+    
+    applyLanguage() {
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            const key = el.getAttribute('data-lang');
+            el.textContent = getTranslation(key);
+        });
+    }
 }
 
-// Вспомогательная функция для получения перевода
 function getTranslation(key, params = {}) {
     const lang = currentSettings.language || 'ru';
     const translations = window.translations[lang] || window.translations.ru;
     let text = translations[key] || key;
     
-    // Замена плейсхолдеров
     for (const [param, value] of Object.entries(params)) {
         text = text.replace(`{${param}}`, value);
     }
@@ -391,7 +393,6 @@ function getTranslation(key, params = {}) {
     return text;
 }
 
-// Инициализация игровой логики
 function initGameLogic() {
     window.darkwallGame = new DarkwallGame();
     window.darkwallGame.init();
