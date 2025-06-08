@@ -32,7 +32,7 @@ function initDarkwallGame() {
                 <button class="game-btn" id="defense-btn" data-lang="defense">${getTranslation('defense')}</button>
             </div>
 
-            <div id="board"></div>
+            <div id="board" class="hidden"></div>
             <div class="game-status" id="status"></div>
             
             <div class="game-controls">
@@ -78,30 +78,11 @@ class DarkwallGame {
         boardElement.innerHTML = '';
         this.board = [];
 
-        // Создаем контейнер для рядов с прокруткой
-        boardElement.style.overflowY = 'auto';
-        boardElement.style.maxHeight = '70vh';
-        boardElement.style.width = '100%';
-        
-        const rowsContainer = document.createElement('div');
-        rowsContainer.className = 'rows-container';
-        boardElement.appendChild(rowsContainer);
-
         for (let i = 0; i < this.rows; i++) {
             const row = document.createElement('div');
-            row.className = 'game-row';
+            row.className = 'game-row hidden';
             row.dataset.row = i;
             this.board[i] = [];
-
-            // Заголовок уровня
-            const rowHeader = document.createElement('div');
-            rowHeader.className = 'row-header';
-            rowHeader.textContent = `${getTranslation('level')} ${i + 1}`;
-            row.appendChild(rowHeader);
-
-            const cellsContainer = document.createElement('div');
-            cellsContainer.className = 'cells-container';
-            row.appendChild(cellsContainer);
 
             for (let j = 0; j < this.cols; j++) {
                 const cell = document.createElement('div');
@@ -109,10 +90,10 @@ class DarkwallGame {
                 cell.dataset.row = i;
                 cell.dataset.col = j;
                 cell.addEventListener('click', (e) => this.handleCellClick(e));
-                cellsContainer.appendChild(cell);
+                row.appendChild(cell);
                 this.board[i][j] = { isMine: false, revealed: false };
             }
-            rowsContainer.appendChild(row);
+            boardElement.appendChild(row);
         }
     }
 
@@ -167,10 +148,12 @@ class DarkwallGame {
             const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
             currentRowElement.classList.remove('active');
             currentRowElement.classList.add('completed');
+            
             this.currentRow++;
             
             if (this.currentRow < this.rows) {
                 const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
+                nextRowElement.classList.remove('hidden');
                 nextRowElement.classList.add('active');
                 this.updateStatus(getTranslation('progress_row', { row: this.currentRow + 1 }));
             } else {
@@ -205,6 +188,7 @@ class DarkwallGame {
     setMode(mode) {
         this.currentMode = mode;
         document.getElementById('solo-mode').classList.add('hidden');
+        document.getElementById('board').classList.remove('hidden');
 
         if (mode === 'attack') {
             this.createBoard();
@@ -234,6 +218,11 @@ class DarkwallGame {
         this.createBoard();
         document.getElementById('board').classList.remove('hidden');
         document.getElementById('ready-btn').classList.remove('hidden');
+        
+        // Показать все ряды
+        document.querySelectorAll('.game-row').forEach(row => {
+            row.classList.remove('hidden');
+        });
         
         this.updateStatus(getTranslation('place_mines', { count: this.minesPerRow }));
     }
@@ -315,8 +304,9 @@ class DarkwallGame {
                     const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
                     currentRowElement.classList.remove('active');
                     currentRowElement.classList.add('completed');
+                    
                     this.currentRow++;
-
+                    
                     if (this.currentRow < this.rows) {
                         const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
                         nextRowElement.classList.remove('hidden');
