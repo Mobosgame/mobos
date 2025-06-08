@@ -77,15 +77,10 @@ class DarkwallGame {
         this.applyLanguage();
     }
 
-    createBoard() {
+createBoard() {
     const boardElement = document.getElementById('board');
     boardElement.innerHTML = '';
     this.board = [];
-
-    // Контейнер для центрирования
-    const boardWrapper = document.createElement('div');
-    boardWrapper.className = 'board-wrapper';
-    boardElement.appendChild(boardWrapper);
 
     for (let i = 0; i < this.rows; i++) {
         const row = document.createElement('div');
@@ -102,7 +97,7 @@ class DarkwallGame {
             row.appendChild(cell);
             this.board[i][j] = { isMine: false, revealed: false };
         }
-        boardWrapper.appendChild(row);
+        boardElement.appendChild(row);
     }
 }
 
