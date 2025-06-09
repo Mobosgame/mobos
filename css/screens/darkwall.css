@@ -49,15 +49,17 @@
   text-align: center;
 }
 
-/* Игровое поле */
+/* Игровое поле - основные изменения здесь */
 #board {
-  flex: 1;
+  width: 100%;
+  height: calc(7 * (15vw + 8px)); /* 7 рядов с отступами */
+  max-height: 70vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: space-between;
   gap: 8px;
   padding: 5px 0;
-  max-height: calc(100% - 120px);
+  margin: 0 auto;
   overflow: hidden;
 }
 
@@ -65,14 +67,18 @@
   display: flex;
   justify-content: center;
   gap: 8px;
-  flex: 1;
-  min-height: 0;
+  height: 15vw; /* Фиксированная высота ряда */
+  max-height: 60px;
+  min-height: 40px;
 }
 
 .game-cell {
-  aspect-ratio: 1/1;
-  height: 100%;
-  max-width: 70px;
+  width: 15vw; /* Квадратные клетки */
+  height: 15vw;
+  max-width: 60px;
+  max-height: 60px;
+  min-width: 40px;
+  min-height: 40px;
   border: 2px solid var(--theme-color);
   border-radius: 8px;
   cursor: pointer;
@@ -191,51 +197,72 @@
   100% { opacity: 0; display: none; }
 }
 
-/* Адаптация для очень маленьких экранов */
-@media (max-height: 600px) {
+/* Адаптация для разных экранов */
+@media (max-height: 700px) {
+  #board {
+    height: calc(7 * (12vw + 8px));
+    max-height: 60vh;
+  }
+  
+  .game-row {
+    height: 12vw;
+    max-height: 50px;
+  }
+  
   .game-cell {
+    width: 12vw;
+    height: 12vw;
     max-width: 50px;
+    max-height: 50px;
+  }
+}
+
+@media (max-height: 500px) {
+  #board {
+    height: calc(7 * (10vw + 6px));
+    max-height: 50vh;
+    gap: 6px;
+  }
+  
+  .game-row {
+    height: 10vw;
+    max-height: 40px;
+    gap: 6px;
+  }
+  
+  .game-cell {
+    width: 10vw;
+    height: 10vw;
+    max-width: 40px;
+    max-height: 40px;
+    min-width: 30px;
+    min-height: 30px;
   }
   
   .game-btn {
-    padding: 8px 12px;
+    padding: 8px 16px;
     font-size: 14px;
-    min-width: 100px;
-  }
-  
-  .game-menu {
-    gap: 12px;
-  }
-  
-  .game-menu h2 {
-    font-size: 1.2rem;
-    margin-bottom: 8px;
   }
 }
 
 /* Для экранов в альбомной ориентации */
 @media (orientation: landscape) {
   #board {
-    max-height: calc(100% - 80px);
+    width: 80%;
+    height: calc(7 * (8vh + 6px));
+    max-height: none;
+    margin: 0 auto;
   }
   
   .game-row {
-    flex: 0 0 auto;
-    height: calc((100% - 40px) / 7);
+    height: 8vh;
+    max-height: 60px;
   }
   
   .game-cell {
+    width: 8vh;
+    height: 8vh;
     max-width: 60px;
-  }
-}
-
-@media (max-width: 400px) {
-  .game-container {
-    padding: 8px;
-  }
-  
-  .game-btn {
-    padding: 8px 16px;
-    min-width: 100px;
+    max-height: 60px;
   }
 }
