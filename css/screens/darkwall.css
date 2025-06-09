@@ -1,5 +1,19 @@
 /* css/screens/darkwall.css */
 
+/* Гарантируем видимость контейнера */
+#darkwall-screen:not(.hidden) {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+#darkwall-game-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Важно для внутреннего скролла */
+}
+
 #darkwall-screen {
   height: 100%;
   display: flex;
