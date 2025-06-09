@@ -1,46 +1,39 @@
 // js/screens/darkwall.js
 
 function initDarkwall() {
-    // Удаляем предыдущий экземпляр игры
-    if (window.darkwallGame) {
-        window.darkwallGame.destroy();
-        delete window.darkwallGame;
-    }
-
-    // Удаляем старый контейнер
-    const oldContainer = document.getElementById('darkwall-game-container');
-    if (oldContainer) {
-        oldContainer.remove();
-    }
-    
-    // Создаем новый контейнер
+    // Создаем контейнер для игры
     const gameContainer = document.createElement('div');
     gameContainer.id = 'darkwall-game-container';
     document.querySelector('#darkwall-screen .app-content').appendChild(gameContainer);
     
-    // Обработчик закрытия
+    // Удаляем старые обработчики и добавляем новый
     const closeBtn = document.querySelector('#darkwall-screen .close-btn');
-    if (closeBtn) {
-        // Удаляем старые обработчики
-        const newCloseBtn = closeBtn.cloneNode(true);
-        closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
-        
-        newCloseBtn.addEventListener('click', () => {
-            if (window.darkwallGame) {
-                window.darkwallGame.resetGame();
-                window.darkwallGame.destroy();
-                delete window.darkwallGame;
-            }
-            goBack();
-        });
+    closeBtn.onclick = null;
+    closeBtn.addEventListener('click', handleCloseDarkwall);
+    
+    // Немедленная инициализация игры
+    initDarkwallGame();
+}
+
+function handleCloseDarkwall() {
+    if (window.darkwallGame) {
+        window.darkwallGame.destroy();
+        delete window.darkwallGame;
     }
     
-    initDarkwallGame();
+    // Полностью удаляем контейнер игры
+    const gameContainer = document.getElementById('darkwall-game-container');
+    if (gameContainer) gameContainer.remove();
+    
+    goBack();
 }
 
 function initDarkwallGame() {
     const gameContainer = document.getElementById('darkwall-game-container');
     if (!gameContainer) return;
+    
+    // Проверяем, не добавлена ли уже игра
+    if (gameContainer.querySelector('.game-container')) return;
     
     const gameHTML = `
         <div class="game-container">
@@ -73,17 +66,9 @@ function initDarkwallGame() {
     `;
     
     gameContainer.innerHTML = gameHTML;
-    document.getElementById('main-menu').classList.remove('hidden');
     
-    // Инициализируем игру
-    setTimeout(() => {
-        if (document.getElementById('solo-btn') && document.getElementById('duo-btn')) {
-            initGameLogic();
-        } else {
-            console.error('Game buttons not found. Reinitializing...');
-            initDarkwallGame();
-        }
-    }, 100);
+    // Инициализируем игру сразу
+    initGameLogic();
 }
 
 class DarkwallGame {
