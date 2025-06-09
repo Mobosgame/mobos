@@ -1,27 +1,39 @@
 // js/screens/darkwall.js
 
 function initDarkwall() {
-    // Убедимся, что контейнер существует
-    let gameContainer = document.getElementById('darkwall-game-container');
-    
-    if (!gameContainer) {
-        gameContainer = document.createElement('div');
-        gameContainer.id = 'darkwall-game-container';
-        document.querySelector('#darkwall-screen .app-content').appendChild(gameContainer);
-    } else {
-        gameContainer.innerHTML = '';
+    // Удаляем предыдущий экземпляр игры
+    if (window.darkwallGame) {
+        window.darkwallGame.destroy();
+        delete window.darkwallGame;
+    }
+
+    // Удаляем старый контейнер
+    const oldContainer = document.getElementById('darkwall-game-container');
+    if (oldContainer) {
+        oldContainer.remove();
     }
     
+    // Создаем новый контейнер
+    const gameContainer = document.createElement('div');
+    gameContainer.id = 'darkwall-game-container';
+    document.querySelector('#darkwall-screen .app-content').appendChild(gameContainer);
+    
     // Обработчик закрытия
-    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
-        if (window.darkwallGame) {
-            window.darkwallGame.resetGame();
-            window.darkwallGame.showMainMenu();
-            window.darkwallGame.destroy();
-            delete window.darkwallGame;
-        }
-        goBack();
-    });
+    const closeBtn = document.querySelector('#darkwall-screen .close-btn');
+    if (closeBtn) {
+        // Удаляем старые обработчики
+        const newCloseBtn = closeBtn.cloneNode(true);
+        closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+        
+        newCloseBtn.addEventListener('click', () => {
+            if (window.darkwallGame) {
+                window.darkwallGame.resetGame();
+                window.darkwallGame.destroy();
+                delete window.darkwallGame;
+            }
+            goBack();
+        });
+    }
     
     initDarkwallGame();
 }
@@ -45,9 +57,9 @@ function initDarkwallGame() {
             </div>
 
             <div id="board"></div>
-            <div class="game-status" id="status"></div>
             
-            <div class="game-controls">
+            <div class="game-info-bar">
+                <div class="game-status" id="status"></div>
                 <button id="ready-btn" class="game-btn hidden" data-lang="ready">${getTranslation('ready')}</button>
             </div>
 
@@ -63,12 +75,12 @@ function initDarkwallGame() {
     gameContainer.innerHTML = gameHTML;
     document.getElementById('main-menu').classList.remove('hidden');
     
-    // Проверяем, что элементы созданы перед инициализацией игры
+    // Инициализируем игру
     setTimeout(() => {
         if (document.getElementById('solo-btn') && document.getElementById('duo-btn')) {
             initGameLogic();
         } else {
-            console.error('Game elements not found. Reinitializing...');
+            console.error('Game buttons not found. Reinitializing...');
             initDarkwallGame();
         }
     }, 100);
@@ -101,7 +113,6 @@ class DarkwallGame {
         if (!boardElement) return;
         
         boardElement.innerHTML = '';
-        boardElement.classList.add('hidden');
         this.board = [];
 
         for (let i = 0; i < this.rows; i++) {
@@ -196,7 +207,7 @@ class DarkwallGame {
                 this.isGameOver = true;
             }
         } else {
-            // Безопасная клетка
+            // Безопасная клетка - закрашиваем в зеленый
             cell.classList.add('revealed');
             const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
             currentRowElement.classList.remove('active');
@@ -219,7 +230,6 @@ class DarkwallGame {
     }
 
     setupEventListeners() {
-        // Добавляем проверку существования элементов
         const soloBtn = document.getElementById('solo-btn');
         const duoBtn = document.getElementById('duo-btn');
         const attackBtn = document.getElementById('attack-btn');
