@@ -1,17 +1,24 @@
 // js/screens/darkwall.js
 
 function initDarkwall() {
+    // Удаляем предыдущий контейнер, если он есть
+    const oldContainer = document.getElementById('darkwall-game-container');
+    if (oldContainer) {
+        oldContainer.remove();
+    }
+    
     const gameContainer = document.createElement('div');
     gameContainer.id = 'darkwall-game-container';
     document.querySelector('#darkwall-screen .app-content').appendChild(gameContainer);
     
     // Обработчик закрытия
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
-          window.darkwallGame.resetGame();
-          window.darkwallGame.showMainMenu();
+        if (window.darkwallGame) {
+            window.darkwallGame.resetGame();
+            window.darkwallGame.showMainMenu();
             window.darkwallGame.destroy();
             delete window.darkwallGame;
-        
+        }
         goBack();
     });
     
@@ -33,7 +40,7 @@ function initDarkwallGame() {
                 <button class="game-btn" id="defense-btn" data-lang="defense">${getTranslation('defense')}</button>
             </div>
 
-            <div id="board" class="hidden"></div>
+            <div id="board"></div>
             <div class="game-status" id="status"></div>
             
             <div class="game-controls">
@@ -77,38 +84,29 @@ class DarkwallGame {
     }
 
     createBoard() {
-    const boardElement = document.getElementById('board');
-    boardElement.innerHTML = '';
-    this.board = [];
+        const boardElement = document.getElementById('board');
+        boardElement.innerHTML = '';
+        boardElement.classList.add('hidden'); // По умолчанию скрываем
+        this.board = [];
 
-    // Рассчитываем размер клеток динамически
-    const boardWidth = boardElement.offsetWidth;
-    const cellSize = Math.min(
-        Math.floor((boardWidth - 32) / this.cols), // 32px - отступы и gap
-        60 // Максимальный размер
-    );
+        for (let i = 0; i < this.rows; i++) {
+            const row = document.createElement('div');
+            row.className = 'game-row hidden';
+            row.dataset.row = i;
+            this.board[i] = [];
 
-    for (let i = 0; i < this.rows; i++) {
-        const row = document.createElement('div');
-        row.className = 'game-row hidden';
-        row.dataset.row = i;
-        row.style.height = `${cellSize}px`; // Фиксированная высота ряда
-        this.board[i] = [];
-
-        for (let j = 0; j < this.cols; j++) {
-            const cell = document.createElement('div');
-            cell.className = 'game-cell';
-            cell.dataset.row = i;
-            cell.dataset.col = j;
-            cell.style.width = `${cellSize}px`; // Фиксированная ширина
-            cell.style.height = `${cellSize}px`; // Фиксированная высота
-            cell.addEventListener('click', (e) => this.handleCellClick(e));
-            row.appendChild(cell);
-            this.board[i][j] = { isMine: false, revealed: false };
+            for (let j = 0; j < this.cols; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'game-cell';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                cell.addEventListener('click', (e) => this.handleCellClick(e));
+                row.appendChild(cell);
+                this.board[i][j] = { isMine: false, revealed: false };
+            }
+            boardElement.appendChild(row);
         }
-        boardElement.appendChild(row);
     }
-}
 
     handleCellClick(e) {
         if (this.isGameOver || this.isScriptAttacking) return;
@@ -125,20 +123,45 @@ class DarkwallGame {
     }
 
     handleDefenseClick(row, col, cell) {
-        if (this.board[row][col].isMine) return;
+        if (this.board[row][col].isMine) {
+            // Если мина уже установлена - убираем ее
+            this.board[row][col].isMine = false;
+            cell.classList.remove('mine');
+        } else {
+            // Проверяем лимит мин в ряду
+            const minesInRow = this.board[row].filter(c => c.isMine).length;
+            if (minesInRow >= this.minesPerRow) {
+                this.showNotification(getTranslation('max_mines_reached', { count: this.minesPerRow }));
+                return;
+            }
 
-        const minesInRow = this.board[row].filter(c => c.isMine).length;
-        if (minesInRow >= this.minesPerRow) {
-            this.showNotification(getTranslation('max_mines_reached', { count: this.minesPerRow }));
-            return;
+            // Устанавливаем мину
+            this.board[row][col].isMine = true;
+            cell.classList.add('mine');
         }
 
-        this.board[row][col].isMine = true;
-        cell.classList.add('mine');
-
-        if (minesInRow + 1 === this.minesPerRow) {
-            const rowElement = cell.closest('.game-row');
-            rowElement.classList.add('completed');
+        // Проверяем завершенность всех рядов
+        this.checkAllRowsComplete();
+    }
+    
+    checkAllRowsComplete() {
+        let allComplete = true;
+        for (let i = 0; i < this.rows; i++) {
+            const minesCount = this.board[i].filter(cell => cell.isMine).length;
+            if (minesCount < this.minesPerRow) {
+                allComplete = false;
+                break;
+            }
+        }
+        
+        if (allComplete) {
+            // Все ряды заполнены - показываем кнопку "Готово"
+            this.updateStatus("");
+            document.getElementById('ready-btn').classList.remove('hidden');
+        } else {
+            // Не все ряды заполнены - показываем инструкцию
+            this.updateStatus(getTranslation('place_mines', { count: this.minesPerRow }));
+            document.getElementById('ready-btn').classList.add('hidden');
         }
     }
 
@@ -148,6 +171,7 @@ class DarkwallGame {
         this.board[row][col].revealed = true;
 
         if (this.board[row][col].isMine) {
+            // Попали на мину
             cell.classList.add('mine-hit');
             this.playerHealth -= 25;
             this.updateStatus(getTranslation('mine_hit', { health: this.playerHealth }));
@@ -157,6 +181,7 @@ class DarkwallGame {
                 this.isGameOver = true;
             }
         } else {
+            // Безопасная клетка
             cell.classList.add('revealed');
             const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
             currentRowElement.classList.remove('active');
@@ -165,11 +190,13 @@ class DarkwallGame {
             this.currentRow++;
             
             if (this.currentRow < this.rows) {
+                // Активируем следующий ряд
                 const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
                 nextRowElement.classList.remove('hidden');
                 nextRowElement.classList.add('active');
                 this.updateStatus(getTranslation('progress_row', { row: this.currentRow + 1 }));
             } else {
+                // Все ряды пройдены
                 this.endGame(true);
                 this.isGameOver = true;
             }
@@ -230,8 +257,9 @@ class DarkwallGame {
         this.isGameOver = false;
         this.createBoard();
         document.getElementById('board').classList.remove('hidden');
-        document.getElementById('ready-btn').classList.remove('hidden');
+        document.getElementById('ready-btn').classList.add('hidden'); // Скрываем кнопку изначально
         
+        // Показываем все ряды для расстановки
         document.querySelectorAll('.game-row').forEach(row => {
             row.classList.remove('hidden');
         });
@@ -262,13 +290,15 @@ class DarkwallGame {
         this.isGameOver = false;
         this.playerHealth = 100;
         this.currentRow = 0;
-        document.getElementById('ready-btn').classList.add('hidden');
+        document.getElementById('ready-btn').classList.add('hidden'); // Скрываем кнопку
         
+        // Скрываем все ряды
         document.querySelectorAll('.game-row').forEach(row => {
             row.classList.remove('active', 'completed');
             row.classList.add('hidden');
         });
         
+        // Показываем только первый ряд
         const firstRow = document.querySelector('.game-row[data-row="0"]');
         if (firstRow) {
             firstRow.classList.remove('hidden');
