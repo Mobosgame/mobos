@@ -9,12 +9,16 @@ function initDarkwall() {
     // Обработчик закрытия
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
         if (window.darkwallGame) {
-            window.darkwallGame.showMainMenu();
+            window.darkwallGame.resetGame(); // Добавлено сброс игры
+            window.darkwallGame.showMainMenu(); // Возврат в главное меню
             window.darkwallGame.destroy();
             delete window.darkwallGame;
         }
         goBack();
     });
+    
+    initDarkwallGame();
+}
     
     initDarkwallGame();
 }
