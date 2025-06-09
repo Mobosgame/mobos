@@ -51,7 +51,7 @@
 
 /* Игровое поле */
 #board {
-  width: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -90,8 +90,8 @@
 
 /* Состояния клеток */
 .game-cell.revealed {
-  background: var(--card-color);
-  border-color: #00ff00;
+  background: #4CAF50 !important; /* Ярко-зеленый цвет */
+  border-color: #388E3C !important;
 }
 
 .game-cell.mine {
@@ -117,24 +117,26 @@
   filter: brightness(0.7);
 }
 
-/* Статус и контролы */
+/* Панель информации - подсказка и кнопка готово */
+.game-info-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding: 10px 0;
+  min-height: 60px; /* Гарантируем место */
+}
+
 .game-status {
-  flex-shrink: 0;
-  margin: 10px 0;
+  flex: 1;
   font-size: 16px;
   color: var(--theme-color);
-  text-align: center;
-  min-height: 20px;
-  height: 30px;
+  text-align: left;
+  padding-right: 10px;
 }
 
 .game-controls {
   flex-shrink: 0;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
-  padding: 10px 0;
 }
 
 /* Кнопки */
@@ -209,6 +211,10 @@
     max-width: 50px;
     max-height: 50px;
   }
+  
+  .game-info-bar {
+    min-height: 50px;
+  }
 }
 
 @media (max-height: 500px) {
@@ -230,6 +236,25 @@
   .game-btn {
     padding: 8px 16px;
     font-size: 14px;
+    min-width: 100px;
+  }
+  
+  .game-info-bar {
+    min-height: 40px;
+    flex-wrap: wrap;
+  }
+  
+  .game-status {
+    order: 2;
+    width: 100%;
+    text-align: center;
+    margin-top: 5px;
+  }
+  
+  .game-controls {
+    order: 1;
+    width: 100%;
+    margin-bottom: 5px;
   }
 }
 
@@ -251,21 +276,8 @@
     max-width: 60px;
     max-height: 60px;
   }
-}
-/* Добавляем стили для контейнера игры */
-#darkwall-game-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.game-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: var(--card-color);
-  border-radius: 12px;
-  padding: 15px;
-  overflow: hidden;
+  
+  .game-info-bar {
+    min-height: 40px;
+  }
 }
