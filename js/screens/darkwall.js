@@ -7,12 +7,11 @@ function initDarkwall() {
     
     // Обработчик закрытия
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
-        if (window.darkwallGame) {
-            window.darkwallGame.resetGame();
-            window.darkwallGame.showMainMenu();
+          window.darkwallGame.resetGame();
+          window.darkwallGame.showMainMenu();
             window.darkwallGame.destroy();
             delete window.darkwallGame;
-        }
+        
         goBack();
     });
     
@@ -78,28 +77,38 @@ class DarkwallGame {
     }
 
     createBoard() {
-        const boardElement = document.getElementById('board');
-        boardElement.innerHTML = '';
-        this.board = [];
+    const boardElement = document.getElementById('board');
+    boardElement.innerHTML = '';
+    this.board = [];
 
-        for (let i = 0; i < this.rows; i++) {
-            const row = document.createElement('div');
-            row.className = 'game-row hidden';
-            row.dataset.row = i;
-            this.board[i] = [];
+    // Рассчитываем размер клеток динамически
+    const boardWidth = boardElement.offsetWidth;
+    const cellSize = Math.min(
+        Math.floor((boardWidth - 32) / this.cols), // 32px - отступы и gap
+        60 // Максимальный размер
+    );
 
-            for (let j = 0; j < this.cols; j++) {
-                const cell = document.createElement('div');
-                cell.className = 'game-cell';
-                cell.dataset.row = i;
-                cell.dataset.col = j;
-                cell.addEventListener('click', (e) => this.handleCellClick(e));
-                row.appendChild(cell);
-                this.board[i][j] = { isMine: false, revealed: false };
-            }
-            boardElement.appendChild(row);
+    for (let i = 0; i < this.rows; i++) {
+        const row = document.createElement('div');
+        row.className = 'game-row hidden';
+        row.dataset.row = i;
+        row.style.height = `${cellSize}px`; // Фиксированная высота ряда
+        this.board[i] = [];
+
+        for (let j = 0; j < this.cols; j++) {
+            const cell = document.createElement('div');
+            cell.className = 'game-cell';
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+            cell.style.width = `${cellSize}px`; // Фиксированная ширина
+            cell.style.height = `${cellSize}px`; // Фиксированная высота
+            cell.addEventListener('click', (e) => this.handleCellClick(e));
+            row.appendChild(cell);
+            this.board[i][j] = { isMine: false, revealed: false };
         }
+        boardElement.appendChild(row);
     }
+}
 
     handleCellClick(e) {
         if (this.isGameOver || this.isScriptAttacking) return;
