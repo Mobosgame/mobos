@@ -1,17 +1,16 @@
 // js/screens/darkwall.js
 
 function initDarkwall() {
-    // Создаем контейнер для игры
+    // Полностью удаляем старый контейнер
+    const oldContainer = document.getElementById('darkwall-game-container');
+    if (oldContainer) oldContainer.remove();
+    
+    // Создаем новый контейнер
     const gameContainer = document.createElement('div');
     gameContainer.id = 'darkwall-game-container';
     document.querySelector('#darkwall-screen .app-content').appendChild(gameContainer);
     
-    // Удаляем старые обработчики и добавляем новый
-    const closeBtn = document.querySelector('#darkwall-screen .close-btn');
-    closeBtn.onclick = null;
-    closeBtn.addEventListener('click', handleCloseDarkwall);
-    
-    // Немедленная инициализация игры
+    // Инициализируем игру немедленно
     initDarkwallGame();
 }
 
@@ -20,11 +19,6 @@ function handleCloseDarkwall() {
         window.darkwallGame.destroy();
         delete window.darkwallGame;
     }
-    
-    // Полностью удаляем контейнер игры
-    const gameContainer = document.getElementById('darkwall-game-container');
-    if (gameContainer) gameContainer.remove();
-    
     goBack();
 }
 
