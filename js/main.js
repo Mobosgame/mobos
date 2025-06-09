@@ -42,23 +42,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Основная функция настройки навигации
     function setupNavigation() {
-        // Функция для безопасного назначения обработчиков
-        const setupButton = (buttonId, screenName) => {
-            const button = document.getElementById(buttonId);
-            if (button) {
-                button.addEventListener('click', () => {
-                    // Проверяем инициализацию роутера
-                    if (window.router && typeof window.router.loadScreen === 'function') {
-                        window.router.loadScreen(screenName);
-                    } else {
-                        console.error('Router not initialized');
-                        location.reload(); // Перезагрузка как крайняя мера
+    const setupButton = (buttonId, screenName) => {
+        const button = document.getElementById(buttonId);
+        if (button) {
+            button.addEventListener('click', () => {
+                // Сбрасываем состояние перед загрузкой
+                if (screenName === 'darkwall') {
+                    const oldContainer = document.getElementById('darkwall-game-container');
+                    if (oldContainer) oldContainer.remove();
+                    
+                    if (window.darkwallGame) {
+                        window.darkwallGame.destroy();
+                        delete window.darkwallGame;
                     }
-                });
-            } else {
-                console.warn(`Button not found: ${buttonId}`);
-            }
-        };
+                }
+                
+                router.loadScreen(screenName);
+            });
+        }
+    };
 
         // Настройка обработчиков для всех кнопок
         setupButton('settings-btn', 'settings');
