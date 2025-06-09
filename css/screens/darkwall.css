@@ -4,6 +4,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 #darkwall-screen .app-header {
@@ -28,6 +29,7 @@
   background: var(--card-color);
   border-radius: 12px;
   padding: 15px;
+  overflow: hidden;
 }
 
 /* Меню выбора режима */
@@ -44,6 +46,7 @@
   color: var(--theme-color);
   margin-bottom: 15px;
   font-size: 1.5rem;
+  text-align: center;
 }
 
 /* Игровое поле */
@@ -54,6 +57,8 @@
   justify-content: space-around;
   gap: 8px;
   padding: 5px 0;
+  max-height: calc(100% - 120px);
+  overflow: hidden;
 }
 
 .game-row {
@@ -66,7 +71,7 @@
 
 .game-cell {
   aspect-ratio: 1/1;
-  width: 22%;
+  height: 100%;
   max-width: 70px;
   border: 2px solid var(--theme-color);
   border-radius: 8px;
@@ -115,6 +120,7 @@
   font-size: 16px;
   color: var(--theme-color);
   text-align: center;
+  min-height: 20px;
 }
 
 .game-controls {
@@ -155,6 +161,7 @@
   border-radius: 8px;
   z-index: 100;
   animation: fadeOut 2s forwards;
+  pointer-events: none;
 }
 
 .game-over-menu {
@@ -184,25 +191,51 @@
   100% { opacity: 0; display: none; }
 }
 
-/* Адаптация */
-@media (max-height: 700px) {
+/* Адаптация для очень маленьких экранов */
+@media (max-height: 600px) {
   .game-cell {
-    width: 20%;
+    max-width: 50px;
+  }
+  
+  .game-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    min-width: 100px;
+  }
+  
+  .game-menu {
+    gap: 12px;
+  }
+  
+  .game-menu h2 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
   }
 }
 
-@media (max-height: 600px) {
+/* Для экранов в альбомной ориентации */
+@media (orientation: landscape) {
+  #board {
+    max-height: calc(100% - 80px);
+  }
+  
+  .game-row {
+    flex: 0 0 auto;
+    height: calc((100% - 40px) / 7);
+  }
+  
   .game-cell {
-    width: 18%;
+    max-width: 60px;
   }
 }
 
 @media (max-width: 400px) {
-  .game-cell {
-    width: 18%;
+  .game-container {
+    padding: 8px;
   }
+  
   .game-btn {
-    padding: 10px 15px;
+    padding: 8px 16px;
     min-width: 100px;
   }
 }
