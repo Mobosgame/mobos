@@ -21,6 +21,15 @@ async loadScreen(screenName) {
         // Если экран уже загружен, просто переключаемся
         if (this.screens[screenName]) {
             this.switchToScreen(screenName);
+            
+            // Инициализируем экран сразу после переключения
+            setTimeout(() => {
+                const initFnName = `init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`;
+                if (typeof window[initFnName] === 'function') {
+                    window[initFnName]();
+                }
+            }, 50);
+            
             return;
         }
 
@@ -42,18 +51,19 @@ async loadScreen(screenName) {
         document.getElementById('screens-container').appendChild(screenElement);
         this.screens[screenName] = screenElement;
         
-        // Инициализация экрана
-        const initFnName = `init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`;
-        if (typeof window[initFnName] === 'function') {
-            window[initFnName]();
-        }
-        
         // Переключение на загруженный экран
         this.switchToScreen(screenName);
         
+        // Инициализация экрана после добавления в DOM
+        setTimeout(() => {
+            const initFnName = `init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`;
+            if (typeof window[initFnName] === 'function') {
+                window[initFnName]();
+            }
+        }, 100);
+        
     } catch (error) {
         console.error(`Error loading screen ${screenName}:`, error);
-        // Возвращаем на главный экран при ошибке
         this.backToMain();
     }
 }
