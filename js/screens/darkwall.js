@@ -1,4 +1,3 @@
-
 // js/screens/darkwall.js
 
 function initDarkwall() {
@@ -9,16 +8,13 @@ function initDarkwall() {
     // Обработчик закрытия
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
         if (window.darkwallGame) {
-            window.darkwallGame.resetGame(); // Добавлено сброс игры
-            window.darkwallGame.showMainMenu(); // Возврат в главное меню
+            window.darkwallGame.resetGame();
+            window.darkwallGame.showMainMenu();
             window.darkwallGame.destroy();
             delete window.darkwallGame;
         }
         goBack();
     });
-    
-    initDarkwallGame();
-}
     
     initDarkwallGame();
 }
@@ -81,29 +77,29 @@ class DarkwallGame {
         this.applyLanguage();
     }
 
-createBoard() {
-    const boardElement = document.getElementById('board');
-    boardElement.innerHTML = '';
-    this.board = [];
+    createBoard() {
+        const boardElement = document.getElementById('board');
+        boardElement.innerHTML = '';
+        this.board = [];
 
-    for (let i = 0; i < this.rows; i++) {
-        const row = document.createElement('div');
-        row.className = 'game-row hidden';
-        row.dataset.row = i;
-        this.board[i] = [];
+        for (let i = 0; i < this.rows; i++) {
+            const row = document.createElement('div');
+            row.className = 'game-row hidden';
+            row.dataset.row = i;
+            this.board[i] = [];
 
-        for (let j = 0; j < this.cols; j++) {
-            const cell = document.createElement('div');
-            cell.className = 'game-cell';
-            cell.dataset.row = i;
-            cell.dataset.col = j;
-            cell.addEventListener('click', (e) => this.handleCellClick(e));
-            row.appendChild(cell);
-            this.board[i][j] = { isMine: false, revealed: false };
+            for (let j = 0; j < this.cols; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'game-cell';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                cell.addEventListener('click', (e) => this.handleCellClick(e));
+                row.appendChild(cell);
+                this.board[i][j] = { isMine: false, revealed: false };
+            }
+            boardElement.appendChild(row);
         }
-        boardElement.appendChild(row);
     }
-}
 
     handleCellClick(e) {
         if (this.isGameOver || this.isScriptAttacking) return;
@@ -357,7 +353,22 @@ createBoard() {
         this.gameMode = null;
         this.isScriptAttacking = false;
         this.isGameOver = false;
+        
+        if (this.attackInterval) {
+            clearInterval(this.attackInterval);
+            this.attackInterval = null;
+        }
+        
+        document.getElementById('board').innerHTML = '';
         this.createBoard();
+        
+        document.querySelectorAll('.game-menu').forEach(menu => {
+            menu.classList.add('hidden');
+        });
+        document.getElementById('main-menu').classList.remove('hidden');
+        document.getElementById('ready-btn').classList.add('hidden');
+        document.getElementById('game-over-menu').classList.add('hidden');
+        this.updateStatus("");
     }
 
     showNotification(message) {
