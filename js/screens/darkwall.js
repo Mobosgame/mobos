@@ -1,15 +1,16 @@
 // js/screens/darkwall.js
 
 function initDarkwall() {
-    // Удаляем предыдущий контейнер, если он есть
-    const oldContainer = document.getElementById('darkwall-game-container');
-    if (oldContainer) {
-        oldContainer.remove();
-    }
+    // Убедимся, что контейнер существует
+    let gameContainer = document.getElementById('darkwall-game-container');
     
-    const gameContainer = document.createElement('div');
-    gameContainer.id = 'darkwall-game-container';
-    document.querySelector('#darkwall-screen .app-content').appendChild(gameContainer);
+    if (!gameContainer) {
+        gameContainer = document.createElement('div');
+        gameContainer.id = 'darkwall-game-container';
+        document.querySelector('#darkwall-screen .app-content').appendChild(gameContainer);
+    } else {
+        gameContainer.innerHTML = '';
+    }
     
     // Обработчик закрытия
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
@@ -26,6 +27,9 @@ function initDarkwall() {
 }
 
 function initDarkwallGame() {
+    const gameContainer = document.getElementById('darkwall-game-container');
+    if (!gameContainer) return;
+    
     const gameHTML = `
         <div class="game-container">
             <div class="game-menu" id="main-menu">
@@ -56,9 +60,18 @@ function initDarkwallGame() {
         </div>
     `;
     
-    document.getElementById('darkwall-game-container').innerHTML = gameHTML;
+    gameContainer.innerHTML = gameHTML;
     document.getElementById('main-menu').classList.remove('hidden');
-    initGameLogic();
+    
+    // Проверяем, что элементы созданы перед инициализацией игры
+    setTimeout(() => {
+        if (document.getElementById('solo-btn') && document.getElementById('duo-btn')) {
+            initGameLogic();
+        } else {
+            console.error('Game elements not found. Reinitializing...');
+            initDarkwallGame();
+        }
+    }, 100);
 }
 
 class DarkwallGame {
@@ -85,8 +98,10 @@ class DarkwallGame {
 
     createBoard() {
         const boardElement = document.getElementById('board');
+        if (!boardElement) return;
+        
         boardElement.innerHTML = '';
-        boardElement.classList.add('hidden'); // По умолчанию скрываем
+        boardElement.classList.add('hidden');
         this.board = [];
 
         for (let i = 0; i < this.rows; i++) {
@@ -204,22 +219,30 @@ class DarkwallGame {
     }
 
     setupEventListeners() {
-        document.getElementById('solo-btn').addEventListener('click', () => this.startGame('solo'));
-        document.getElementById('duo-btn').addEventListener('click', () => this.startGame('duo'));
+        // Добавляем проверку существования элементов
+        const soloBtn = document.getElementById('solo-btn');
+        const duoBtn = document.getElementById('duo-btn');
+        const attackBtn = document.getElementById('attack-btn');
+        const defenseBtn = document.getElementById('defense-btn');
+        const readyBtn = document.getElementById('ready-btn');
+        const okBtn = document.getElementById('ok-btn');
         
-        document.getElementById('attack-btn').addEventListener('click', () => this.setMode('attack'));
-        document.getElementById('defense-btn').addEventListener('click', () => this.setMode('defense'));
-        
-        document.getElementById('ready-btn').addEventListener('click', this.confirmMines.bind(this));
-        document.getElementById('ok-btn').addEventListener('click', this.showMainMenu.bind(this));
+        if (soloBtn) soloBtn.addEventListener('click', () => this.startGame('solo'));
+        if (duoBtn) duoBtn.addEventListener('click', () => this.startGame('duo'));
+        if (attackBtn) attackBtn.addEventListener('click', () => this.setMode('attack'));
+        if (defenseBtn) defenseBtn.addEventListener('click', () => this.setMode('defense'));
+        if (readyBtn) readyBtn.addEventListener('click', this.confirmMines.bind(this));
+        if (okBtn) okBtn.addEventListener('click', this.showMainMenu.bind(this));
     }
 
     startGame(mode) {
         this.gameMode = mode;
-        document.getElementById('main-menu').classList.add('hidden');
+        const mainMenu = document.getElementById('main-menu');
+        if (mainMenu) mainMenu.classList.add('hidden');
 
         if (mode === 'solo') {
-            document.getElementById('solo-mode').classList.remove('hidden');
+            const soloMode = document.getElementById('solo-mode');
+            if (soloMode) soloMode.classList.remove('hidden');
         } else {
             this.startDefensePhase();
         }
@@ -227,8 +250,11 @@ class DarkwallGame {
 
     setMode(mode) {
         this.currentMode = mode;
-        document.getElementById('solo-mode').classList.add('hidden');
-        document.getElementById('board').classList.remove('hidden');
+        const soloMode = document.getElementById('solo-mode');
+        if (soloMode) soloMode.classList.add('hidden');
+        
+        const boardElement = document.getElementById('board');
+        if (boardElement) boardElement.classList.remove('hidden');
 
         if (mode === 'attack') {
             this.createBoard();
@@ -256,8 +282,12 @@ class DarkwallGame {
         this.isDefensePhase = true;
         this.isGameOver = false;
         this.createBoard();
-        document.getElementById('board').classList.remove('hidden');
-        document.getElementById('ready-btn').classList.add('hidden'); // Скрываем кнопку изначально
+        
+        const boardElement = document.getElementById('board');
+        if (boardElement) boardElement.classList.remove('hidden');
+        
+        const readyBtn = document.getElementById('ready-btn');
+        if (readyBtn) readyBtn.classList.add('hidden');
         
         // Показываем все ряды для расстановки
         document.querySelectorAll('.game-row').forEach(row => {
@@ -290,7 +320,9 @@ class DarkwallGame {
         this.isGameOver = false;
         this.playerHealth = 100;
         this.currentRow = 0;
-        document.getElementById('ready-btn').classList.add('hidden'); // Скрываем кнопку
+        
+        const readyBtn = document.getElementById('ready-btn');
+        if (readyBtn) readyBtn.classList.add('hidden');
         
         // Скрываем все ряды
         document.querySelectorAll('.game-row').forEach(row => {
@@ -333,7 +365,7 @@ class DarkwallGame {
                 this.board[this.currentRow][col].revealed = true;
                 
                 if (this.board[this.currentRow][col].isMine) {
-                    cell.classList.add('mine-hit');
+                    if (cell) cell.classList.add('mine-hit');
                     this.playerHealth -= 25;
                     this.updateStatus(getTranslation('script_mine_hit', { health: this.playerHealth }));
                     
@@ -342,17 +374,21 @@ class DarkwallGame {
                         this.isGameOver = true;
                     }
                 } else {
-                    cell.classList.add('revealed');
+                    if (cell) cell.classList.add('revealed');
                     const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
-                    currentRowElement.classList.remove('active');
-                    currentRowElement.classList.add('completed');
+                    if (currentRowElement) {
+                        currentRowElement.classList.remove('active');
+                        currentRowElement.classList.add('completed');
+                    }
                     
                     this.currentRow++;
                     
                     if (this.currentRow < this.rows) {
                         const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
-                        nextRowElement.classList.remove('hidden');
-                        nextRowElement.classList.add('active');
+                        if (nextRowElement) {
+                            nextRowElement.classList.remove('hidden');
+                            nextRowElement.classList.add('active');
+                        }
                         this.updateStatus(getTranslation('script_next_row', { row: this.currentRow + 1 }));
                     } else {
                         this.endGame(true);
@@ -366,20 +402,31 @@ class DarkwallGame {
     endGame(isWin) {
         const gameOverMenu = document.getElementById('game-over-menu');
         const gameOverTitle = document.getElementById('game-over-title');
-        gameOverTitle.textContent = isWin ? getTranslation('victory') : getTranslation('defeat');
-        gameOverMenu.classList.remove('hidden');
+        
+        if (gameOverMenu && gameOverTitle) {
+            gameOverTitle.textContent = isWin ? getTranslation('victory') : getTranslation('defeat');
+            gameOverMenu.classList.remove('hidden');
+        }
     }
 
     updateStatus(text) {
-        document.getElementById('status').textContent = text;
+        const statusElement = document.getElementById('status');
+        if (statusElement) statusElement.textContent = text;
     }
 
     showMainMenu() {
-        document.getElementById('main-menu').classList.remove('hidden');
-        document.getElementById('solo-mode').classList.add('hidden');
-        document.getElementById('board').classList.add('hidden');
-        document.getElementById('ready-btn').classList.add('hidden');
-        document.getElementById('game-over-menu').classList.add('hidden');
+        const mainMenu = document.getElementById('main-menu');
+        const soloMode = document.getElementById('solo-mode');
+        const boardElement = document.getElementById('board');
+        const readyBtn = document.getElementById('ready-btn');
+        const gameOverMenu = document.getElementById('game-over-menu');
+        
+        if (mainMenu) mainMenu.classList.remove('hidden');
+        if (soloMode) soloMode.classList.add('hidden');
+        if (boardElement) boardElement.classList.add('hidden');
+        if (readyBtn) readyBtn.classList.add('hidden');
+        if (gameOverMenu) gameOverMenu.classList.add('hidden');
+        
         this.updateStatus("");
         this.resetGame();
     }
@@ -398,25 +445,34 @@ class DarkwallGame {
             this.attackInterval = null;
         }
         
-        document.getElementById('board').innerHTML = '';
-        this.createBoard();
+        const boardElement = document.getElementById('board');
+        if (boardElement) {
+            boardElement.innerHTML = '';
+            this.createBoard();
+        }
         
-        document.querySelectorAll('.game-menu').forEach(menu => {
-            menu.classList.add('hidden');
-        });
-        document.getElementById('main-menu').classList.remove('hidden');
-        document.getElementById('ready-btn').classList.add('hidden');
-        document.getElementById('game-over-menu').classList.add('hidden');
+        const mainMenu = document.getElementById('main-menu');
+        const soloMode = document.getElementById('solo-mode');
+        const readyBtn = document.getElementById('ready-btn');
+        const gameOverMenu = document.getElementById('game-over-menu');
+        
+        if (mainMenu) mainMenu.classList.remove('hidden');
+        if (soloMode) soloMode.classList.add('hidden');
+        if (readyBtn) readyBtn.classList.add('hidden');
+        if (gameOverMenu) gameOverMenu.classList.add('hidden');
+        
         this.updateStatus("");
     }
 
     showNotification(message) {
         const notification = document.getElementById('notification');
-        notification.textContent = message;
-        notification.classList.remove('hidden');
-        setTimeout(() => {
-            notification.classList.add('hidden');
-        }, 2000);
+        if (notification) {
+            notification.textContent = message;
+            notification.classList.remove('hidden');
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 2000);
+        }
     }
     
     applyLanguage() {
@@ -435,15 +491,23 @@ class DarkwallGame {
 }
 
 function getTranslation(key, params = {}) {
-    const lang = currentSettings.language || 'ru';
-    const translations = window.translations[lang] || window.translations.ru;
-    let text = translations[key] || key;
-    
-    for (const [param, value] of Object.entries(params)) {
-        text = text.replace(`{${param}}`, value);
+    try {
+        const lang = window.currentSettings?.language || 'ru';
+        const translations = window.translations[lang] || window.translations.ru || {};
+        let text = translations[key] || key;
+
+        // Заменяем плейсхолдеры
+        if (params) {
+            for (const [param, value] of Object.entries(params)) {
+                text = text.replace(`{${param}}`, value);
+            }
+        }
+
+        return text;
+    } catch (e) {
+        console.error(`Translation error for key "${key}":`, e);
+        return key;
     }
-    
-    return text;
 }
 
 function initGameLogic() {
