@@ -16,47 +16,47 @@ class AppRouter {
         this.initTelegramUser();
     }
 
-    async loadScreen(screenName) {
-        try {
-            // Если экран уже загружен, просто переключаемся
-            if (this.screens[screenName]) {
-                this.switchToScreen(screenName);
-                return;
-            }
-
-            // Загружаем HTML-файл экрана
-            const response = await fetch(`./screens/${screenName}.html`);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            
-            const html = await response.text();
-            
-            // Создаем временный контейнер для парсинга
-            const tempContainer = document.createElement('div');
-            tempContainer.innerHTML = html;
-            
-            // Получаем корневой элемент экрана
-            const screenElement = tempContainer.firstElementChild;
-            if (!screenElement) throw new Error('Screen HTML is empty');
-            
-            // Добавляем в DOM
-            document.getElementById('screens-container').appendChild(screenElement);
-            this.screens[screenName] = screenElement;
-            
-            // Инициализация экрана
-            const initFnName = `init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`;
-            if (typeof window[initFnName] === 'function') {
-                window[initFnName]();
-            }
-            
-            // Переключение на загруженный экран
+async loadScreen(screenName) {
+    try {
+        // Если экран уже загружен, просто переключаемся
+        if (this.screens[screenName]) {
             this.switchToScreen(screenName);
-            
-        } catch (error) {
-            console.error(`Error loading screen ${screenName}:`, error);
-            // Возвращаем на главный экран при ошибке
-            this.backToMain();
+            return;
         }
+
+        // Загружаем HTML-файл экрана
+        const response = await fetch(`./screens/${screenName}.html`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        
+        const html = await response.text();
+        
+        // Создаем временный контейнер для парсинга
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = html;
+        
+        // Получаем корневой элемент экрана
+        const screenElement = tempContainer.firstElementChild;
+        if (!screenElement) throw new Error('Screen HTML is empty');
+        
+        // Добавляем в DOM
+        document.getElementById('screens-container').appendChild(screenElement);
+        this.screens[screenName] = screenElement;
+        
+        // Инициализация экрана
+        const initFnName = `init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`;
+        if (typeof window[initFnName] === 'function') {
+            window[initFnName]();
+        }
+        
+        // Переключение на загруженный экран
+        this.switchToScreen(screenName);
+        
+    } catch (error) {
+        console.error(`Error loading screen ${screenName}:`, error);
+        // Возвращаем на главный экран при ошибке
+        this.backToMain();
     }
+}
 
     switchToScreen(screenName) {
         // Скрываем главный экран
