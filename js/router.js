@@ -18,20 +18,37 @@ class AppRouter {
 
 async loadScreen(screenName) {
     try {
-        // Если экран уже загружен, просто переключаемся
         if (this.screens[screenName]) {
             this.switchToScreen(screenName);
-            
-            // Инициализируем экран сразу после переключения
-            setTimeout(() => {
-                const initFnName = `init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`;
-                if (typeof window[initFnName] === 'function') {
-                    window[initFnName]();
-                }
-            }, 50);
-            
+            // Явно вызываем инициализацию для Darkwall
+            if (screenName === 'darkwall' && typeof initDarkwall === 'function') {
+                initDarkwall();
+            }
             return;
         }
+
+        const response = await fetch(`./screens/${screenName}.html`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        
+        const html = await response.text();
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = html;
+        const screenElement = tempContainer.firstElementChild;
+        
+        document.getElementById('screens-container').appendChild(screenElement);
+        this.screens[screenName] = screenElement;
+        
+        this.switchToScreen(screenName);
+        
+        // Явный вызов инициализации после добавления в DOM
+        if (screenName === 'darkwall' && typeof initDarkwall === 'function') {
+            initDarkwall();
+        }
+    } catch (error) {
+        console.error(`Error loading screen ${screenName}:`, error);
+        this.backToMain();
+    }
+}
 
         // Загружаем HTML-файл экрана
         const response = await fetch(`./screens/${screenName}.html`);
