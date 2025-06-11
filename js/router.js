@@ -133,8 +133,3 @@ class AppRouter {
 document.addEventListener('DOMContentLoaded', () => {
     window.router = new AppRouter();
 });
-
-// Автоматическая инициализация при загрузке DOM
-document.addEventListener('DOMContentLoaded', () => {
-    window.router = new AppRouter();
-});
