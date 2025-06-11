@@ -1,5 +1,15 @@
-
 /* css/screens/darkwall.css */
+
+#darkwall-screen:not(.hidden) {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#darkwall-game-container {
+  flex: 1;
+  display: flex !important;
+}
 
 #darkwall-screen {
   height: 100%;
