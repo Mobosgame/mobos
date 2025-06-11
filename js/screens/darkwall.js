@@ -1,25 +1,30 @@
 // js/screens/darkwall.js
 
 function initDarkwall() {
-    // Полностью удаляем старый контейнер
+    // Убедитесь, что контейнер существует
+    const screenElement = document.getElementById('darkwall-screen');
+    if (!screenElement) return;
+
+    // Очистка предыдущего состояния
     const oldContainer = document.getElementById('darkwall-game-container');
     if (oldContainer) oldContainer.remove();
     
     // Создаем новый контейнер
     const gameContainer = document.createElement('div');
     gameContainer.id = 'darkwall-game-container';
-    document.querySelector('#darkwall-screen .app-content').appendChild(gameContainer);
+    screenElement.querySelector('.app-content').appendChild(gameContainer);
     
-    // Инициализируем игру немедленно
+    // Инициализация игры
     initDarkwallGame();
 }
 
+// Интегрируем закрытие с роутером
 function handleCloseDarkwall() {
     if (window.darkwallGame) {
         window.darkwallGame.destroy();
         delete window.darkwallGame;
     }
-    goBack();
+    window.router.backToMain(); // Используем роутер вместо goBack()
 }
 
 function initDarkwallGame() {
