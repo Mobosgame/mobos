@@ -1,39 +1,31 @@
 // js/screens/darkwall.js
 
 function initDarkwall() {
-    // Убедитесь, что контейнер существует
-    const screenElement = document.getElementById('darkwall-screen');
-    if (!screenElement) return;
-
-    // Очистка предыдущего состояния
-    const oldContainer = document.getElementById('darkwall-game-container');
-    if (oldContainer) oldContainer.remove();
+    // Проверяем, существует ли уже контейнер
+    let gameContainer = document.getElementById('darkwall-game-container');
     
-    // Создаем новый контейнер
-    const gameContainer = document.createElement('div');
-    gameContainer.id = 'darkwall-game-container';
-    screenElement.querySelector('.app-content').appendChild(gameContainer);
+    if (!gameContainer) {
+        gameContainer = document.createElement('div');
+        gameContainer.id = 'darkwall-game-container';
+        document.querySelector('#darkwall-screen .app-content').appendChild(gameContainer);
+    } else {
+        gameContainer.innerHTML = '';
+    }
     
-    // Инициализация игры
+    // Обработчик закрытия
+    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
+        if (window.darkwallGame) {
+            window.darkwallGame.destroy();
+            delete window.darkwallGame;
+        }
+        goBack();
+    });
+    
+    // Инициализируем игру
     initDarkwallGame();
 }
 
-// Интегрируем закрытие с роутером
-function handleCloseDarkwall() {
-    if (window.darkwallGame) {
-        window.darkwallGame.destroy();
-        delete window.darkwallGame;
-    }
-    window.router.backToMain(); // Используем роутер вместо goBack()
-}
-
 function initDarkwallGame() {
-    const gameContainer = document.getElementById('darkwall-game-container');
-    if (!gameContainer) return;
-    
-    // Проверяем, не добавлена ли уже игра
-    if (gameContainer.querySelector('.game-container')) return;
-    
     const gameHTML = `
         <div class="game-container">
             <div class="game-menu" id="main-menu">
@@ -64,9 +56,10 @@ function initDarkwallGame() {
         </div>
     `;
     
-    gameContainer.innerHTML = gameHTML;
+    document.getElementById('darkwall-game-container').innerHTML = gameHTML;
+    document.getElementById('main-menu').classList.remove('hidden');
     
-    // Инициализируем игру сразу
+    // Инициализируем игровую логику
     initGameLogic();
 }
 
