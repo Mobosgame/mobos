@@ -16,42 +16,16 @@ class AppRouter {
         this.initTelegramUser();
     }
 
-async loadScreen(screenName) {
-    try {
-        if (this.screens[screenName]) {
-            this.switchToScreen(screenName);
-            // Явно вызываем инициализацию для Darkwall
-            if (screenName === 'darkwall' && typeof initDarkwall === 'function') {
-                initDarkwall();
+    async loadScreen(screenName) {
+        try {
+            // Если экран уже загружен, просто переключаемся
+            if (this.screens[screenName]) {
+                this.switchToScreen(screenName);
+                return;
             }
-            return;
-        }
 
-        const response = await fetch(`./screens/${screenName}.html`);
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        
-        const html = await response.text();
-        const tempContainer = document.createElement('div');
-        tempContainer.innerHTML = html;
-        const screenElement = tempContainer.firstElementChild;
-        
-        document.getElementById('screens-container').appendChild(screenElement);
-        this.screens[screenName] = screenElement;
-        
-        this.switchToScreen(screenName);
-        
-        // Явный вызов инициализации после добавления в DOM
-        if (screenName === 'darkwall' && typeof initDarkwall === 'function') {
-            initDarkwall();
-        }
-    } catch (error) {
-        console.error(`Error loading screen ${screenName}:`, error);
-        this.backToMain();
-    }
-}
-
-        // Загружаем HTML-файл экрана
-        const response = await fetch(`./screens/${screenName}.html`);
+            // Загружаем HTML-файл экрана
+            const response = await fetch(`./screens/${screenName}.html`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         
         const html = await response.text();
@@ -68,19 +42,18 @@ async loadScreen(screenName) {
         document.getElementById('screens-container').appendChild(screenElement);
         this.screens[screenName] = screenElement;
         
+        // Инициализация экрана
+        const initFnName = `init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`;
+        if (typeof window[initFnName] === 'function') {
+            window[initFnName]();
+        }
+        
         // Переключение на загруженный экран
         this.switchToScreen(screenName);
         
-        // Инициализация экрана после добавления в DOM
-        setTimeout(() => {
-            const initFnName = `init${screenName.charAt(0).toUpperCase() + screenName.slice(1)}`;
-            if (typeof window[initFnName] === 'function') {
-                window[initFnName]();
-            }
-        }, 100);
-        
     } catch (error) {
         console.error(`Error loading screen ${screenName}:`, error);
+        // Возвращаем на главный экран при ошибке
         this.backToMain();
     }
 }
@@ -155,6 +128,11 @@ async loadScreen(screenName) {
         }
     }
 }
+
+// Автоматическая инициализация при загрузке DOM
+document.addEventListener('DOMContentLoaded', () => {
+    window.router = new AppRouter();
+});
 
 // Автоматическая инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', () => {
