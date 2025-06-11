@@ -96,12 +96,5 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof initSettings === 'function') {
             initSettings();
         }
-        
-        // Инициализация Darkwall
-        if (typeof initDarkwall === 'function') {
-            initDarkwall();
-        }
-        
-        // Здесь можно добавить инициализацию других экранов
     }
 });
