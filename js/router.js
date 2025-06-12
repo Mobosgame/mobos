@@ -19,10 +19,10 @@ class AppRouter {
     async loadScreen(screenName) {
         try {
             // Если экран уже загружен, просто переключаемся
-            //if (this.screens[screenName]) {
-            //    this.switchToScreen(screenName);
-            //    return;
-            //}
+            if (this.screens[screenName]) {
+                this.switchToScreen(screenName);
+                return;
+            }
 
             // Загружаем HTML-файл экрана
             const response = await fetch(`./screens/${screenName}.html`);
