@@ -1,27 +1,21 @@
 // js/screens/darkwall.js
 
 function initDarkwall() {
-    // Проверяем, существует ли уже контейнер
-    let gameContainer = document.getElementById('darkwall-game-container');
-    
+    const gameContainer = document.getElementById('darkwall-game-container');
     if (!gameContainer) {
-        gameContainer = document.createElement('div');
-        gameContainer.id = 'darkwall-game-container';
-        document.querySelector('#darkwall-screen .app-content').appendChild(gameContainer);
-    } else {
-        gameContainer.innerHTML = '';
+        const newContainer = document.createElement('div');
+        newContainer.id = 'darkwall-game-container';
+        document.querySelector('#darkwall-screen .app-content').appendChild(newContainer);
     }
-    
-    // Обработчик закрытия
+
+    // Простой обработчик закрытия
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
         if (window.darkwallGame) {
-            window.darkwallGame.destroy();
-            delete window.darkwallGame;
+            window.darkwallGame.showMainMenu(); // Просто возвращаем в главное меню
         }
-        goBack();
+        goBack(); // Закрываем экран
     });
-    
-    // Инициализируем игру
+
     initDarkwallGame();
 }
 
@@ -125,27 +119,34 @@ class DarkwallGame {
         }
     }
 
-    handleDefenseClick(row, col, cell) {
-        if (this.board[row][col].isMine) {
-            // Если мина уже установлена - убираем ее
-            this.board[row][col].isMine = false;
-            cell.classList.remove('mine');
-        } else {
-            // Проверяем лимит мин в ряду
-            const minesInRow = this.board[row].filter(c => c.isMine).length;
-            if (minesInRow >= this.minesPerRow) {
-                this.showNotification(getTranslation('max_mines_reached', { count: this.minesPerRow }));
-                return;
-            }
-
-            // Устанавливаем мину
-            this.board[row][col].isMine = true;
-            cell.classList.add('mine');
+    // В методе handleDefenseClick класса DarkwallGame
+handleDefenseClick(row, col, cell) {
+    if (this.board[row][col].isMine) {
+        this.board[row][col].isMine = false;
+        cell.classList.remove('mine');
+    } else {
+        const minesInRow = this.board[row].filter(c => c.isMine).length;
+        if (minesInRow >= this.minesPerRow) {
+            this.showNotification(getTranslation('max_mines_reached', { count: this.minesPerRow }));
+            return;
         }
 
-        // Проверяем завершенность всех рядов
-        this.checkAllRowsComplete();
+        this.board[row][col].isMine = true;
+        cell.classList.add('mine');
     }
+
+    // Проверяем завершенность ряда
+    const rowElement = cell.closest('.game-row');
+    const minesCount = this.board[row].filter(c => c.isMine).length;
+    
+    if (minesCount === this.minesPerRow) {
+        rowElement.classList.add('completed-row'); // Добавляем класс для завершенного ряда
+    } else {
+        rowElement.classList.remove('completed-row');
+    }
+
+    this.checkAllRowsComplete();
+}
     
     checkAllRowsComplete() {
         let allComplete = true;
