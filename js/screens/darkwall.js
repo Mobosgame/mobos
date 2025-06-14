@@ -8,14 +8,8 @@ function initDarkwall() {
         document.querySelector('#darkwall-screen .app-content').appendChild(newContainer);
     }
 
-    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
-        // Только сбрасываем игру без влияния на другие экраны
-        if (window.darkwallGame) {
-            window.darkwallGame.showMainMenu();
-        }
-        // Просто закрываем окно без дополнительных действий
-        goBack();
-    });
+    // Упрощенный обработчик закрытия (как в SMS)
+    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', goBack);
 
     initDarkwallGame();
 }
@@ -51,11 +45,12 @@ function initDarkwallGame() {
         </div>
     `;
     
-    document.getElementById('darkwall-game-container').innerHTML = gameHTML;
-    document.getElementById('main-menu').classList.remove('hidden');
+     document.getElementById('darkwall-game-container').innerHTML = gameHTML;
     
-    // Инициализируем игровую логику
-    initGameLogic();
+    // Инициализируем игровую логику только если контейнер существует
+    if (document.getElementById('darkwall-game-container')) {
+        initGameLogic();
+    }
 }
 
 class DarkwallGame {
