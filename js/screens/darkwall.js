@@ -140,9 +140,9 @@ handleDefenseClick(row, col, cell) {
     const minesCount = this.board[row].filter(c => c.isMine).length;
     
     if (minesCount === this.minesPerRow) {
-        rowElement.classList.add('completed-row'); // Добавляем класс для завершенного ряда
+        rowElement.classList.add('completed'); // Затемняем ряд как в атаке
     } else {
-        rowElement.classList.remove('completed-row');
+        rowElement.classList.remove('completed');
     }
 
     this.checkAllRowsComplete();
