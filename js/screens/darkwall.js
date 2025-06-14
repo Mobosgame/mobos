@@ -8,12 +8,13 @@ function initDarkwall() {
         document.querySelector('#darkwall-screen .app-content').appendChild(newContainer);
     }
 
-    // Простой обработчик закрытия
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
+        // Только сбрасываем игру без влияния на другие экраны
         if (window.darkwallGame) {
-            window.darkwallGame.showMainMenu(); // Просто возвращаем в главное меню
+            window.darkwallGame.showMainMenu();
         }
-        goBack(); // Закрываем экран
+        // Просто закрываем окно без дополнительных действий
+        goBack();
     });
 
     initDarkwallGame();
