@@ -295,27 +295,11 @@
   }
 }
 
-/* Добавляем в darkwall.css */
-.game-row.completed-row {
-    background-color: rgba(128, 128, 128, 0.2);
-    position: relative;
-}
 
-.game-row.completed-row::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(128, 128, 128, 0.2);
-    border-radius: 8px;
-    z-index: 0;
-}
-
-.game-row.completed-row .game-cell {
-    position: relative;
-    z-index: 1;
+.game-row.completed {
+    opacity: 0.6;
+    filter: brightness(0.7);
+    transition: all 0.3s ease;
 }
 
 /* Для экранов в альбомной ориентации */
