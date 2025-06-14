@@ -9,8 +9,17 @@ function initDarkwall() {
     }
 
     // Упрощенный обработчик закрытия (как в SMS)
-    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', goBack);
+    document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
+        if (window.darkwallGame) {
+            window.darkwallGame.destroy();
+            window.darkwallGame = null;
+        }
+        goBack();
+    });
 
+    // Применяем текущий язык при инициализации
+    applyLanguage(window.currentSettings?.language || 'ru');
+    
     initDarkwallGame();
 }
 
