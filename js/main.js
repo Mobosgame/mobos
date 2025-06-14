@@ -1,7 +1,4 @@
-// js/main.js
-
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Проверка и инициализация Telegram WebApp
     if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.expand();
         window.Telegram.WebApp.enableClosingConfirmation();
@@ -12,16 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 2. Инициализация роутера
     window.router = new AppRouter();
-    
-    // 3. Настройка навигации
     setupNavigation();
-    
-    // 4. Показать главный экран
     document.getElementById('main-screen').classList.remove('hidden');
 
-    // Функция обновления профиля пользователя
     function updateUserProfile(user) {
         const username = document.getElementById('username');
         const profilePhoto = document.getElementById('profile-photo');
@@ -40,27 +31,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Основная функция настройки навигации
     function setupNavigation() {
-        // Функция для безопасного назначения обработчиков
         const setupButton = (buttonId, screenName) => {
             const button = document.getElementById(buttonId);
             if (button) {
                 button.addEventListener('click', () => {
-                    // Проверяем инициализацию роутера
                     if (window.router && typeof window.router.loadScreen === 'function') {
                         window.router.loadScreen(screenName);
                     } else {
                         console.error('Router not initialized');
-                        location.reload(); // Перезагрузка как крайняя мера
+                        location.reload();
                     }
                 });
-            } else {
-                console.warn(`Button not found: ${buttonId}`);
             }
         };
 
-        // Настройка обработчиков для всех кнопок
         setupButton('settings-btn', 'settings');
         setupButton('calls-btn', 'calls');
         setupButton('browser-btn', 'browser');
@@ -70,16 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
         setupButton('miner-btn', 'miner');
         setupButton('chat-btn', 'chat');
 
-        // Глобальные функции для совместимости
         window.showScreen = (screenName) => window.router.loadScreen(screenName);
-        window.goBack = () => {
-    if (window.router?.currentScreen) {
-        window.router.currentScreen.classList.add('hidden');
-    }
-    document.getElementById('main-screen').classList.remove('hidden');
-};
+        window.goBack = () => window.router.backToMain();
 
-        // Обработчик для всех кнопок закрытия
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('close-btn')) {
                 if (typeof goBack === 'function') {
@@ -91,15 +69,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 5. Инициализация экранов
-    initScreens();
-    
     function initScreens() {
-        // Инициализация экрана настроек
         if (typeof initSettings === 'function') {
             initSettings();
         }
-        
-        // Инициализация других экранов (darkwall теперь инициализируется при загрузке экрана)
     }
 });
