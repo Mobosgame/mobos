@@ -74,18 +74,17 @@ class AppRouter {
         }
     }
 
-    backToMain() {
-        // Показываем главный экран
-        document.getElementById('main-screen').classList.remove('hidden');
-        
-        // Скрываем текущий экран
-        if (this.currentScreen) {
-            this.currentScreen.classList.add('hidden');
-        }
-        
-        this.currentScreen = null;
+    // В метод backToMain() добавить:
+backToMain() {
+    document.getElementById('main-screen').classList.remove('hidden');
+    if (this.currentScreen) {
+        this.currentScreen.classList.add('hidden');
     }
-
+    // Принудительно обновляем язык главного меню
+    if (window.updateMainMenuLanguage) {
+        window.updateMainMenuLanguage();
+    }
+}
     initTelegramUser() {
         // Используем данные из sessionStorage как резервный вариант
         let userData = sessionStorage.getItem('telegramUser');
