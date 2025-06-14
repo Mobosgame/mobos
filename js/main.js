@@ -72,7 +72,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Глобальные функции для совместимости
         window.showScreen = (screenName) => window.router.loadScreen(screenName);
-        window.goBack = () => window.router.backToMain();
+        window.goBack = () => {
+    if (window.router?.currentScreen) {
+        window.router.currentScreen.classList.add('hidden');
+    }
+    document.getElementById('main-screen').classList.remove('hidden');
+};
 
         // Обработчик для всех кнопок закрытия
         document.addEventListener('click', function(e) {
