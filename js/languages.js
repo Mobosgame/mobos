@@ -42,6 +42,8 @@ window.translations = {
         script_attacking: "Скрипт начинает атаку...",
         script_mine_hit: "Скрипт обнаружен! Прочность: {health}%",
         script_next_row: "Скрипт переходит к уровню {row}",
+        system_hacked_attack_wins: "Система взломана, победа атаки!",
+        hack_prevented_defense_wins: "Взлом предотвращен, победа защиты!",
         victory: "Победа!",
         defeat: "Поражение!"
     },
@@ -88,6 +90,8 @@ window.translations = {
         script_attacking: "Скрипт начинает атаку...",
         script_mine_hit: "Скрипт обнаружен! Прочность: {health}%",
         script_next_row: "Скрипт переходит к уровню {row}",
+        system_hacked_attack_wins: "System hacked, attack wins!",
+        hack_prevented_defense_wins: "Hack prevented, defense wins!",
         victory: "Победа!",
         defeat: "Поражение!"
 
