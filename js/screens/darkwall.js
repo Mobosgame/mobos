@@ -170,43 +170,44 @@ handleDefenseClick(row, col, cell) {
         }
     }
 
-    handleAttackClick(row, col, cell) {
-        if (row !== this.currentRow || this.board[row][col].revealed || this.isGameOver) return;
+   handleAttackClick(row, col, cell) {
+    if (row !== this.currentRow || this.board[row][col].revealed || this.isGameOver) return;
 
-        this.board[row][col].revealed = true;
+    this.board[row][col].revealed = true;
 
-        if (this.board[row][col].isMine) {
-            // Попали на мину
-            cell.classList.add('mine-hit');
-            this.playerHealth -= 25;
-            this.updateStatus(getTranslation('mine_hit', { health: this.playerHealth }));
-            
-            if (this.playerHealth <= 0) {
-                this.endGame(false);
-                this.isGameOver = true;
-            }
+    if (this.board[row][col].isMine) {
+        // Попали на мину
+        cell.classList.add('mine-hit');
+        this.playerHealth -= 25;
+        this.updateStatus(getTranslation('mine_hit', { health: this.playerHealth }));
+        
+        if (this.playerHealth <= 0) {
+            this.endGame(true); // Для защиты - это победа (атакующий проиграл)
+            this.isGameOver = true;
+        }
+    } else {
+        // Безопасная клетка
+        cell.classList.add('revealed');
+        const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
+        currentRowElement.classList.remove('active');
+        currentRowElement.classList.add('completed');
+        
+        this.currentRow++;
+        
+        if (this.currentRow < this.rows) {
+            // Активируем следующий ряд
+            const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
+            nextRowElement.classList.remove('hidden');
+            nextRowElement.classList.add('active');
+            this.updateStatus(getTranslation('progress_row', { row: this.currentRow + 1 }));
         } else {
-            // Безопасная клетка - закрашиваем в зеленый
-            cell.classList.add('revealed');
-            const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
-            currentRowElement.classList.remove('active');
-            currentRowElement.classList.add('completed');
-            
-            this.currentRow++;
-            
-            if (this.currentRow < this.rows) {
-                // Активируем следующий ряд
-                const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
-                nextRowElement.classList.remove('hidden');
-                nextRowElement.classList.add('active');
-                this.updateStatus(getTranslation('progress_row', { row: this.currentRow + 1 }));
-            } else {
-                // Все ряды пройдены
-                this.endGame(true);
-                this.isGameOver = true;
-            }
+            // Все ряды пройдены - для защиты это поражение
+            this.endGame(false);
+            this.isGameOver = true;
         }
     }
+}
+
 
     setupEventListeners() {
         const soloBtn = document.getElementById('solo-btn');
@@ -335,68 +336,72 @@ handleDefenseClick(row, col, cell) {
     }
 
     simulateAttacker() {
-        this.isScriptAttacking = true;
-        this.attackInterval = setInterval(() => {
-            if (this.isGameOver || this.currentRow >= this.rows || this.playerHealth <= 0) {
-                clearInterval(this.attackInterval);
-                this.isScriptAttacking = false;
-                if (!this.isGameOver) {
-                    this.endGame(this.currentRow >= this.rows);
+    this.isScriptAttacking = true;
+    this.attackInterval = setInterval(() => {
+        if (this.isGameOver || this.currentRow >= this.rows || this.playerHealth <= 0) {
+            clearInterval(this.attackInterval);
+            this.isScriptAttacking = false;
+            if (!this.isGameOver) {
+                this.endGame(this.currentRow >= this.rows);
+                this.isGameOver = true;
+            }
+            return;
+        }
+
+        const col = Math.floor(Math.random() * this.cols);
+        const cell = document.querySelector(`.game-cell[data-row='${this.currentRow}'][data-col='${col}']`);
+
+        if (!this.board[this.currentRow][col].revealed) {
+            this.board[this.currentRow][col].revealed = true;
+            
+            if (this.board[this.currentRow][col].isMine) {
+                if (cell) cell.classList.add('mine-hit');
+                this.playerHealth -= 25;
+                this.updateStatus(getTranslation('script_mine_hit', { health: this.playerHealth }));
+                
+                if (this.playerHealth <= 0) {
+                    this.endGame(true); // Для защиты - победа
                     this.isGameOver = true;
                 }
-                return;
-            }
-
-            const col = Math.floor(Math.random() * this.cols);
-            const cell = document.querySelector(`.game-cell[data-row='${this.currentRow}'][data-col='${col}']`);
-
-            if (!this.board[this.currentRow][col].revealed) {
-                this.board[this.currentRow][col].revealed = true;
+            } else {
+                if (cell) cell.classList.add('revealed');
+                const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
+                if (currentRowElement) {
+                    currentRowElement.classList.remove('active');
+                    currentRowElement.classList.add('completed');
+                }
                 
-                if (this.board[this.currentRow][col].isMine) {
-                    if (cell) cell.classList.add('mine-hit');
-                    this.playerHealth -= 25;
-                    this.updateStatus(getTranslation('script_mine_hit', { health: this.playerHealth }));
-                    
-                    if (this.playerHealth <= 0) {
-                        this.endGame(false);
-                        this.isGameOver = true;
+                this.currentRow++;
+                
+                if (this.currentRow < this.rows) {
+                    const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
+                    if (nextRowElement) {
+                        nextRowElement.classList.remove('hidden');
+                        nextRowElement.classList.add('active');
                     }
+                    this.updateStatus(getTranslation('script_next_row', { row: this.currentRow + 1 }));
                 } else {
-                    if (cell) cell.classList.add('revealed');
-                    const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
-                    if (currentRowElement) {
-                        currentRowElement.classList.remove('active');
-                        currentRowElement.classList.add('completed');
-                    }
-                    
-                    this.currentRow++;
-                    
-                    if (this.currentRow < this.rows) {
-                        const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
-                        if (nextRowElement) {
-                            nextRowElement.classList.remove('hidden');
-                            nextRowElement.classList.add('active');
-                        }
-                        this.updateStatus(getTranslation('script_next_row', { row: this.currentRow + 1 }));
-                    } else {
-                        this.endGame(true);
-                        this.isGameOver = true;
-                    }
+                    this.endGame(false); // Для защиты - поражение
+                    this.isGameOver = true;
                 }
             }
-        }, 1000);
-    }
-
-    endGame(isWin) {
-        const gameOverMenu = document.getElementById('game-over-menu');
-        const gameOverTitle = document.getElementById('game-over-title');
-        
-        if (gameOverMenu && gameOverTitle) {
-            gameOverTitle.textContent = isWin ? getTranslation('victory') : getTranslation('defeat');
-            gameOverMenu.classList.remove('hidden');
         }
+    }, 1000);
+}
+    endGame(isWin) {
+    // В режиме защиты инвертируем результат
+    if (this.currentMode === 'defense') {
+        isWin = !isWin;
     }
+    
+    const gameOverMenu = document.getElementById('game-over-menu');
+    const gameOverTitle = document.getElementById('game-over-title');
+    
+    if (gameOverMenu && gameOverTitle) {
+        gameOverTitle.textContent = isWin ? getTranslation('victory') : getTranslation('defeat');
+        gameOverMenu.classList.remove('hidden');
+    }
+}
 
     updateStatus(text) {
         const statusElement = document.getElementById('status');
