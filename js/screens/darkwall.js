@@ -170,23 +170,22 @@ handleDefenseClick(row, col, cell) {
         }
     }
 
-   handleAttackClick(row, col, cell) {
+  handleAttackClick(row, col, cell) {
     if (row !== this.currentRow || this.board[row][col].revealed || this.isGameOver) return;
 
     this.board[row][col].revealed = true;
 
     if (this.board[row][col].isMine) {
-        // Попали на мину
         cell.classList.add('mine-hit');
         this.playerHealth -= 25;
         this.updateStatus(getTranslation('mine_hit', { health: this.playerHealth }));
         
         if (this.playerHealth <= 0) {
-            this.endGame(true); // Для защиты - это победа (атакующий проиграл)
+            // Для атаки - поражение, для защиты - победа
+            this.endGame(this.currentMode === 'defense');
             this.isGameOver = true;
         }
     } else {
-        // Безопасная клетка
         cell.classList.add('revealed');
         const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
         currentRowElement.classList.remove('active');
@@ -195,14 +194,13 @@ handleDefenseClick(row, col, cell) {
         this.currentRow++;
         
         if (this.currentRow < this.rows) {
-            // Активируем следующий ряд
             const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
             nextRowElement.classList.remove('hidden');
             nextRowElement.classList.add('active');
             this.updateStatus(getTranslation('progress_row', { row: this.currentRow + 1 }));
         } else {
-            // Все ряды пройдены - для защиты это поражение
-            this.endGame(false);
+            // Для атаки - победа, для защиты - поражение
+            this.endGame(this.currentMode === 'attack');
             this.isGameOver = true;
         }
     }
@@ -335,14 +333,18 @@ handleDefenseClick(row, col, cell) {
         }
     }
 
-    simulateAttacker() {
+  simulateAttacker() {
     this.isScriptAttacking = true;
     this.attackInterval = setInterval(() => {
         if (this.isGameOver || this.currentRow >= this.rows || this.playerHealth <= 0) {
             clearInterval(this.attackInterval);
             this.isScriptAttacking = false;
             if (!this.isGameOver) {
-                this.endGame(this.currentRow >= this.rows);
+                // Для защиты: health=0 - победа, rows passed - поражение
+                const result = this.currentMode === 'defense' 
+                    ? this.playerHealth <= 0 
+                    : this.currentRow >= this.rows;
+                this.endGame(result);
                 this.isGameOver = true;
             }
             return;
@@ -360,7 +362,7 @@ handleDefenseClick(row, col, cell) {
                 this.updateStatus(getTranslation('script_mine_hit', { health: this.playerHealth }));
                 
                 if (this.playerHealth <= 0) {
-                    this.endGame(true); // Для защиты - победа
+                    this.endGame(this.currentMode === 'defense');
                     this.isGameOver = true;
                 }
             } else {
@@ -381,26 +383,37 @@ handleDefenseClick(row, col, cell) {
                     }
                     this.updateStatus(getTranslation('script_next_row', { row: this.currentRow + 1 }));
                 } else {
-                    this.endGame(false); // Для защиты - поражение
+                    this.endGame(this.currentMode === 'attack');
                     this.isGameOver = true;
                 }
             }
         }
     }, 1000);
 }
-    endGame(isWin) {
-    // В режиме защиты инвертируем результат
-    if (this.currentMode === 'defense') {
-        isWin = !isWin;
-    }
-    
+   endGame(isWin) {
     const gameOverMenu = document.getElementById('game-over-menu');
     const gameOverTitle = document.getElementById('game-over-title');
     
-    if (gameOverMenu && gameOverTitle) {
-        gameOverTitle.textContent = isWin ? getTranslation('victory') : getTranslation('defeat');
-        gameOverMenu.classList.remove('hidden');
+    if (!gameOverMenu || !gameOverTitle) return;
+    
+    // Определяем сообщение в зависимости от режима
+    if (this.gameMode === 'duo') {
+        gameOverTitle.textContent = isWin 
+            ? getTranslation('system_hacked_attack_wins') 
+            : getTranslation('hack_prevented_defense_wins');
+    } else {
+        if (this.currentMode === 'attack') {
+            gameOverTitle.textContent = isWin 
+                ? getTranslation('victory') 
+                : getTranslation('defeat');
+        } else { // defense
+            gameOverTitle.textContent = isWin 
+                ? getTranslation('victory') 
+                : getTranslation('defeat');
+        }
     }
+    
+    gameOverMenu.classList.remove('hidden');
 }
 
     updateStatus(text) {
