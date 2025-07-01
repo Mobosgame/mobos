@@ -78,16 +78,19 @@ class DarkwallGame {
         this.opponentName = "Opponent";
     }
     async connectToServer() {
-        try {
-            const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous';
-            const wsUrl = `wss://localhost:8000/ws/${userId}`;
-            
-            this.websocket = new WebSocket(wsUrl);
-            
-            this.websocket.onopen = () => {
-                this.updateStatus("Connected to server");
-                this.registerPlayer();
-            };
+    try {
+        const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous_' + Math.random().toString(36).substr(2, 9);
+        const wsUrl = `ws://localhost:8000/ws/${userId}`;
+        
+        console.log("Connecting to:", wsUrl); // Добавьте лог
+        
+        this.websocket = new WebSocket(wsUrl);
+        
+        this.websocket.onopen = () => {
+            console.log("WebSocket connected"); // Лог подключения
+            this.updateStatus("Connected to server");
+            this.registerPlayer();
+        };
             
             this.websocket.onmessage = (event) => {
                 this.handleServerMessage(JSON.parse(event.data));
@@ -104,9 +107,9 @@ class DarkwallGame {
             };
             
         } catch (error) {
-            console.error("Connection error:", error);
-            this.showNotification("Failed to connect");
-        }
+        console.error("Connection error:", error);
+        this.showNotification(`Connection failed: ${error.message}`);
+    }
     }
 
      registerPlayer() {
