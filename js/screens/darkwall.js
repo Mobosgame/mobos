@@ -10,7 +10,7 @@ function initDarkwall() {
 
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
         if (window.darkwallGame) {
-            window.darkwallGame.showMainMenu();
+            window.darkwallGame.destroy();
         }
         goBack();
     });
@@ -33,6 +33,13 @@ function initDarkwallGame() {
                 <button class="game-btn" id="attack-btn" data-lang="attack">${getTranslation('attack')}</button>
                 <button class="game-btn" id="defense-btn" data-lang="defense">${getTranslation('defense')}</button>
                 <button class="game-btn" id="back-btn-menu">${getTranslation('back')}</button>
+            </div>
+
+            <div class="game-menu hidden" id="online-mode">
+                <h2>Онлайн режим</h2>
+                <button class="game-btn" id="online-attack-btn">⚔️ Атака</button>
+                <button class="game-btn" id="online-defense-btn">🛡️ Защита</button>
+                <button class="game-btn" id="online-back-btn">Назад</button>
             </div>
 
             <div id="board"></div>
@@ -67,13 +74,15 @@ class DarkwallGame {
         this.playerHealth = 100;
         this.currentRow = 0;
         this.isDefensePhase = true;
-        this.gameMode = null; // 'solo', 'duo', 'online'
+        this.gameMode = null;
         this.isScriptAttacking = false;
         this.isGameOver = false;
         this.attackInterval = null;
         this.websocket = null;
         this.gameId = null;
-        this.role = null; // 'attack' или 'defense' для онлайн-режима
+        this.role = null;
+        this.opponent = null;
+        this.socket = null;
     }
 
     init() {
@@ -109,14 +118,14 @@ class DarkwallGame {
     }
 
     handleCellClick(e) {
-        if (this.isGameOver || (this.isScriptAttacking && this.gameMode !== 'online')) return;
+        if (this.isGameOver) return;
         
         const cell = e.target;
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
 
         if (this.gameMode === 'online') {
-            this.sendMoveToServer({ row, col });
+            this.sendToServer('player_move', { row, col });
             return;
         }
 
@@ -152,25 +161,6 @@ class DarkwallGame {
         }
 
         this.checkAllRowsComplete();
-    }
-    
-    checkAllRowsComplete() {
-        let allComplete = true;
-        for (let i = 0; i < this.rows; i++) {
-            const minesCount = this.board[i].filter(cell => cell.isMine).length;
-            if (minesCount < this.minesPerRow) {
-                allComplete = false;
-                break;
-            }
-        }
-        
-        if (allComplete) {
-            this.updateStatus("");
-            document.getElementById('ready-btn').classList.remove('hidden');
-        } else {
-            this.updateStatus(getTranslation('place_mines', { count: this.minesPerRow }));
-            document.getElementById('ready-btn').classList.add('hidden');
-        }
     }
 
     handleAttackClick(row, col, cell) {
@@ -208,33 +198,22 @@ class DarkwallGame {
     }
 
     setupEventListeners() {
-        const soloBtn = document.getElementById('solo-btn');
-        const duoBtn = document.getElementById('duo-btn');
-        const onlineBtn = document.getElementById('online-btn');
-        const attackBtn = document.getElementById('attack-btn');
-        const defenseBtn = document.getElementById('defense-btn');
-        const readyBtn = document.getElementById('ready-btn');
-        const okBtn = document.getElementById('ok-btn');
-        const backBtnMenu = document.getElementById('back-btn-menu');
-        
-        if (soloBtn) soloBtn.addEventListener('click', () => this.startGame('solo'));
-        if (duoBtn) duoBtn.addEventListener('click', () => this.startGame('duo'));
-        if (onlineBtn) onlineBtn.addEventListener('click', () => this.startOnlineGame());
-        if (attackBtn) attackBtn.addEventListener('click', () => this.setMode('attack'));
-        if (defenseBtn) defenseBtn.addEventListener('click', () => this.setMode('defense'));
-        if (readyBtn) readyBtn.addEventListener('click', this.confirmMines.bind(this));
-        if (okBtn) okBtn.addEventListener('click', this.showMainMenu.bind(this));
-        if (backBtnMenu) backBtnMenu.addEventListener('click', this.showMainMenu.bind(this));
+        document.getElementById('solo-btn')?.addEventListener('click', () => this.startGame('solo'));
+        document.getElementById('duo-btn')?.addEventListener('click', () => this.startGame('duo'));
+        document.getElementById('online-btn')?.addEventListener('click', () => this.startOnlineGame());
+        document.getElementById('attack-btn')?.addEventListener('click', () => this.setMode('attack'));
+        document.getElementById('defense-btn')?.addEventListener('click', () => this.setMode('defense'));
+        document.getElementById('ready-btn')?.addEventListener('click', () => this.confirmMines());
+        document.getElementById('ok-btn')?.addEventListener('click', () => this.showMainMenu());
+        document.getElementById('back-btn-menu')?.addEventListener('click', () => this.showMainMenu());
     }
 
     startGame(mode) {
         this.gameMode = mode;
-        const mainMenu = document.getElementById('main-menu');
-        if (mainMenu) mainMenu.classList.add('hidden');
+        document.getElementById('main-menu').classList.add('hidden');
 
         if (mode === 'solo') {
-            const soloMode = document.getElementById('solo-mode');
-            if (soloMode) soloMode.classList.remove('hidden');
+            document.getElementById('solo-mode').classList.remove('hidden');
         } else {
             this.startDefensePhase();
         }
@@ -242,26 +221,97 @@ class DarkwallGame {
 
     startOnlineGame() {
         this.gameMode = 'online';
-        this.connectToBot();
-        this.showOnlineWaitingScreen();
+        this.connectToServer();
     }
 
-    connectToBot() {
-        // Временная заглушка - в реальном приложении здесь будет подключение к WebSocket
-        console.log("Connecting to bot...");
-        this.updateStatus("Подключение к серверу...");
-        
-        // Имитация подключения
-        setTimeout(() => {
+    connectToServer() {
+        const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        const userId = user?.id || `user_${Math.random().toString(36).substr(2, 9)}`;
+        const username = user?.username || user?.first_name || 'Player';
+
+        this.socket = new WebSocket(`ws://localhost:8000/ws/${userId}`);
+
+        this.socket.onopen = () => {
+            this.updateStatus("Подключение к серверу...");
+            this.socket.send(JSON.stringify({
+                type: 'register',
+                data: { username }
+            }));
             this.showOnlineModeSelection();
-        }, 1500);
+        };
+
+        this.socket.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            this.handleServerMessage(message);
+        };
+
+        this.socket.onclose = () => {
+            if (!this.isGameOver) {
+                this.showNotification("Соединение с сервером потеряно");
+                this.showMainMenu();
+            }
+        };
+
+        this.socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+            this.showNotification("Ошибка соединения");
+        };
     }
 
-    showOnlineWaitingScreen() {
-        const mainMenu = document.getElementById('main-menu');
-        if (mainMenu) mainMenu.classList.add('hidden');
+    handleServerMessage(message) {
+        switch(message.type) {
+            case 'game_start':
+                this.handleGameStart(message.data);
+                break;
+            case 'game_update':
+                this.updateGameState(message.data);
+                break;
+            case 'game_end':
+                this.handleGameEnd(message.data);
+                break;
+            case 'error':
+                this.showNotification(message.data.message);
+                break;
+            default:
+                console.log("Unknown message type:", message.type);
+        }
+    }
+
+    handleGameStart(data) {
+        this.role = data.role;
+        this.opponent = data.opponent;
         
-        this.updateStatus("Поиск соперника...");
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('online-mode')?.remove();
+
+        if (this.role === 'defense') {
+            this.startDefensePhase();
+            this.updateStatus(`Игра началась! Соперник: ${this.opponent}`);
+        } else {
+            this.startAttackPhase();
+            this.updateStatus(`Игра началась! Соперник: ${this.opponent}`);
+        }
+    }
+
+    updateGameState(data) {
+        this.playerHealth = data.player_health;
+        this.currentRow = data.current_row;
+        this.board = data.board;
+        this.renderBoard();
+        
+        if (data.game_status === 'defense_setup') {
+            this.isDefensePhase = true;
+            this.updateStatus(`Осталось времени: ${data.time_left} сек`);
+        } else if (data.game_status === 'attack_phase') {
+            this.isDefensePhase = false;
+            this.updateStatus(`Осталось времени: ${data.time_left} сек`);
+        }
+    }
+
+    handleGameEnd(data) {
+        const isWin = (this.role === 'attack' && data.result === 'attack_wins') || 
+                     (this.role === 'defense' && data.result === 'defense_wins');
+        this.endGame(isWin);
     }
 
     showOnlineModeSelection() {
@@ -275,6 +325,7 @@ class DarkwallGame {
         `;
         
         document.querySelector('.game-container').insertAdjacentHTML('beforeend', onlineModeHTML);
+        document.getElementById('main-menu').classList.add('hidden');
         
         document.getElementById('online-attack-btn').addEventListener('click', () => {
             this.joinOnlineGame('attack');
@@ -293,6 +344,7 @@ class DarkwallGame {
     joinOnlineGame(mode) {
         this.role = mode;
         document.getElementById('online-mode').remove();
+        this.sendToServer('join_game', { mode });
         
         if (mode === 'defense') {
             this.startDefensePhase();
@@ -301,271 +353,42 @@ class DarkwallGame {
             this.startAttackPhase();
             this.updateStatus("Ожидаем защитника...");
         }
-        
-        // Временная заглушка - имитация начала игры
-        setTimeout(() => {
-            this.updateStatus("Игра началась! Соперник: Player123");
-        }, 3000);
     }
 
-    sendMoveToServer(move) {
-        console.log("Sending move to server:", move);
-        // В реальном приложении здесь будет отправка данных через WebSocket
-    }
-
-    setMode(mode) {
-        this.currentMode = mode;
-        const soloMode = document.getElementById('solo-mode');
-        if (soloMode) soloMode.classList.add('hidden');
-        
-        const boardElement = document.getElementById('board');
-        if (boardElement) boardElement.classList.remove('hidden');
-
-        if (mode === 'attack') {
-            this.createBoard();
-            this.placeRandomMines();
-            this.startAttackPhase();
+    sendToServer(type, data) {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            this.socket.send(JSON.stringify({ type, data }));
         } else {
-            this.startDefensePhase();
+            this.showNotification("Нет соединения с сервером");
         }
     }
 
-    placeRandomMines() {
+    renderBoard() {
         for (let i = 0; i < this.rows; i++) {
-            let placed = 0;
-            while (placed < this.minesPerRow) {
-                const col = Math.floor(Math.random() * this.cols);
-                if (!this.board[i][col].isMine) {
-                    this.board[i][col].isMine = true;
-                    placed++;
+            for (let j = 0; j < this.cols; j++) {
+                const cell = document.querySelector(`.game-cell[data-row="${i}"][data-col="${j}"]`);
+                if (!cell) continue;
+
+                cell.className = 'game-cell';
+                if (this.board[i][j].isMine && this.isDefensePhase) {
+                    cell.classList.add('mine');
+                }
+                if (this.board[i][j].revealed) {
+                    cell.classList.add(this.board[i][j].isMine ? 'mine-hit' : 'revealed');
                 }
             }
         }
-    }
-
-    startDefensePhase() {
-        this.isDefensePhase = true;
-        this.isGameOver = false;
-        this.createBoard();
-        
-        const boardElement = document.getElementById('board');
-        if (boardElement) boardElement.classList.remove('hidden');
-        
-        const readyBtn = document.getElementById('ready-btn');
-        if (readyBtn) readyBtn.classList.add('hidden');
-        
-        document.querySelectorAll('.game-row').forEach(row => {
-            row.classList.remove('hidden');
-        });
-        
-        this.updateStatus(getTranslation('place_mines', { count: this.minesPerRow }));
-    }
-
-    confirmMines() {
-        for (let i = 0; i < this.rows; i++) {
-            if (this.board[i].filter(c => c.isMine).length !== this.minesPerRow) {
-                this.showNotification(getTranslation('row_not_complete', { row: i + 1 }));
-                return;
-            }
-        }
-        
-        this.hideMines();
-        this.startAttackPhase();
-    }
-
-    hideMines() {
-        document.querySelectorAll('.mine').forEach(cell => {
-            cell.classList.remove('mine');
-        });
-    }
-
-    startAttackPhase() {
-        this.isDefensePhase = false;
-        this.isGameOver = false;
-        this.playerHealth = 100;
-        this.currentRow = 0;
-        
-        const readyBtn = document.getElementById('ready-btn');
-        if (readyBtn) readyBtn.classList.add('hidden');
-        
-        document.querySelectorAll('.game-row').forEach(row => {
-            row.classList.remove('active', 'completed');
-            row.classList.add('hidden');
-        });
-        
-        const firstRow = document.querySelector('.game-row[data-row="0"]');
-        if (firstRow) {
-            firstRow.classList.remove('hidden');
-            firstRow.classList.add('active');
-        }
-        
-        if (this.gameMode === 'duo' || this.currentMode === 'attack') {
-            this.updateStatus(getTranslation('start_first_row'));
-        } else if (this.currentMode === 'defense') {
-            this.updateStatus(getTranslation('script_attacking'));
-            this.simulateAttacker();
-        }
-    }
-
-    simulateAttacker() {
-        this.isScriptAttacking = true;
-        this.attackInterval = setInterval(() => {
-            if (this.isGameOver || this.currentRow >= this.rows || this.playerHealth <= 0) {
-                clearInterval(this.attackInterval);
-                this.isScriptAttacking = false;
-                if (!this.isGameOver) {
-                    const result = this.currentMode === 'defense' 
-                        ? this.playerHealth <= 0 
-                        : this.currentRow >= this.rows;
-                    this.endGame(result);
-                    this.isGameOver = true;
-                }
-                return;
-            }
-
-            const col = Math.floor(Math.random() * this.cols);
-            const cell = document.querySelector(`.game-cell[data-row='${this.currentRow}'][data-col='${col}']`);
-
-            if (!this.board[this.currentRow][col].revealed) {
-                this.board[this.currentRow][col].revealed = true;
-                
-                if (this.board[this.currentRow][col].isMine) {
-                    if (cell) cell.classList.add('mine-hit');
-                    this.playerHealth -= 25;
-                    this.updateStatus(getTranslation('script_mine_hit', { health: this.playerHealth }));
-                    
-                    if (this.playerHealth <= 0) {
-                        this.endGame(this.currentMode === 'defense');
-                        this.isGameOver = true;
-                    }
-                } else {
-                    if (cell) cell.classList.add('revealed');
-                    const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
-                    if (currentRowElement) {
-                        currentRowElement.classList.remove('active');
-                        currentRowElement.classList.add('completed');
-                    }
-                    
-                    this.currentRow++;
-                    
-                    if (this.currentRow < this.rows) {
-                        const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
-                        if (nextRowElement) {
-                            nextRowElement.classList.remove('hidden');
-                            nextRowElement.classList.add('active');
-                        }
-                        this.updateStatus(getTranslation('script_next_row', { row: this.currentRow + 1 }));
-                    } else {
-                        this.endGame(this.currentMode === 'attack');
-                        this.isGameOver = true;
-                    }
-                }
-            }
-        }, 1000);
-    }
-
-    endGame(isWin) {
-        const gameOverMenu = document.getElementById('game-over-menu');
-        const gameOverTitle = document.getElementById('game-over-title');
-        
-        if (!gameOverMenu || !gameOverTitle) return;
-        
-        if (this.gameMode === 'online') {
-            gameOverTitle.textContent = isWin 
-                ? (this.role === 'attack' 
-                    ? "Система взломана! Победа атаки!" 
-                    : "Взлом предотвращен! Победа защиты!")
-                : (this.role === 'attack' 
-                    ? "Взлом предотвращен! Поражение атаки!" 
-                    : "Система взломана! Поражение защиты!");
-        } else if (this.gameMode === 'duo') {
-            gameOverTitle.textContent = isWin 
-                ? getTranslation('system_hacked_attack_wins') 
-                : getTranslation('hack_prevented_defense_wins');
-        } else {
-            gameOverTitle.textContent = isWin 
-                ? getTranslation('victory') 
-                : getTranslation('defeat');
-        }
-        
-        gameOverMenu.classList.remove('hidden');
-    }
-
-    updateStatus(text) {
-        const statusElement = document.getElementById('status');
-        if (statusElement) statusElement.textContent = text;
-    }
-
-    showMainMenu() {
-        const mainMenu = document.getElementById('main-menu');
-        const soloMode = document.getElementById('solo-mode');
-        const onlineMode = document.getElementById('online-mode');
-        const boardElement = document.getElementById('board');
-        const readyBtn = document.getElementById('ready-btn');
-        const gameOverMenu = document.getElementById('game-over-menu');
-        
-        if (mainMenu) mainMenu.classList.remove('hidden');
-        if (soloMode) soloMode.classList.add('hidden');
-        if (onlineMode) onlineMode.remove();
-        if (boardElement) boardElement.classList.add('hidden');
-        if (readyBtn) readyBtn.classList.add('hidden');
-        if (gameOverMenu) gameOverMenu.classList.add('hidden');
-        
-        this.updateStatus("");
-        this.resetGame();
-    }
-
-    resetGame() {
-        this.playerHealth = 100;
-        this.currentRow = 0;
-        this.isDefensePhase = true;
-        this.currentMode = null;
-        this.gameMode = null;
-        this.isScriptAttacking = false;
-        this.isGameOver = false;
-        this.role = null;
-        this.gameId = null;
-        
-        if (this.attackInterval) {
-            clearInterval(this.attackInterval);
-            this.attackInterval = null;
-        }
-        
-        const boardElement = document.getElementById('board');
-        if (boardElement) {
-            boardElement.innerHTML = '';
-            this.createBoard();
-        }
-    }
-
-    showNotification(message) {
-        const notification = document.getElementById('notification');
-        if (notification) {
-            notification.textContent = message;
-            notification.classList.remove('hidden');
-            setTimeout(() => {
-                notification.classList.add('hidden');
-            }, 2000);
-        }
-    }
-    
-    applyLanguage() {
-        document.querySelectorAll('[data-lang]').forEach(el => {
-            const key = el.getAttribute('data-lang');
-            el.textContent = getTranslation(key);
-        });
     }
 
     destroy() {
         if (this.attackInterval) {
             clearInterval(this.attackInterval);
-            this.attackInterval = null;
         }
-        if (this.websocket) {
-            this.websocket.close();
+        if (this.socket) {
+            this.socket.close();
         }
     }
-}
+
 
 function getTranslation(key, params = {}) {
     try {
