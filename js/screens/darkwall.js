@@ -71,9 +71,130 @@ class DarkwallGame {
         this.isScriptAttacking = false;
         this.isGameOver = false;
         this.attackInterval = null;
+       
         this.websocket = null;
         this.gameId = null;
-        this.role = null; // 'attack' или 'defense' для онлайн-режима
+        this.role = null; // 'attack' или 'defense'
+        this.opponentName = "Opponent";
+    }
+    async connectToServer() {
+        try {
+            const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous';
+            const wsUrl = `wss://your-server-url.com/ws/${userId}`;
+            
+            this.websocket = new WebSocket(wsUrl);
+            
+            this.websocket.onopen = () => {
+                this.updateStatus("Connected to server");
+                this.registerPlayer();
+            };
+            
+            this.websocket.onmessage = (event) => {
+                this.handleServerMessage(JSON.parse(event.data));
+            };
+            
+            this.websocket.onclose = () => {
+                this.updateStatus("Disconnected from server");
+                this.showNotification("Connection lost");
+            };
+            
+            this.websocket.onerror = (error) => {
+                console.error("WebSocket error:", error);
+                this.showNotification("Connection error");
+            };
+            
+        } catch (error) {
+            console.error("Connection error:", error);
+            this.showNotification("Failed to connect");
+        }
+    }
+
+     registerPlayer() {
+        const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        const message = {
+            type: 'register',
+            data: {
+                username: user?.username || `User${Math.floor(Math.random() * 1000)}`,
+                firstName: user?.first_name,
+                lastName: user?.last_name
+            }
+        };
+        this.websocket.send(JSON.stringify(message));
+    }
+
+    handleServerMessage(message) {
+        switch (message.type) {
+            case 'game_start':
+                this.handleGameStart(message.data);
+                break;
+            case 'game_update':
+                this.handleGameUpdate(message.data);
+                break;
+            case 'game_end':
+                this.handleGameEnd(message.data);
+                break;
+            case 'error':
+                this.showNotification(message.data.message);
+                break;
+        }
+    }
+
+    handleGameStart(data) {
+        this.role = data.role;
+        this.opponentName = data.opponent;
+        this.gameId = data.gameId;
+        
+        if (this.role === 'defense') {
+            this.startDefensePhase();
+            this.updateStatus(`Game started! Opponent: ${this.opponentName}`);
+        } else {
+            this.startAttackPhase();
+            this.updateStatus(`Game started! Opponent: ${this.opponentName}`);
+        }
+    }
+
+    handleGameUpdate(data) {
+        // Обновляем состояние игры на основе данных с сервера
+        this.board = data.board;
+        this.currentRow = data.currentRow;
+        this.playerHealth = data.playerHealth;
+        
+        // Обновляем визуальное представление доски
+        this.updateBoardView();
+        
+        // Обновляем статус
+        if (data.game_status === 'defense_setup') {
+            this.updateStatus(`Defense setup - ${data.time_left}s left`);
+        } else {
+            this.updateStatus(`Attack phase - ${data.time_left}s left`);
+        }
+    }
+
+    handleGameEnd(data) {
+        const isWin = (this.role === 'attack' && data.result === 'attack_wins') || 
+                     (this.role === 'defense' && data.result === 'defense_wins');
+        
+        this.endGame(isWin);
+    }
+
+    sendMoveToServer(move) {
+        if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+            const message = {
+                type: 'player_move',
+                data: move
+            };
+            this.websocket.send(JSON.stringify(message));
+        }
+    }
+
+    sendReadyToServer() {
+        if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+            const message = {
+                type: 'ready',
+                data: {}
+            };
+            this.websocket.send(JSON.stringify(message));
+        }
     }
 
     init() {
@@ -240,9 +361,9 @@ class DarkwallGame {
         }
     }
 
-    startOnlineGame() {
+   startOnlineGame() {
         this.gameMode = 'online';
-        this.connectToBot();
+        this.connectToServer();
         this.showOnlineWaitingScreen();
     }
 
@@ -290,22 +411,23 @@ class DarkwallGame {
         });
     }
 
-    joinOnlineGame(mode) {
+        joinOnlineGame(mode) {
         this.role = mode;
         document.getElementById('online-mode').remove();
         
+        const message = {
+            type: 'join_game',
+            data: { mode }
+        };
+        this.websocket.send(JSON.stringify(message));
+        
         if (mode === 'defense') {
             this.startDefensePhase();
-            this.updateStatus("Ожидаем атакующего...");
+            this.updateStatus("Waiting for attacker...");
         } else {
             this.startAttackPhase();
-            this.updateStatus("Ожидаем защитника...");
+            this.updateStatus("Waiting for defender...");
         }
-        
-        // Временная заглушка - имитация начала игры
-        setTimeout(() => {
-            this.updateStatus("Игра началась! Соперник: Player123");
-        }, 3000);
     }
 
     sendMoveToServer(move) {
@@ -370,8 +492,14 @@ class DarkwallGame {
         }
         
         this.hideMines();
-        this.startAttackPhase();
+
+        if (this.gameMode === 'online' && this.role === 'defense') {
+            this.sendReadyToServer();
+        } else {
+            this.startAttackPhase();
+        }
     }
+       
 
     hideMines() {
         document.querySelectorAll('.mine').forEach(cell => {
