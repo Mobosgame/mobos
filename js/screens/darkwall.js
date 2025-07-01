@@ -389,30 +389,29 @@ class DarkwallGame {
     }
 
     showOnlineModeSelection() {
-        const onlineModeHTML = `
-            <div class="game-menu" id="online-mode">
-                <h2>Онлайн режим</h2>
-                <button class="game-btn" id="online-attack-btn">⚔️ Атака</button>
-                <button class="game-btn" id="online-defense-btn">🛡️ Защита</button>
-                <button class="game-btn" id="online-back-btn">Назад</button>
-            </div>
-        `;
-        
-        document.querySelector('.game-container').insertAdjacentHTML('beforeend', onlineModeHTML);
-        
-        document.getElementById('online-attack-btn').addEventListener('click', () => {
-            this.joinOnlineGame('attack');
-        });
-        
-        document.getElementById('online-defense-btn').addEventListener('click', () => {
-            this.joinOnlineGame('defense');
-        });
-        
-        document.getElementById('online-back-btn').addEventListener('click', () => {
-            document.getElementById('online-mode').remove();
-            this.showMainMenu();
-        });
-    }
+    const onlineModeHTML = `
+        <div class="game-menu" id="online-mode">
+            <h2>Онлайн режим</h2>
+            <button class="game-btn" id="online-attack-btn">⚔️ Атака</button>
+            <button class="game-btn" id="online-defense-btn">🛡️ Защита</button>
+            <button class="game-btn" id="online-back-btn">Назад</button>
+        </div>
+    `;
+    
+    document.getElementById('darkwall-game-container').innerHTML = onlineModeHTML;
+    
+    document.getElementById('online-attack-btn').addEventListener('click', () => {
+        this.joinOnlineGame('attack');
+    });
+    
+    document.getElementById('online-defense-btn').addEventListener('click', () => {
+        this.joinOnlineGame('defense');
+    });
+    
+    document.getElementById('online-back-btn').addEventListener('click', () => {
+        this.showMainMenu();
+    });
+}
 
         joinOnlineGame(mode) {
         this.role = mode;
