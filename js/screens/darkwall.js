@@ -80,7 +80,7 @@ class DarkwallGame {
     async connectToServer() {
         try {
             const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous';
-            const wsUrl = `wss://your-server-url.com/ws/${userId}`;
+            const wsUrl = `wss://localhost:8000/ws/${userId}`;
             
             this.websocket = new WebSocket(wsUrl);
             
