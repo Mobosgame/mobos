@@ -78,11 +78,9 @@ class DarkwallGame {
         this.isScriptAttacking = false;
         this.isGameOver = false;
         this.attackInterval = null;
-        this.websocket = null;
-        this.gameId = null;
+        this.socket = null;
         this.role = null;
         this.opponent = null;
-        this.socket = null;
     }
 
     init() {
@@ -229,7 +227,11 @@ class DarkwallGame {
         const userId = user?.id || `user_${Math.random().toString(36).substr(2, 9)}`;
         const username = user?.username || user?.first_name || 'Player';
 
-        this.socket = new WebSocket(`ws://localhost:8000/ws/${userId}`);
+        const socketUrl = window.location.hostname === 'localhost' 
+            ? 'ws://localhost:8000' 
+            : `wss://${window.location.host}`;
+        
+        this.socket = new WebSocket(`${socketUrl}/ws/${userId}`);
 
         this.socket.onopen = () => {
             this.updateStatus("Подключение к серверу...");
@@ -272,8 +274,9 @@ class DarkwallGame {
             case 'error':
                 this.showNotification(message.data.message);
                 break;
-            default:
-                console.log("Unknown message type:", message.type);
+            case 'waiting':
+                this.updateStatus("Ожидаем соперника...");
+                break;
         }
     }
 
@@ -308,10 +311,21 @@ class DarkwallGame {
         }
     }
 
-    handleGameEnd(data) {
-        const isWin = (this.role === 'attack' && data.result === 'attack_wins') || 
-                     (this.role === 'defense' && data.result === 'defense_wins');
-        this.endGame(isWin);
+    renderBoard() {
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.cols; j++) {
+                const cell = document.querySelector(`.game-cell[data-row="${i}"][data-col="${j}"]`);
+                if (!cell) continue;
+
+                cell.className = 'game-cell';
+                if (this.board[i][j].isMine && this.isDefensePhase) {
+                    cell.classList.add('mine');
+                }
+                if (this.board[i][j].revealed) {
+                    cell.classList.add(this.board[i][j].isMine ? 'mine-hit' : 'revealed');
+                }
+            }
+        }
     }
 
     showOnlineModeSelection() {
@@ -363,22 +377,7 @@ class DarkwallGame {
         }
     }
 
-    renderBoard() {
-        for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.cols; j++) {
-                const cell = document.querySelector(`.game-cell[data-row="${i}"][data-col="${j}"]`);
-                if (!cell) continue;
-
-                cell.className = 'game-cell';
-                if (this.board[i][j].isMine && this.isDefensePhase) {
-                    cell.classList.add('mine');
-                }
-                if (this.board[i][j].revealed) {
-                    cell.classList.add(this.board[i][j].isMine ? 'mine-hit' : 'revealed');
-                }
-            }
-        }
-    }
+    // ... остальные методы (startDefensePhase, confirmMines, endGame и т.д.) ...
 
     destroy() {
         if (this.attackInterval) {
@@ -388,7 +387,7 @@ class DarkwallGame {
             this.socket.close();
         }
     }
-
+}
 
 function getTranslation(key, params = {}) {
     try {
