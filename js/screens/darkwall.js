@@ -10,7 +10,7 @@ function initDarkwall() {
 
     document.querySelector('#darkwall-screen .close-btn').addEventListener('click', () => {
         if (window.darkwallGame) {
-            window.darkwallGame.destroy();
+            window.darkwallGame.showMainMenu();
         }
         goBack();
     });
@@ -19,18 +19,13 @@ function initDarkwall() {
 }
 
 function initDarkwallGame() {
-    // Очищаем предыдущую игру если есть
-    if (window.darkwallGame) {
-        window.darkwallGame.destroy();
-    }
-
     const gameHTML = `
         <div class="game-container">
             <div class="game-menu" id="main-menu">
                 <h2 data-lang="darkwall_game">${getTranslation('darkwall_game')}</h2>
                 <button class="game-btn" id="solo-btn" data-lang="solo_mode">${getTranslation('solo_mode')}</button>
                 <button class="game-btn" id="duo-btn" data-lang="duo_mode">${getTranslation('duo_mode')}</button>
-                <button class="game-btn" id="online-btn" data-lang="online_mode">Онлайн</button>
+                <button class="game-btn" id="online-btn">Онлайн</button>
             </div>
 
             <div class="game-menu hidden" id="solo-mode">
@@ -44,26 +39,22 @@ function initDarkwallGame() {
             
             <div class="game-info-bar">
                 <div class="game-status" id="status"></div>
-                <button id="ready-btn" class="game-btn hidden">${getTranslation('ready')}</button>
+                <button id="ready-btn" class="game-btn hidden" data-lang="ready">${getTranslation('ready')}</button>
             </div>
 
             <div id="notification" class="game-notification hidden"></div>
 
             <div id="game-over-menu" class="game-over-menu hidden">
                 <h2 id="game-over-title"></h2>
-                <button class="game-btn" id="ok-btn">${getTranslation('ok')}</button>
+                <button class="game-btn" id="ok-btn" data-lang="ok">${getTranslation('ok')}</button>
             </div>
         </div>
     `;
     
     document.getElementById('darkwall-game-container').innerHTML = gameHTML;
-    
-    // Инициализируем игру сразу
-    window.darkwallGame = new DarkwallGame();
-    window.darkwallGame.init();
-    
-    // Показываем главное меню
     document.getElementById('main-menu').classList.remove('hidden');
+    
+    initGameLogic();
 }
 
 class DarkwallGame {
@@ -76,13 +67,13 @@ class DarkwallGame {
         this.playerHealth = 100;
         this.currentRow = 0;
         this.isDefensePhase = true;
-        this.gameMode = null;
+        this.gameMode = null; // 'solo', 'duo', 'online'
         this.isScriptAttacking = false;
         this.isGameOver = false;
         this.attackInterval = null;
-        this.socket = null;
-        this.role = null;
-        this.opponent = null;
+        this.websocket = null;
+        this.gameId = null;
+        this.role = null; // 'attack' или 'defense' для онлайн-режима
     }
 
     init() {
@@ -91,29 +82,159 @@ class DarkwallGame {
         this.applyLanguage();
     }
 
+    createBoard() {
+        const boardElement = document.getElementById('board');
+        if (!boardElement) return;
+        
+        boardElement.innerHTML = '';
+        this.board = [];
+
+        for (let i = 0; i < this.rows; i++) {
+            const row = document.createElement('div');
+            row.className = 'game-row hidden';
+            row.dataset.row = i;
+            this.board[i] = [];
+
+            for (let j = 0; j < this.cols; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'game-cell';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                cell.addEventListener('click', (e) => this.handleCellClick(e));
+                row.appendChild(cell);
+                this.board[i][j] = { isMine: false, revealed: false };
+            }
+            boardElement.appendChild(row);
+        }
+    }
+
+    handleCellClick(e) {
+        if (this.isGameOver || (this.isScriptAttacking && this.gameMode !== 'online')) return;
+        
+        const cell = e.target;
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+
+        if (this.gameMode === 'online') {
+            this.sendMoveToServer({ row, col });
+            return;
+        }
+
+        if (this.isDefensePhase) {
+            this.handleDefenseClick(row, col, cell);
+        } else {
+            this.handleAttackClick(row, col, cell);
+        }
+    }
+
+    handleDefenseClick(row, col, cell) {
+        if (this.board[row][col].isMine) {
+            this.board[row][col].isMine = false;
+            cell.classList.remove('mine');
+        } else {
+            const minesInRow = this.board[row].filter(c => c.isMine).length;
+            if (minesInRow >= this.minesPerRow) {
+                this.showNotification(getTranslation('max_mines_reached', { count: this.minesPerRow }));
+                return;
+            }
+
+            this.board[row][col].isMine = true;
+            cell.classList.add('mine');
+        }
+
+        const rowElement = cell.closest('.game-row');
+        const minesCount = this.board[row].filter(c => c.isMine).length;
+        
+        if (minesCount === this.minesPerRow) {
+            rowElement.classList.add('completed');
+        } else {
+            rowElement.classList.remove('completed');
+        }
+
+        this.checkAllRowsComplete();
+    }
+    
+    checkAllRowsComplete() {
+        let allComplete = true;
+        for (let i = 0; i < this.rows; i++) {
+            const minesCount = this.board[i].filter(cell => cell.isMine).length;
+            if (minesCount < this.minesPerRow) {
+                allComplete = false;
+                break;
+            }
+        }
+        
+        if (allComplete) {
+            this.updateStatus("");
+            document.getElementById('ready-btn').classList.remove('hidden');
+        } else {
+            this.updateStatus(getTranslation('place_mines', { count: this.minesPerRow }));
+            document.getElementById('ready-btn').classList.add('hidden');
+        }
+    }
+
+    handleAttackClick(row, col, cell) {
+        if (row !== this.currentRow || this.board[row][col].revealed || this.isGameOver) return;
+
+        this.board[row][col].revealed = true;
+
+        if (this.board[row][col].isMine) {
+            cell.classList.add('mine-hit');
+            this.playerHealth -= 25;
+            this.updateStatus(getTranslation('mine_hit', { health: this.playerHealth }));
+            
+            if (this.playerHealth <= 0) {
+                this.endGame(this.currentMode === 'defense');
+                this.isGameOver = true;
+            }
+        } else {
+            cell.classList.add('revealed');
+            const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
+            currentRowElement.classList.remove('active');
+            currentRowElement.classList.add('completed');
+            
+            this.currentRow++;
+            
+            if (this.currentRow < this.rows) {
+                const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
+                nextRowElement.classList.remove('hidden');
+                nextRowElement.classList.add('active');
+                this.updateStatus(getTranslation('progress_row', { row: this.currentRow + 1 }));
+            } else {
+                this.endGame(this.currentMode === 'attack');
+                this.isGameOver = true;
+            }
+        }
+    }
+
     setupEventListeners() {
-        // Используем делегирование событий для надежности
-        document.querySelector('.game-container').addEventListener('click', (e) => {
-            if (e.target.id === 'solo-btn') this.startGame('solo');
-            else if (e.target.id === 'duo-btn') this.startGame('duo');
-            else if (e.target.id === 'online-btn') this.startOnlineGame();
-            else if (e.target.id === 'attack-btn') this.setMode('attack');
-            else if (e.target.id === 'defense-btn') this.setMode('defense');
-            else if (e.target.id === 'ready-btn') this.confirmMines();
-            else if (e.target.id === 'ok-btn') this.showMainMenu();
-            else if (e.target.id === 'back-btn-menu') this.showMainMenu();
-            else if (e.target.id === 'online-attack-btn') this.joinOnlineGame('attack');
-            else if (e.target.id === 'online-defense-btn') this.joinOnlineGame('defense');
-            else if (e.target.id === 'online-back-btn') this.showMainMenu();
-        });
+        const soloBtn = document.getElementById('solo-btn');
+        const duoBtn = document.getElementById('duo-btn');
+        const onlineBtn = document.getElementById('online-btn');
+        const attackBtn = document.getElementById('attack-btn');
+        const defenseBtn = document.getElementById('defense-btn');
+        const readyBtn = document.getElementById('ready-btn');
+        const okBtn = document.getElementById('ok-btn');
+        const backBtnMenu = document.getElementById('back-btn-menu');
+        
+        if (soloBtn) soloBtn.addEventListener('click', () => this.startGame('solo'));
+        if (duoBtn) duoBtn.addEventListener('click', () => this.startGame('duo'));
+        if (onlineBtn) onlineBtn.addEventListener('click', () => this.startOnlineGame());
+        if (attackBtn) attackBtn.addEventListener('click', () => this.setMode('attack'));
+        if (defenseBtn) defenseBtn.addEventListener('click', () => this.setMode('defense'));
+        if (readyBtn) readyBtn.addEventListener('click', this.confirmMines.bind(this));
+        if (okBtn) okBtn.addEventListener('click', this.showMainMenu.bind(this));
+        if (backBtnMenu) backBtnMenu.addEventListener('click', this.showMainMenu.bind(this));
     }
 
     startGame(mode) {
         this.gameMode = mode;
-        document.getElementById('main-menu').classList.add('hidden');
+        const mainMenu = document.getElementById('main-menu');
+        if (mainMenu) mainMenu.classList.add('hidden');
 
         if (mode === 'solo') {
-            document.getElementById('solo-mode').classList.remove('hidden');
+            const soloMode = document.getElementById('solo-mode');
+            if (soloMode) soloMode.classList.remove('hidden');
         } else {
             this.startDefensePhase();
         }
@@ -121,52 +242,26 @@ class DarkwallGame {
 
     startOnlineGame() {
         this.gameMode = 'online';
-        this.connectToServer();
+        this.connectToBot();
+        this.showOnlineWaitingScreen();
     }
 
-    connectToServer() {
-        try {
-            const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
-            const userId = user?.id || `user_${Math.random().toString(36).substr(2, 9)}`;
-            const username = user?.username || user?.first_name || 'Player';
+    connectToBot() {
+        // Временная заглушка - в реальном приложении здесь будет подключение к WebSocket
+        console.log("Connecting to bot...");
+        this.updateStatus("Подключение к серверу...");
+        
+        // Имитация подключения
+        setTimeout(() => {
+            this.showOnlineModeSelection();
+        }, 1500);
+    }
 
-            const socketUrl = window.location.hostname === 'localhost' 
-                ? 'ws://localhost:8000' 
-                : `wss://${window.location.host}`;
-            
-            this.socket = new WebSocket(`${socketUrl}/ws/${userId}`);
-
-            this.socket.onopen = () => {
-                this.updateStatus("Подключение к серверу...");
-                this.socket.send(JSON.stringify({
-                    type: 'register',
-                    data: { username }
-                }));
-                this.showOnlineModeSelection();
-            };
-
-            this.socket.onmessage = (event) => {
-                const message = JSON.parse(event.data);
-                this.handleServerMessage(message);
-            };
-
-            this.socket.onclose = () => {
-                if (!this.isGameOver) {
-                    this.showNotification("Соединение с сервером потеряно");
-                    this.showMainMenu();
-                }
-            };
-
-            this.socket.onerror = (error) => {
-                console.error("WebSocket error:", error);
-                this.showNotification("Ошибка соединения. Попробуйте позже");
-                this.showMainMenu();
-            };
-        } catch (e) {
-            console.error("Connection error:", e);
-            this.showNotification("Ошибка подключения");
-            this.showMainMenu();
-        }
+    showOnlineWaitingScreen() {
+        const mainMenu = document.getElementById('main-menu');
+        if (mainMenu) mainMenu.classList.add('hidden');
+        
+        this.updateStatus("Поиск соперника...");
     }
 
     showOnlineModeSelection() {
@@ -180,10 +275,22 @@ class DarkwallGame {
         `;
         
         document.querySelector('.game-container').insertAdjacentHTML('beforeend', onlineModeHTML);
-        document.getElementById('main-menu').classList.add('hidden');
+        
+        document.getElementById('online-attack-btn').addEventListener('click', () => {
+            this.joinOnlineGame('attack');
+        });
+        
+        document.getElementById('online-defense-btn').addEventListener('click', () => {
+            this.joinOnlineGame('defense');
+        });
+        
+        document.getElementById('online-back-btn').addEventListener('click', () => {
+            document.getElementById('online-mode').remove();
+            this.showMainMenu();
+        });
     }
 
-   joinOnlineGame(mode) {
+    joinOnlineGame(mode) {
         this.role = mode;
         document.getElementById('online-mode').remove();
         
@@ -454,10 +561,28 @@ class DarkwallGame {
             clearInterval(this.attackInterval);
             this.attackInterval = null;
         }
-        if (this.socket) {
-            this.socket.close();
-            this.socket = null;
+        if (this.websocket) {
+            this.websocket.close();
         }
+    }
+}
+
+function getTranslation(key, params = {}) {
+    try {
+        const lang = window.currentSettings?.language || 'ru';
+        const translations = window.translations[lang] || window.translations.ru || {};
+        let text = translations[key] || key;
+
+        if (params) {
+            for (const [param, value] of Object.entries(params)) {
+                text = text.replace(`{${param}}`, value);
+            }
+        }
+
+        return text;
+    } catch (e) {
+        console.error(`Translation error for key "${key}":`, e);
+        return key;
     }
 }
 
@@ -465,10 +590,3 @@ function initGameLogic() {
     window.darkwallGame = new DarkwallGame();
     window.darkwallGame.init();
 }
-
-// Инициализируем игру при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('darkwall-screen')) {
-        initDarkwall();
-    }
-});
