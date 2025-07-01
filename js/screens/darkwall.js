@@ -59,6 +59,9 @@ function initDarkwallGame() {
 
 class DarkwallGame {
     constructor() {
+        this.database = firebase.database();
+        this.gameRef = null;
+     
         this.rows = 7;
         this.cols = 4;
         this.minesPerRow = 2;
@@ -77,6 +80,44 @@ class DarkwallGame {
         this.role = null; // 'attack' или 'defense'
         this.opponentName = "Opponent";
     }
+
+    async joinOnlineGame(mode) {
+        this.role = mode;
+        const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest_'+Math.random().toString(36).substr(2, 8);
+        
+        // Создаем или присоединяемся к игре
+        this.gameRef = this.database.ref('games').push({
+            players: {
+                [userId]: {
+                    role: mode,
+                    ready: false
+                }
+            },
+            status: 'waiting'
+        });
+
+        // Слушаем изменения в игре
+        this.gameRef.on('value', (snapshot) => {
+            const gameData = snapshot.val();
+            this.handleGameUpdate(gameData);
+        });
+    }
+
+    handleGameUpdate(gameData) {
+        if (gameData.status === 'started') {
+            // Игра началась
+            const players = gameData.players;
+            const opponentId = Object.keys(players).find(id => id !== this.userId);
+            
+            if (this.role === 'defense') {
+                this.startDefensePhase();
+                this.updateStatus(`Игра началась! Соперник: ${players[opponentId].name}`);
+            } else {
+                this.startAttackPhase();
+                this.updateStatus(`Игра началась! Соперник: ${players[opponentId].name}`);
+            }
+        }
+    
     async connectToServer() {
     try {
         const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous_' + Math.random().toString(36).substr(2, 9);
