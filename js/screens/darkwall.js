@@ -383,6 +383,261 @@ class DarkwallGame {
     // ... остальные методы (setMode, startDefensePhase, confirmMines, startAttackPhase, 
     // simulateAttacker, endGame, updateStatus, showNotification, showMainMenu, resetGame) 
     // остаются без изменений, как в предыдущей реализации ...
+
+    setMode(mode) {
+        this.currentMode = mode;
+        const soloMode = document.getElementById('solo-mode');
+        if (soloMode) soloMode.classList.add('hidden');
+        
+        const boardElement = document.getElementById('board');
+        if (boardElement) boardElement.classList.remove('hidden');
+
+        if (mode === 'attack') {
+            this.createBoard();
+            this.placeRandomMines();
+            this.startAttackPhase();
+        } else {
+            this.startDefensePhase();
+        }
+    }
+
+    placeRandomMines() {
+        for (let i = 0; i < this.rows; i++) {
+            let placed = 0;
+            while (placed < this.minesPerRow) {
+                const col = Math.floor(Math.random() * this.cols);
+                if (!this.board[i][col].isMine) {
+                    this.board[i][col].isMine = true;
+                    placed++;
+                }
+            }
+        }
+    }
+
+    startDefensePhase() {
+        this.isDefensePhase = true;
+        this.isGameOver = false;
+        this.createBoard();
+        
+        const boardElement = document.getElementById('board');
+        if (boardElement) boardElement.classList.remove('hidden');
+        
+        const readyBtn = document.getElementById('ready-btn');
+        if (readyBtn) readyBtn.classList.add('hidden');
+        
+        document.querySelectorAll('.game-row').forEach(row => {
+            row.classList.remove('hidden');
+        });
+        
+        this.updateStatus(getTranslation('place_mines', { count: this.minesPerRow }));
+    }
+
+    confirmMines() {
+        for (let i = 0; i < this.rows; i++) {
+            if (this.board[i].filter(c => c.isMine).length !== this.minesPerRow) {
+                this.showNotification(getTranslation('row_not_complete', { row: i + 1 }));
+                return;
+            }
+        }
+        
+        this.hideMines();
+        this.startAttackPhase();
+    }
+
+    hideMines() {
+        document.querySelectorAll('.mine').forEach(cell => {
+            cell.classList.remove('mine');
+        });
+    }
+
+    startAttackPhase() {
+        this.isDefensePhase = false;
+        this.isGameOver = false;
+        this.playerHealth = 100;
+        this.currentRow = 0;
+        
+        const readyBtn = document.getElementById('ready-btn');
+        if (readyBtn) readyBtn.classList.add('hidden');
+        
+        document.querySelectorAll('.game-row').forEach(row => {
+            row.classList.remove('active', 'completed');
+            row.classList.add('hidden');
+        });
+        
+        const firstRow = document.querySelector('.game-row[data-row="0"]');
+        if (firstRow) {
+            firstRow.classList.remove('hidden');
+            firstRow.classList.add('active');
+        }
+        
+        if (this.gameMode === 'duo' || this.currentMode === 'attack') {
+            this.updateStatus(getTranslation('start_first_row'));
+        } else if (this.currentMode === 'defense') {
+            this.updateStatus(getTranslation('script_attacking'));
+            this.simulateAttacker();
+        }
+    }
+
+    simulateAttacker() {
+        this.isScriptAttacking = true;
+        this.attackInterval = setInterval(() => {
+            if (this.isGameOver || this.currentRow >= this.rows || this.playerHealth <= 0) {
+                clearInterval(this.attackInterval);
+                this.isScriptAttacking = false;
+                if (!this.isGameOver) {
+                    const result = this.currentMode === 'defense' 
+                        ? this.playerHealth <= 0 
+                        : this.currentRow >= this.rows;
+                    this.endGame(result);
+                    this.isGameOver = true;
+                }
+                return;
+            }
+
+            const col = Math.floor(Math.random() * this.cols);
+            const cell = document.querySelector(`.game-cell[data-row='${this.currentRow}'][data-col='${col}']`);
+
+            if (!this.board[this.currentRow][col].revealed) {
+                this.board[this.currentRow][col].revealed = true;
+                
+                if (this.board[this.currentRow][col].isMine) {
+                    if (cell) cell.classList.add('mine-hit');
+                    this.playerHealth -= 25;
+                    this.updateStatus(getTranslation('script_mine_hit', { health: this.playerHealth }));
+                    
+                    if (this.playerHealth <= 0) {
+                        this.endGame(this.currentMode === 'defense');
+                        this.isGameOver = true;
+                    }
+                } else {
+                    if (cell) cell.classList.add('revealed');
+                    const currentRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
+                    if (currentRowElement) {
+                        currentRowElement.classList.remove('active');
+                        currentRowElement.classList.add('completed');
+                    }
+                    
+                    this.currentRow++;
+                    
+                    if (this.currentRow < this.rows) {
+                        const nextRowElement = document.querySelector(`.game-row[data-row="${this.currentRow}"]`);
+                        if (nextRowElement) {
+                            nextRowElement.classList.remove('hidden');
+                            nextRowElement.classList.add('active');
+                        }
+                        this.updateStatus(getTranslation('script_next_row', { row: this.currentRow + 1 }));
+                    } else {
+                        this.endGame(this.currentMode === 'attack');
+                        this.isGameOver = true;
+                    }
+                }
+            }
+        }, 1000);
+    }
+
+    endGame(isWin) {
+        const gameOverMenu = document.getElementById('game-over-menu');
+        const gameOverTitle = document.getElementById('game-over-title');
+        
+        if (!gameOverMenu || !gameOverTitle) return;
+        
+        if (this.gameMode === 'online') {
+            gameOverTitle.textContent = isWin 
+                ? (this.role === 'attack' 
+                    ? "Система взломана! Победа атаки!" 
+                    : "Взлом предотвращен! Победа защиты!")
+                : (this.role === 'attack' 
+                    ? "Взлом предотвращен! Поражение атаки!" 
+                    : "Система взломана! Поражение защиты!");
+        } else if (this.gameMode === 'duo') {
+            gameOverTitle.textContent = isWin 
+                ? getTranslation('system_hacked_attack_wins') 
+                : getTranslation('hack_prevented_defense_wins');
+        } else {
+            gameOverTitle.textContent = isWin 
+                ? getTranslation('victory') 
+                : getTranslation('defeat');
+        }
+        
+        gameOverMenu.classList.remove('hidden');
+    }
+
+    updateStatus(text) {
+        const statusElement = document.getElementById('status');
+        if (statusElement) statusElement.textContent = text;
+    }
+
+    showMainMenu() {
+        const mainMenu = document.getElementById('main-menu');
+        const soloMode = document.getElementById('solo-mode');
+        const onlineMode = document.getElementById('online-mode');
+        const boardElement = document.getElementById('board');
+        const readyBtn = document.getElementById('ready-btn');
+        const gameOverMenu = document.getElementById('game-over-menu');
+        
+        if (mainMenu) mainMenu.classList.remove('hidden');
+        if (soloMode) soloMode.classList.add('hidden');
+        if (onlineMode) onlineMode.remove();
+        if (boardElement) boardElement.classList.add('hidden');
+        if (readyBtn) readyBtn.classList.add('hidden');
+        if (gameOverMenu) gameOverMenu.classList.add('hidden');
+        
+        this.updateStatus("");
+        this.resetGame();
+    }
+
+    resetGame() {
+        this.playerHealth = 100;
+        this.currentRow = 0;
+        this.isDefensePhase = true;
+        this.currentMode = null;
+        this.gameMode = null;
+        this.isScriptAttacking = false;
+        this.isGameOver = false;
+        this.role = null;
+        this.gameId = null;
+        
+        if (this.attackInterval) {
+            clearInterval(this.attackInterval);
+            this.attackInterval = null;
+        }
+        
+        const boardElement = document.getElementById('board');
+        if (boardElement) {
+            boardElement.innerHTML = '';
+            this.createBoard();
+        }
+    }
+
+    showNotification(message) {
+        const notification = document.getElementById('notification');
+        if (notification) {
+            notification.textContent = message;
+            notification.classList.remove('hidden');
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 2000);
+        }
+    }
+    
+    applyLanguage() {
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            const key = el.getAttribute('data-lang');
+            el.textContent = getTranslation(key);
+        });
+    }
+
+    destroy() {
+        if (this.attackInterval) {
+            clearInterval(this.attackInterval);
+            this.attackInterval = null;
+        }
+        if (this.websocket) {
+            this.websocket.close();
+        }
+    }
+
+
 }
 
 function initDarkwall() {
