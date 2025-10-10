@@ -1,1 +1,93 @@
 
+.app-link-card {
+    background: white;
+    border-radius: 12px;
+    margin: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.app-link-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.app-link {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    text-decoration: none;
+    color: inherit;
+    gap: 15px;
+}
+
+.app-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #4CAF50, #388E3C);
+    border-radius: 12px;
+    color: white;
+}
+
+.app-info {
+    flex: 1;
+}
+
+.app-info h3 {
+    margin: 0 0 5px 0;
+    color: #2E7D32;
+    font-size: 1.2rem;
+}
+
+.app-info p {
+    margin: 0 0 8px 0;
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.app-category {
+    display: inline-block;
+    background: #E8F5E9;
+    color: #2E7D32;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.app-arrow {
+    font-size: 1.5rem;
+    color: #4CAF50;
+    transition: transform 0.3s ease;
+}
+
+.app-link:hover .app-arrow {
+    transform: translateX(3px);
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 480px) {
+    .app-link {
+        padding: 15px;
+        gap: 12px;
+    }
+    
+    .app-icon {
+        font-size: 2rem;
+        width: 50px;
+        height: 50px;
+    }
+    
+    .app-info h3 {
+        font-size: 1.1rem;
+    }
+    
+    .app-info p {
+        font-size: 0.85rem;
+    }
+}
