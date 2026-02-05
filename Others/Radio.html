@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wi-Fi Рация P2P</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0f0f23;
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #2d2d4d;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #00ff9d;
+        }
+        
+        .subtitle {
+            color: #8a8aa3;
+            font-size: 14px;
+        }
+        
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(0, 255, 157, 0.1);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 255, 157, 0.2);
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff4757;
+        }
+        
+        .status-dot.online {
+            background: #00ff9d;
+            box-shadow: 0 0 10px #00ff9d;
+        }
+        
+        .status-dot.transmitting {
+            background: #ff0000;
+            box-shadow: 0 0 15px #ff0000;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            margin: 8px 0;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            background: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn.primary {
+            background: linear-gradient(135deg, #00ff9d, #00b8ff);
+        }
+        
+        .btn.danger {
+            background: linear-gradient(135deg, #ff4757, #ff3838);
+        }
+        
+        .btn.secondary {
+            background: #2d2d4d;
+        }
+        
+        .ptt-btn {
+            height: 160px;
+            font-size: 20px;
+            background: linear-gradient(135deg, #ff3838, #ff0000);
+            border-radius: 16px;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ptt-btn.active {
+            background: linear-gradient(135deg, #ff0000, #ff3838);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+        }
+        
+        .ptt-btn:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .code-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #00ff9d;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .room-code {
+            font-size: 36px;
+            letter-spacing: 5px;
+            font-weight: bold;
+            color: #00ff9d;
+            margin: 10px 0;
+        }
+        
+        .qr-container {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin: 20px 0;
+        }
+        
+        .room-input {
+            width: 100%;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #2d2d4d;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        
+        .room-input:focus {
+            outline: none;
+            border-color: #00ff9d;
+        }
+        
+        .users-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .users-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: #00ff9d;
+        }
+        
+        .users-count {
+            background: rgba(0, 255, 157, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .user-item.you {
+            background: rgba(0, 255, 157, 0.1);
+            border-left: 4px solid #00ff9d;
+        }
+        
+        .user-item.speaking {
+            background: rgba(255, 0, 0, 0.1);
+            border-left: 4px solid #ff0000;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00ff9d, #00b8ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 500;
+        }
+        
+        .user-status {
+            font-size: 12px;
+            color: #8a8aa3;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .action-buttons .btn {
+            margin: 0;
+        }
+        
+        .refresh-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #2d2d4d;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .refresh-btn:hover {
+            background: #3b3b5d;
+            transform: rotate(180deg);
+        }
+        
+        .permission-note {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #ffa500;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #8a8aa3;
+        }
+        
+        .loading:after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        /* Уведомления */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            z-index: 1000;
+            font-size: 14px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: toastSlide 0.3s ease, toastFade 0.3s ease 2.7s forwards;
+        }
+        
+        @keyframes toastSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        @keyframes toastFade {
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .ptt-btn {
+                height: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Экран приветствия -->
+        <div id="welcomeScreen">
+            <div class="header">
+                <h1>📡 Wi-Fi Рация</h1>
+                <div class="subtitle">Голосовая связь в локальной сети</div>
+            </div>
+            
+            <div class="permission-note">
+                ⚠️ Приложение запросит доступ к микрофону
+                <br><small>Нажмите "Разрешить" в появившемся окне</small>
+            </div>
+            
+            <button class="btn primary" onclick="initializeApp()" id="startBtn">
+                🚀 НАЧАТЬ
+            </button>
+        </div>
+        
+        <!-- Основной интерфейс -->
+        <div id="mainApp" class="hidden">
+            <!-- Статус бар -->
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Отключено</span>
+                </div>
+                <span id="roomInfo"></span>
+            </div>
+            
+            <!-- Выбор режима -->
+            <div id="modeSelection">
+                <button class="btn primary" onclick="createRoom()">
+                    📻 СОЗДАТЬ КОМНАТУ
+                </button>
+                <button class="btn" onclick="showJoinScreen()">
+                    🔗 ПОДКЛЮЧИТЬСЯ
+                </button>
+            </div>
+            
+            <!-- Создание комнаты -->
+            <div id="createScreen" class="hidden">
+                <div class="code-box">
+                    <div style="color: #8a8aa3; margin-bottom: 10px;">КОД КОМНАТЫ:</div>
+                    <div class="room-code" id="roomCode">------</div>
+                    <div style="color: #8a8aa3; font-size: 14px; margin-top: 10px;">
+                        Покажите этот код другим участникам
+                    </div>
+                </div>
+                
+                <div class="qr-container">
+                    <div id="qrCode"></div>
+                </div>
+                
+                <div class="users-panel">
+                    <div class="users-title">
+                        <span>👥 УЧАСТНИКИ</span>
+                        <div class="users-count">
+                            <span id="usersCount">1</span> чел.
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="refresh-btn" onclick="refreshParticipants()" title="Обновить">
+                            🔄
+                        </button>
+                        <button class="btn secondary" style="flex: 1;" onclick="copyRoomCode()">
+                            📋 Копировать код
+                        </button>
+                    </div>
+                    
+                    <div class="user-list" id="participantsList">
+                        <div class="user-item you">
+                            <div class="user-avatar">📡</div>
+                            <div class="user-info">
+                                <div class="user-name">Вы (Создатель)</div>
+                                <div class="user-status">В сети</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn danger" onclick="leaveRoom()">
+                    🚪 ЗАКРЫТЬ КОМНАТУ
+                </button>
+            </div>
+            
+            <!-- Подключение к комнате -->
+            <div id="joinScreen" class="hidden">
+                <div class="input-group">
+                    <input type="text" 
+                           class="room-input" 
+                           id="roomInput" 
+                           placeholder="ВВЕДИТЕ КОД КОМНАТЫ"
+                           maxlength="6"
+                           oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
+                </div>
+                
+                <div style="text-align: center; margin: 15px 0; color: #8a8aa3;">
+                    или
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn" onclick="scanQRCode()">
+                        📷 Сканировать QR
+                    </button>
+                    <button class="btn" onclick="pasteFromClipboard()">
+                        📋 Вставить код
+                    </button>
+                </div>
+                
+                <button class="btn primary" onclick="joinRoom()" id="joinBtn">
+                    🔗 ПОДКЛЮЧИТЬСЯ
+                </button>
+                
+                <button class="btn secondary" onclick="backToMain()">
+                    ← Назад
+                </button>
+            </div>
+            
+            <!-- Интерфейс рации -->
+            <div id="radioScreen" class="hidden">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 20px; color: #00ff9d;">Канал: <span id="currentRoomCode">------</span></div>
+                </div>
+                
+                <div class="users-panel">
+                    <div class="users-title">
+                        <span>👥 В КАНАЛЕ</span>
+                        <button class="refresh-btn" onclick="refreshRoomUsers()" title="Обновить">
+                            🔄
+                        </button>
+                    </div>
+                    
+                    <div class="user-list" id="roomUsers">
+                        <!-- Участники комнаты появятся здесь -->
+                    </div>
+                </div>
+                
+                <button class="btn ptt-btn" id="pttButton"
+                        ontouchstart="startTransmitting()"
+                        ontouchend="stopTransmitting()"
+                        onmousedown="startTransmitting()"
+                        onmouseup="stopTransmitting()">
+                    🎤 НАЖМИ И ГОВОРИ
+                </button>
+                
+                <div style="text-align: center; margin: 10px 0; color: #8a8aa3; font-size: 14px;">
+                    Удерживайте кнопку для передачи голоса
+                </div>
+                
+                <button class="btn danger" onclick="disconnectFromRoom()">
+                    📴 ОТКЛЮЧИТЬСЯ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===================
+        let roomId = null;
+        let isCreator = false;
+        let isTransmitting = false;
+        let localStream = null;
+        let microphoneAllowed = false;
+        let participants = [];
+        let refreshInterval = null;
+
+        // =================== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ===================
+        async function initializeApp() {
+            showToast('🔄 Запрос разрешений...');
+            
+            try {
+                // ПРОСТОЙ ЗАПРОС МИКРОФОНА - только аудио, самый базовый
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+                
+                // Сразу останавливаем поток, нам нужно только разрешение
+                stream.getTracks().forEach(track => track.stop());
+                
+                microphoneAllowed = true;
+                showToast('✅ Микрофон разрешён!');
+                
+                // Переключаемся на основной интерфейс
+                document.getElementById('welcomeScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                updateStatus('Готов к работе', false);
+                
+            } catch (error) {
+                console.error('Ошибка разрешений:', error);
+                
+                if (error.name === 'NotAllowedError') {
+                    showToast('❌ Доступ к микрофону запрещён');
+                    alert('Для работы рации нужен доступ к микрофону.\n\nПожалуйста:\n1. Нажмите на иконку 🔒 в адресной строке\n2. Выберите "Разрешить" для микрофона\n3. Обновите страницу');
+                } else if (error.name === 'NotFoundError') {
+                    showToast('⚠️ Микрофон не найден');
+                    // Продолжаем без микрофона
+                    document.getElementById('welcomeScreen').classList.add('hidden');
+                    document.getElementById('mainApp').classList.remove('hidden');
+                    updateStatus('Только текст', false);
+                } else {
+                    showToast('⚠️ Продолжаем без микрофона');
+                    // Продолжаем без микрофона
+                    document.getElementById('welcomeScreen').classList.add('hidden');
+                    document.getElementById('mainApp').classList.remove('hidden');
+                    updateStatus('Только текст', false);
+                }
+            }
+        }
+
+        // =================== УПРАВЛЕНИЕ СТАТУСОМ ===================
+        function updateStatus(text, isConnected, isTransmitting = false) {
+            document.getElementById('statusText').textContent = text;
+            const dot = document.getElementById('statusDot');
+            
+            dot.className = 'status-dot';
+            if (isTransmitting) {
+                dot.classList.add('transmitting');
+            } else if (isConnected) {
+                dot.classList.add('online');
+            }
+            
+            // Обновляем информацию о комнате
+            if (roomId) {
+                document.getElementById('roomInfo').textContent = `Канал: ${roomId}`;
+            } else {
+                document.getElementById('roomInfo').textContent = '';
+            }
+        }
+
+        // =================== СОЗДАНИЕ КОМНАТЫ ===================
+        async function createRoom() {
+            roomId = generateRoomCode();
+            isCreator = true;
+            
+            // Сбрасываем участников
+            participants = [{
+                id: 'creator',
+                name: 'Вы (Создатель)',
+                isYou: true,
+                isSpeaking: false
+            }];
+            
+            // Показываем экран комнаты
+            document.getElementById('modeSelection').classList.add('hidden');
+            document.getElementById('createScreen').classList.remove('hidden');
+            document.getElementById('roomCode').textContent = roomId;
+            
+            // Генерация QR кода
+            const qrUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
+            document.getElementById('qrCode').innerHTML = `
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}" 
+                     alt="QR Code" style="max-width: 100%; border-radius: 8px;">
+                <div style="margin-top: 10px; color: black; font-size: 14px;">Сканируйте для подключения</div>
+            `;
+            
+            updateStatus(`Комната: ${roomId}`, true);
+            updateParticipantsList();
+            showToast(`Комната создана! Код: ${roomId}`);
+            
+            // Запускаем автообновление участников
+            startAutoRefresh();
+        }
+
+        // =================== АВТООБНОВЛЕНИЕ УЧАСТНИКОВ ===================
+        function startAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+            
+            // Обновляем каждые 3 секунды
+            refreshInterval = setInterval(() => {
+                if (isCreator && roomId) {
+                    simulateNewParticipants();
+                }
+            }, 3000);
+        }
+
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        }
+
+        function simulateNewParticipants() {
+            // В реальном приложении здесь был бы запрос к серверу
+            // Сейчас симулируем случайные подключения
+            
+            const shouldAddParticipant = Math.random() > 0.7; // 30% шанс
+            
+            if (shouldAddParticipant && participants.length < 5) {
+                const participantNames = ['Оператор-1', 'Оператор-2', 'Оператор-3', 'Оператор-4'];
+                const existingNames = participants.map(p => p.name);
+                const availableNames = participantNames.filter(name => !existingNames.includes(name));
+                
+                if (availableNames.length > 0) {
+                    const newName = availableNames[0];
+                    participants.push({
+                        id: 'user_' + Date.now(),
+                        name: newName,
+                        isYou: false,
+                        isSpeaking: false
+                    });
+                    
+                    updateParticipantsList();
+                    showToast(`👤 ${newName} подключился`);
+                }
+            }
+            
+            // Случайно меняем статус "говорит"
+            participants.forEach(participant => {
+                if (!participant.isYou && Math.random() > 0.8) {
+                    participant.isSpeaking = !participant.isSpeaking;
+                }
+            });
+            
+            updateParticipantsList();
+        }
+
+        function refreshParticipants() {
+            if (!isCreator) return;
+            
+            showToast('🔄 Обновление списка...');
+            
+            // В реальном приложении здесь запрос к серверу
+            // Сейчас просто симулируем
+            setTimeout(() => {
+                simulateNewParticipants();
+                showToast('✅ Список обновлён');
+            }, 500);
+        }
+
+        function updateParticipantsList() {
+            if (!isCreator) return;
+            
+            const participantsList = document.getElementById('participantsList');
+            const usersCount = document.getElementById('usersCount');
+            
+            // Обновляем счетчик
+            usersCount.textContent = participants.length;
+            
+            // Обновляем список
+            participantsList.innerHTML = '';
+            participants.forEach(participant => {
+                const userDiv = document.createElement('div');
+                userDiv.className = `user-item ${participant.isYou ? 'you' : ''} ${participant.isSpeaking ? 'speaking' : ''}`;
+                userDiv.innerHTML = `
+                    <div class="user-avatar">${participant.isYou ? '📡' : '👤'}</div>
+                    <div class="user-info">
+                        <div class="user-name">${participant.name}</div>
+                        <div class="user-status">${participant.isSpeaking ? '● Говорит' : 'В сети'}</div>
+                    </div>
+                `;
+                participantsList.appendChild(userDiv);
+            });
+        }
+
+        // =================== ПОДКЛЮЧЕНИЕ К КОМНАТЕ ===================
+        async function joinRoom() {
+            const input = document.getElementById('roomInput').value.trim().toUpperCase();
+            
+            if (!input || input.length < 4) {
+                showToast('⚠️ Введите код комнаты (минимум 4 символа)');
+                return;
+            }
+            
+            if (input === roomId) {
+                showToast('⚠️ Вы уже в этой комнате!');
+                return;
+            }
+            
+            roomId = input;
+            isCreator = false;
+            
+            // Блокируем кнопку на время подключения
+            const joinBtn = document.getElementById('joinBtn');
+            joinBtn.disabled = true;
+            joinBtn.innerHTML = '🔄 ПОДКЛЮЧЕНИЕ...';
+            
+            document.getElementById('joinScreen').classList.add('hidden');
+            document.getElementById('radioScreen').classList.remove('hidden');
+            document.getElementById('currentRoomCode').textContent = roomId;
+            
+            updateStatus(`Подключение к ${roomId}...`, false);
+            
+            try {
+                // Симулируем подключение к комнате
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Симулируем получение списка участников
+                participants = [
+                    { id: 'self', name: 'Вы', isYou: true, isSpeaking: false },
+                    { id: 'creator', name: 'Создатель', isYou: false, isSpeaking: false },
+                    { id: 'user1', name: 'Оператор-2', isYou: false, isSpeaking: false }
+                ];
+                
+                updateRoomUsers();
+                updateStatus(`Канал: ${roomId}`, true);
+                showToast('✅ Успешно подключено!');
+                
+                // Запускаем автообновление для клиента
+                startAutoRefresh();
+                
+            } catch (error) {
+                console.error('Ошибка подключения:', error);
+                showToast('❌ Не удалось подключиться');
+                updateStatus('Ошибка подключения', false);
+            } finally {
+                // Восстанавливаем кнопку
+                joinBtn.disabled = false;
+                joinBtn.innerHTML = '🔗 ПОДКЛЮЧИТЬСЯ';
+            }
+        }
+
+        function refreshRoomUsers() {
+            showToast('🔄 Обновление участников...');
+            
+            // В реальном приложении запрос к серверу
+            setTimeout(() => {
+                // Случайно меняем статус "говорит"
+                participants.forEach(participant => {
+                    if (!participant.isYou && Math.random() > 0.7) {
+                        participant.isSpeaking = !participant.isSpeaking;
+                    }
+                });
+                
+                updateRoomUsers();
+                showToast('✅ Список обновлён');
+            }, 500);
+        }
+
+        function updateRoomUsers() {
+            const roomUsers = document.getElementById('roomUsers');
+            roomUsers.innerHTML = '';
+            
+            participants.forEach(participant => {
+                const userDiv = document.createElement('div');
+                userDiv.className = `user-item ${participant.isYou ? 'you' : ''} ${participant.isSpeaking ? 'speaking' : ''}`;
+                userDiv.innerHTML = `
+                    <div class="user-avatar">${participant.isYou ? '📡' : '👤'}</div>
+                    <div class="user-info">
+                        <div class="user-name">${participant.name}</div>
+                        <div class="user-status">${participant.isSpeaking ? '● Говорит' : 'В сети'}</div>
+                    </div>
+                `;
+                roomUsers.appendChild(userDiv);
+            });
+        }
+
+        // =================== РАБОТА С АУДИО ===================
+        async function startTransmitting() {
+            if (!microphoneAllowed) {
+                showToast('⚠️ Микрофон не разрешён');
+                return;
+            }
+            
+            if (isTransmitting) return;
+            
+            isTransmitting = true;
+            document.getElementById('pttButton').classList.add('active');
+            updateStatus('ПЕРЕДАЧА', true, true);
+            
+            // Обновляем статус "говорит" для себя
+            if (isCreator) {
+                const self = participants.find(p => p.isYou);
+                if (self) self.isSpeaking = true;
+                updateParticipantsList();
+            } else {
+                const self = participants.find(p => p.isYou);
+                if (self) self.isSpeaking = true;
+                updateRoomUsers();
+            }
+            
+            try {
+                // Начинаем запись
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true,
+                        sampleRate: 8000
+                    }
+                });
+                
+                showToast('🎤 Передача...');
+                
+            } catch (error) {
+                console.error('Ошибка микрофона:', error);
+                showToast('❌ Ошибка микрофона');
+                stopTransmitting();
+            }
+        }
+
+        async function stopTransmitting() {
+            if (!isTransmitting) return;
+            
+            isTransmitting = false;
+            document.getElementById('pttButton').classList.remove('active');
+            updateStatus(`Канал: ${roomId}`, true, false);
+            
+            // Сбрасываем статус "говорит"
+            if (isCreator) {
+                const self = participants.find(p => p.isYou);
+                if (self) self.isSpeaking = false;
+                updateParticipantsList();
+            } else {
+                const self = participants.find(p => p.isYou);
+                if (self) self.isSpeaking = false;
+                updateRoomUsers();
+            }
+            
+            // Останавливаем поток
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            
+            showToast('✅ Передача завершена');
+        }
+
+        // =================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===================
+        function generateRoomCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return code;
+        }
+
+        function showJoinScreen() {
+            document.getElementById('modeSelection').classList.add('hidden');
+            document.getElementById('joinScreen').classList.remove('hidden');
+            
+            // Автозаполнение из URL
+            const params = new URLSearchParams(window.location.search);
+            const roomFromUrl = params.get('room');
+            if (roomFromUrl) {
+                document.getElementById('roomInput').value = roomFromUrl.toUpperCase();
+            }
+        }
+
+        function backToMain() {
+            stopAutoRefresh();
+            
+            document.getElementById('createScreen').classList.add('hidden');
+            document.getElementById('joinScreen').classList.add('hidden');
+            document.getElementById('radioScreen').classList.add('hidden');
+            document.getElementById('modeSelection').classList.remove('hidden');
+            
+            roomId = null;
+            isCreator = false;
+            participants = [];
+            updateStatus('Готов к работе', false);
+        }
+
+        function leaveRoom() {
+            showToast('🚪 Комната закрыта');
+            backToMain();
+        }
+
+        function disconnectFromRoom() {
+            showToast('📴 Отключено от комнаты');
+            backToMain();
+        }
+
+        function copyRoomCode() {
+            if (!roomId) return;
+            
+            navigator.clipboard.writeText(roomId)
+                .then(() => showToast('✅ Код скопирован!'))
+                .catch(() => {
+                    // Fallback
+                    const textArea = document.createElement('textarea');
+                    textArea.value = roomId;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showToast('✅ Код скопирован!');
+                });
+        }
+
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    const codeMatch = text.match(/[A-Z0-9]{4,6}/);
+                    if (codeMatch) {
+                        document.getElementById('roomInput').value = codeMatch[0];
+                        showToast('✅ Код вставлен');
+                    } else {
+                        showToast('❌ В буфере нет кода комнаты');
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка чтения буфера:', error);
+                showToast('❌ Не удалось прочитать буфер');
+            }
+        }
+
+        function scanQRCode() {
+            showToast('📷 В демо-режиме введите код вручную');
+            // В реальном приложении здесь был бы сканер QR
+        }
+
+        // =================== УВЕДОМЛЕНИЯ ===================
+        function showToast(message) {
+            // Удаляем старые уведомления
+            const oldToasts = document.querySelectorAll('.toast');
+            oldToasts.forEach(toast => toast.remove());
+            
+            // Создаем новое
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // Автоудаление через 3 секунды
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+
+        // =================== ОБРАБОТЧИКИ СОБЫТИЙ ===================
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isTransmitting) {
+                stopTransmitting();
+            }
+        });
+
+        // Предотвращаем контекстное меню на PTT кнопке
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.id === 'pttButton') {
+                e.preventDefault();
+            }
+        });
+
+        // Инициализация при загрузке
+        window.onload = function() {
+            // Проверяем URL параметры
+            const params = new URLSearchParams(window.location.search);
+            const roomFromUrl = params.get('room');
+            if (roomFromUrl && document.getElementById('roomInput')) {
+                document.getElementById('roomInput').value = roomFromUrl.toUpperCase();
+            }
+        };
+    </script>
+</body>
+</html>
